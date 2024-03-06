@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.adb": "gpr",
+        "*.java": "java",
+        "*.cpp": "cpp",
+        "locale": "cpp",
+        "list": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "vector": "cpp"
+    }
+}
