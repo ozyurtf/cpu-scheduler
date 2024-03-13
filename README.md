@@ -78,6 +78,8 @@ Now let's try to find a method that can meet all of these four conditions.
 
 ## Mutual Exclusion with Busy Waiting
 
+Continuously waiting and testing to see if a condition is met is called **busy waiting**. This waiting process wastes the CPU time. That's why it should be avoided. 
+
 **Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
 
 But using only this approach is not a good option because disabling interrupts will only affect the CPU that executed the process A in our case (because process A was the one that disabled interrupts in our example). In this case, there is no reason for the processes in other CPUs to intervene the process A and enter their own critical regions while the process A is in it's critical region. 
@@ -86,7 +88,70 @@ But using only this approach is not a good option because disabling interrupts w
 
 If the process A enter it's critical region, it sets this lock variable as 1 which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions, they will see that lock variable is 1 and they will have to wait until it is set to 0 (which means the critical region is left and one process can now enter it's own critical region).
 
-But using lock variables is problematic as well because two processes can see lock variable as 0 at the same time, they can both enter their critical regions at the same time.
+But when we use just lock variables, we might encounter with the problem that we observe with print spooler. Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
+
+**Peterson's Solution for Achieving Mutual Exclusion**: 
+
+Let's say that there are two processes: 
+
+
+```
+Process A:
+
+while (TRUE) {
+  while (turn!=0) {} // Wait until turn = 0
+  critical_region();
+  turn = 1;
+  noncritical_region();
+}
+```
+
+```
+Process B:
+
+while (TRUE) {
+  while (turn!=1) {} // Wait until turn = 1
+  critical_region();
+  turn = 0;
+  noncritical_region();
+}
+```
+
+When process A leaves the critical region, it sets turn variable to allow the process B to enter it's critical region. 
+Suppose that process B finishes its critical region quickly. After that, the turn variable will be set to 0 and both process A and process B will be in their non critical regions. 
+If process A executes it's loop again, enters the critical region, and sets the turn variable as 1, and enters it's non critical region, both process A and B will be in their 
+non critical regions and turn variable will  equal to 1. At that moment, if process A finishes it's non-critical region and goes back to the top of it's loop, 
+it won't be permitted to enter it's critical region because turn=1. 
+
+That's why, this kind of procedure is not a good solution because it violates the 3rd condition that we defined previously: 
+
+1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop a system that can be used in different configurations)
+2) **If there is a process running outside its critical region, it shouldn't block any process. (This will ensure that processes do not block each other unnecessarily when they are not accessing shared resources)**
+3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
+4) Two processes should not be in their critical regions at the same time.
+
+So, let's take a look at the **Peterson's solution** for achieving mutual exclusion.
+
+```
+#define FALSE 0
+#define TRUE 1
+#define N 2
+
+int turn;
+int interested[N];
+
+void enter_region(int process) {
+  int other;
+  other = 1 - process;
+  turn = process;
+  while (turn == process && interested[other] == TRUE)
+}
+
+void leave_region(int process) {
+  interested[process] = FALSE;
+}
+
+```
 
 
 
