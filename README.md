@@ -92,7 +92,7 @@ But when we use just lock variables, we might encounter with the problem that we
 
 So using just lock variables is not the best method to achieve mutual exclusion as well. Let's take a look at another method:
 
-## Peterson's Solution for Achieving Mutual Exclusion: 
+## Peterson's Solution for Achieving Mutual Exclusion
 
 Let's say that there are two processes: 
 
