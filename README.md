@@ -293,7 +293,7 @@ And if we look at from the consumer's perspective:
 
 To answer these questions, we should first introduce a new concept named **Pipe**. 
 
-# Pipe 
+## Pipe 
 
 Pipe is basically an inter-process communication mechanism that provides temporary storage between processes. A pipe is basically implemented with a buffer data structure in the kernel. And in the produer-consumer problem, the output of the producer is passed to this buffer and the consumer takes the information from the same buffer. 
 
@@ -304,6 +304,7 @@ And when a space becomes available in the buffer, the pipe unblocks the producer
 So, in summary pipe is a unidirectional data channel that can be used for inter-process communication. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
 
 
+## Fatal Race Condition
 
 
 
