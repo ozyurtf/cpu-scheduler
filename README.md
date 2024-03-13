@@ -2,7 +2,7 @@
 
 **Parallelism**: Distributing multiple instructions into different resources and running them at the same time in parallel. 
 
-## Inter-Process Communication
+# Inter-Process Communication
 
 In computer, there are programs that basically includes set of instructions that can handle some specific task. 
 
@@ -32,7 +32,7 @@ Using a shared storage like this is cool but it brings another issue: **race con
 
 **Race Condition**: When two or more processes read from the same resource and also write into the same resource at the same time, the final result depends on the running time of these processes. And we call this condition as **race condition** since the processes are kind of racing with each other to do their tasks.
 
-## Intra-Process Communication
+# Intra-Process Communication
 
 We have mentioned about the processes as well as the inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same address space and other resources. Therefore, there should be some kind of communication between them as well. 
 
@@ -46,7 +46,7 @@ Until now we have talked about scenarios in which multiple processes/threads acc
 
 And the **Read-Modify-Write Cycles** is a concept that are useful to introduce before going through different solutions for preventing these problems. 
 
-## Read-Modify-Write Cycles
+# Read-Modify-Write Cycles
 
 When multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The overall goal is for the code to reach consistent/same view of the data. 
 
@@ -56,7 +56,7 @@ When multiple processes or threads are accessing/sharing/modifying the shared da
 
 One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency.
 
-## Preventing Race Conditions
+# Preventing Race Conditions
 
 The main way to prevent race conditions is to prevent more than one process or thread from reading and writing the shared data at the same time. In other words, if one process or thread uses a shared variable or file, the other processs or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
 
@@ -76,7 +76,7 @@ in addition to the first condition that we defined previously
 
 Now let's try to find a method that can meet all of these four conditions. 
 
-## Mutual Exclusion with Busy Waiting
+# Mutual Exclusion with Busy Waiting
 
 **Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing race conditions was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using **interrupts**. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory exclusively without the fear of intervention. 
 
@@ -125,7 +125,7 @@ That's why, this kind of procedure is not a good solution because it violates th
 
 So using just lock variables is not the best method to achieve mutual exclusion as well. Let's take a look at other methods.
 
-### Peterson's Solution for Achieving Mutual Exclusion
+## Peterson's Solution for Achieving Mutual Exclusion
 
 ```
 #define FALSE 0
@@ -154,7 +154,7 @@ void leave_region(int process) {
 
 The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG:
 
-### TSL (Test and Set Lock): 
+## TSL (Test and Set Lock): 
 
 ```
 enter_region:
@@ -168,7 +168,7 @@ leave_region:
   RET                | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
-### XCHG: 
+## XCHG: 
 
 ```
 enter_region:
@@ -205,7 +205,7 @@ In addition, suppose  that there are two processes: process A and process B and 
 
 So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
 
-### Lock Implementation with Semi-Busy Waiting 
+# Lock Implementation with Semi-Busy Waiting 
 
 ```
 mutex_lock: 
@@ -227,7 +227,7 @@ mutex_unlock:
 
 We mentioned about process/thread trying to acquire a lock. And if the lock is not available for that process/thread, we call this ```lock contention```. 
 
-## Lock Contention
+# Lock Contention
 
 Lock contention depends on 
 
@@ -237,7 +237,7 @@ Lock contention depends on
 
 If the lock contention is low, this means that the length of time a process/thread waits for the lock variable to be unlocked is low. In other words, processes/threads don't wait too much and in that kind of scenario, TSL might be a good solution.
 
-### Producer Consumer Problem
+# Producer-Consumer Problem
 
 In producer-consumer problem, there are two processes. And t hey share a common buffer which it's size is fixed. 
 
@@ -246,6 +246,38 @@ One of these two processes produces information and puts it into this buffer. We
 Now imagine that the buffer is full and there is no empty space. In that case, if the producer wants to put a new information into this buffer, that would cause a problem. The solution in here is for the producer to go to sleep, and when the consumer removes one or more items and buffer has empty slot(s), the producer can be awakened and put it's information into the buffer. 
 
 Similarly, if the buffer is completely empty, and if the consumer wants to remove an item from that buffer, that's a problem too since there is nothing to remove. The solution for the consumer is to sleep and once the producer puts an information to the buffer and buffer becomes non-empty, the consumer can be awakened and consume the information in the buffer.
+
+Here is a smiple application of this problem:
+
+```
+#define N 100                // The length of buffer
+int count = 0;               // Number of items in the buffer
+
+void producer(void) {
+  int item = produce_item(); // Produce the next item
+  if (count == N) {
+    sleep();                 // If the buffer is full, don't put the item into the buffer and sleep until being awakened
+  }
+  insert_item();             // Now put the item into the buffer
+  count++;                   // Increase the number of items in the buffer by 1
+  if (count == 1) {
+    wakeup(consumer);        // If an item is available in the buffer, wake up the consumer and let it know about this
+  }
+}
+
+void consumer(void) {
+  if (count == 0) {      
+    sleep();                 // If the buffer is empty, don't attempt to extract item from the buffer and sleep until being awakened
+  }
+  int item = remove_item();  // Now extract an item from the buffer
+  count--;                   // Decrease the number of items in the buffer by 1
+  if (count == N-1) {
+    wakeup(producer);        // If the buffer was full before extracting an item, this means that an empty slot became available in the buffer. In that case, wake up the producer and let it know about this so that it can put a new item into the buffer if it is waiting. 
+  }
+  consume_item(item);
+}
+    
+```
 
 But there are some key points that we should consider: 
 
@@ -259,9 +291,22 @@ And if we look at from the consumer's perspective:
 1) How can the consumer know if an information is available in the buffer ?
 2) If there is nothing available to consume in the buffer, how can the consumer know if/when an information will become available ?
 
-We will answer the answers of these questions but first let's look at another concept named **Pipes**.
+To answer these questions, we should first introduce a new concept named **Pipe**. 
 
-## Pipe 
+# Pipe 
+
+Pipe is basically an inter-process communication mechanism that provides temporary storage between processes. A pipe is basically implemented with a buffer data structure in the kernel. And in the produer-consumer problem, the output of the producer is passed to this buffer and the consumer takes the information from the same buffer. 
+
+When the buffer is full, pipe blocks the producer to put a new information to it. Similarly, when the buffer is empty, it blocks the consumer to prevent it to attempt consuming an information from an empty buffer. 
+
+And when a space becomes available in the buffer, the pipe unblocks the producer. Similarly, when some data becomes available in the buffer, the pipe unblocks the consumer. 
+
+So, in summary pipe is a unidirectional data channel that can be used for inter-process communication. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
+
+
+
+
+
 
 
 
