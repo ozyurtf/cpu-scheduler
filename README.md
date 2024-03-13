@@ -229,6 +229,42 @@ We mentioned about process/thread trying to acquire a lock. And if the lock is n
 
 ## Lock Contention
 
+Lock contention depends on 
+
+1) the frequency of attempts to acquire the lock      (as the number of attempts to acquire the lock increases, the probability of lock contention increases)
+2) the amount of time a process/thread holds the lock (if a process hold the lock very short time, the probability of lock contention decreases)
+3) number of processes/threads that acquired the lock (as the number of processes that want to acquire the lock increases, the probability of lock contention increases)
+
+If the lock contention is low, this means that the length of time a process/thread waits for the lock variable to be unlocked is low. In other words, processes/threads don't wait too much and in that kind of scenario, TSL might be a good solution.
+
+### Producer Consumer Problem
+
+In producer-consumer problem, there are two processes. And t hey share a common buffer which it's size is fixed. 
+
+One of these two processes produces information and puts it into this buffer. We call this process **producer**. Another process takes this information from the buffer and we call this process **consumer**. 
+
+Now imagine that the buffer is full and there is no empty space. In that case, if the producer wants to put a new information into this buffer, that would cause a problem. The solution in here is for the producer to go to sleep, and when the consumer removes one or more items and buffer has empty slot(s), the producer can be awakened and put it's information into the buffer. 
+
+Similarly, if the buffer is completely empty, and if the consumer wants to remove an item from that buffer, that's a problem too since there is nothing to remove. The solution for the consumer is to sleep and once the producer puts an information to the buffer and buffer becomes non-empty, the consumer can be awakened and consume the information in the buffer.
+
+But there are some key points that we should consider: 
+
+If we look at from the producer's perspective: 
+
+1) How can the producer know if a slot is free or not ?
+2) If the slot is not free, how can the producer know if it/when it will become free ?
+
+And if we look at from the consumer's perspective: 
+
+1) How can the consumer know if an information is available in the buffer ?
+2) If there is nothing available to consume in the buffer, how can the consumer know if/when an information will become available ?
+
+We will answer the answers of these questions but first let's look at another concept named **Pipes**.
+
+## Pipe 
+
+
+
 
 
 
