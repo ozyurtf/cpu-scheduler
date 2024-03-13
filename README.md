@@ -90,19 +90,15 @@ If the process A enter it's critical region, it can set this lock variable as 1 
 
 But when we use just lock variables, we might encounter with the problem that we observe with print spooler: Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
 
-So using just lock variables is not the best method to achieve mutual exclusion as well. Let's take a look at another method:
-
-## Peterson's Solution for Achieving Mutual Exclusion
-
-Let's say that there are two processes: 
+In addition, let's say that there are two processes: 
 
 ```
 Process A:
 
 while (TRUE) {
   while (turn!=0) {} // Wait until turn = 0
-  critical_region();
-  turn = 1;
+  critical_region(); // If turn = 0, enter to critical region.
+  turn = 1;        
   noncritical_region();
 }
 ```
@@ -112,26 +108,24 @@ Process B:
 
 while (TRUE) {
   while (turn!=1) {} // Wait until turn = 1
-  critical_region();
+  critical_region(); // If turn = 1, enter to critical region.
   turn = 0;
   noncritical_region();
 }
 ```
 
-When process A leaves the critical region, it sets turn variable to allow the process B to enter it's critical region. 
-Suppose that process B finishes its critical region quickly. After that, the turn variable will be set to 0 and both process A and process B will be in their non critical regions. 
-If process A executes it's loop again, enters the critical region, and sets the turn variable as 1, and enters it's non critical region, both process A and B will be in their 
-non critical regions and turn variable will  equal to 1. At that moment, if process A finishes it's non-critical region and goes back to the top of it's loop, 
-it won't be permitted to enter it's critical region because turn=1. 
+When process A leaves the critical region, it sets the turn variable to 1 to allow the process B to enter it's critical region. Suppose that process B finishes its critical region quickly. After then, the turn variable will be set to 0 and both process A and process B will be in their non critical regions. If process A executes it's loop again, enters the critical region, and sets the turn variable as 1, and enters it's non critical region, both process A and B will be in their non critical regions and turn variable will  equal to 1. At that moment, if process A finishes it's non-critical region and goes back to the top of it's loop, it won't be permitted to enter it's critical region because turn=1. 
 
-That's why, this kind of procedure is not a good solution because it violates the 3rd condition that we defined previously: 
+That's why, this kind of procedure is not a good solution because it violates the 2nd condition that we defined previously: 
 
 1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop a system that can be used in different configurations)
 2) **If there is a process running outside its critical region, it shouldn't block any process. (This will ensure that processes do not block each other unnecessarily when they are not accessing shared resources)**
 3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
 4) Two processes should not be in their critical regions at the same time.
 
-So, let's take a look at the **Peterson's solution** for achieving mutual exclusion:
+So using just lock variables is not the best method to achieve mutual exclusion as well. Let's take a look at other methods.
+
+### Peterson's Solution for Achieving Mutual Exclusion
 
 ```
 #define FALSE 0
@@ -203,14 +197,13 @@ leave_region:
   RET                 | Return, indicating that the lock is released.
 ```  
 
-So, the solutions we tried until now to prevent race conditions were correct. But they had some issues. 
+So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion and prevent race conditions were correct. But they had some issues. 
 
-For instance, **Peterson's solution**, **TSL**, and **XCHG** have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see if entry is allowed. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
+For instance, have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see if entry is allowed. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
 
 In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering it's critical region because process B is currently in it's critical region and holding the lock variable. And this is called **priority inversion**. 
 
 So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
-
 
 ### Lock Implementation with Semi-Busy Waiting 
 
