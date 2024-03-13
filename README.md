@@ -89,9 +89,7 @@ If the process A enter it's critical region, it sets this lock variable as 1 whi
 
 But when we use just lock variables, we might encounter with the problem that we observe with print spooler. Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
 
-**Peterson's Solution for Achieving Mutual Exclusion**: 
-
-Let's say that there are two processes: 
+**Peterson's Solution for Achieving Mutual Exclusion**: Let's say that there are two processes: 
 
 ```
 Process A:
@@ -155,18 +153,35 @@ void leave_region(int process) {
 
 ```
 
-## Load/Store Conditional
+The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG:
 
+**TSL (Test and Set Lock) Instruction**: 
 
+```
+enter_region:
+  TSL REGISTER, LOCK | Reads the value of the lock into the register and sets the lock variable to 1 
+  CMP REGISTER, #0   | Compares the value in the register with 0. 
+  JNE enter_region   | If the value in the register is not 0, this means that the another process already locked the variable and it is currently in it's critical region. That's why this process keeps waiting until the other process that locked the variable unlock it and leaves it's critical region.
+  RET                | If the value in register is 0, this means that the lock is available, and no other process is in it's critical region right now. And therefore this function returns allowing the process to enter it's critical region.
 
+leave_region:
+  MOVE_LOCK, #0      | Stores the value of 0 in the lock variable and releases the lock.
+  RET                | Returns, allowing other threads to attempt to acquire the lock.
+```  
+  
+**XCHG**: 
 
+```
+enter_region:
+  MOVE REGISTER, #1
+  XCHG REGISTER, LOCK  
+  JNE enter_region   
+  RET                
 
-
-
-
-
-
-
+leave_region:
+  MOVE_LOCK, #0      
+  RET                
+```  
 
 
 
