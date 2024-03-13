@@ -77,8 +77,6 @@ Now let's try to find a method that can meet all of these four conditions.
 
 ## Mutual Exclusion with Busy Waiting
 
-Continuously waiting and testing to see if a condition is met is called **busy waiting**. And this waiting process wastes the CPU time. That's why it should be avoided if possible. 
-
 **Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
 
 But using only this approach is not a good option because disabling interrupts will affect only the CPU that executed the process A (because process A was the one that disabled interrupts in our example). In this case, there is no reason for the processes in other CPUs to intervene the process A and enter their own critical regions while the process A is in it's critical region. 
@@ -197,6 +195,17 @@ leave_region:
   MOVE_LOCK, #0       | Store the value of 0 in lock variable meaning that the lock is released.
   RET                 | Return, indicating that the lock is released.
 ```  
+
+
+## Summary
+
+So, the solutions we tried until now to prevent race conditions were correct. But they had some issues. 
+
+For instance, **Peterson's solution**, **TSL**, and **XCHG** have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see if entry is allowed. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
+
+In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering it's critical region because process B is currently in it's critical region and holding the lock variable. And this is called **priority inversion**. 
+
+So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
 
 
 
