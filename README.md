@@ -33,7 +33,15 @@ But using a shared storage like this brings us another issue: **race condition**
 **Race Condition**: When two or more processes read from the same resource and also write into the same resource at the same time, the final result
 depends on the timing of these processes. And we call this condition as **race condition**.
 
-To prevent t
+**Intra-Process Communication:** We have mentioned about the processes and inter-process communication. One thing to note is that In processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same resources. Therefore, there should be some kind of communication between them as well. 
+
+And the three key points that we emphasized in inter-process communications and that need attention are valid in here as well: 
+
+1) The way these threads pass information to each others.
+2) Ensuring that two threads don't interfere with each other.
+3) Ordering the threads properly if there is dependency.
+
+
 
 
 
