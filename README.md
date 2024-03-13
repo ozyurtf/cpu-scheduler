@@ -78,12 +78,15 @@ Now let's try to find a method that can meet all of these four conditions.
 
 ## Mutual Exclusion with Busy Waiting
 
-Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
+**Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
 
 But using only this approach is not a good option because disabling interrupts will only affect the CPU that executed the process A in our case (because process A was the one that disabled interrupts in our example). In this case, there is no reason for the processes in other CPUs to intervene the process A and enter their own critical regions while the process A is in it's critical region. 
 
-**Lock Variables:**
+**Lock Variables:** This is another way to handle mutual exclusion. Instead of interrupts, we use a variable, which we call lock variable, that takes a value of 0 or 1. 
 
+If the process A enter it's critical region, it sets this lock variable as 1 which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions, they will see that lock variable is 1 and they will have to wait until it is set to 0 (which means the critical region is left and one process can now enter it's own critical region).
+
+But using lock variables is problematic as well because two processes can see lock variable as 0 at the same time, they can both enter their critical regions at the same time.
 
 
 
