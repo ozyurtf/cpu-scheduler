@@ -218,8 +218,10 @@ mutex_lock:
   CMP REGISTER, #0    | If the value of the mutex lock was 0, this means that mutex lock was available. In that case, jump into the JZE command and return. If the value of the mutex lock was 1, this means that mutex lock was not available. In that case, jump into the CALL command.
   JZE ok
   CALL thread_yield   | Mutex lock is not available. Schedule another process/thread
+
     // Instead of checking the status of the lock repeatedly (busy-waiting),
     // and wasting CPU time, we can allow another process/thread to run.
+
   JMP mutex_lock      | and run the mutex_lock again with a new process/thread.
   RET                 | Return, indicating that lock is acquired and critical region is entered..
 
@@ -227,6 +229,11 @@ mutex_unlock:
   MOVE_MUTEX, #0       | Store the value of 0 in lock variable meaning that the lock is released.
   RET                 | Return, indicating that the lock is released.
 ```
+
+We mentioned about process/thread trying to acquire a lock. And if the lock is not available for that process/thread, we call this ```lock contention```. 
+
+## Lock Contention
+
 
 
 
