@@ -173,14 +173,29 @@ leave_region:
 
 ```
 enter_region:
-  MOVE REGISTER, #1
-  XCHG REGISTER, LOCK  
-  JNE enter_region   
-  RET                
+  MOVE REGISTER, #1   | Load the value of 1 into the register.
+  XCHG REGISTER, LOCK | Swap the value of the register with the lock
+
+    // Let's say that the current value of the lock is 0.
+    // The processor reads this value in the lock.
+    // And then it writes the current value of the register (1) to lock,
+    // and writes the value of the lock (0) into the register at the same time.
+    // After this, the register is now equal to 0 (which means the lock is acquired)
+    // and the lock is now equal to 1 (which represents a locked state)
+    // So by storing the initial value of the lock (0) in the register
+    // and using the swap operation,
+    // we can check the initial value of the lock and set the lock variable
+    // to a desired state in an atomic operation.
+    // And this atomic operation prevents the situation in which
+    // one process (e.g. process A) checks the lock variable and another process (e.g. process B) acquires the lock
+    // before the process A sets the lock variable.
+
+  JNE enter_region    | If the value in register is not 0, this means that the lock is already set and some process in it's critical region. So in that case, wait until that process leaves the critical region by jumping into enter_region until the value in register is 0.
+  RET                 | Return, indicating that lock is acquired and critical region is entered..
 
 leave_region:
-  MOVE_LOCK, #0      
-  RET                
+  MOVE_LOCK, #0       | Store the value of 0 in lock variable meaning that the lock is released.
+  RET                 | Return, indicating that the lock is released.
 ```  
 
 
