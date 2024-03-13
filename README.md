@@ -203,9 +203,6 @@ leave_region:
   RET                 | Return, indicating that the lock is released.
 ```  
 
-
-### Summary
-
 So, the solutions we tried until now to prevent race conditions were correct. But they had some issues. 
 
 For instance, **Peterson's solution**, **TSL**, and **XCHG** have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see if entry is allowed. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
