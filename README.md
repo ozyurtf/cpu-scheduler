@@ -4,9 +4,9 @@
 
 ## Inter-Process Communication
 
-In computer, there are programs that basically includes some set of instructions that can handle some specific task. 
+In computer, there are programs that basically includes set of instructions that can handle some specific task. 
 
-These instructions/codes are stored in disk or memory and cannot help us to do what we want directly. Therefore, they should be executed by the processor. 
+These instructions/codes are stored in disk or memory and cannot help us to do what we want directly. Therefore, they should be executed by the CPU. 
 
 When these set of instructions are executed, we can call the process of the execution of these instructions as **process**.
 
@@ -16,12 +16,12 @@ In addition, there might be some key points that need attention during this inte
 
 1) The way these processes pass information to each others.
 2) Ensuring that two processes don't interfere with each other.
-3) Ordering the processes properly if there is a dependency: If process A produces data and process B prints these data, process B has to wait until process A produce data to print.
+3) Ordering the processes properly if there is a dependency: *If process A produces data and process B prints these data, process B has to wait until process A produce data to print.*
 
 We have mentioned that sometimes multiple processes can share the same resource. And one of the resource they may share might be the storage (e.g. main memory, shared file). 
 
-Print spooler is a perfect example to this situation. A print stooler is a program that queues the print jobs that are sent from an application to a printer. 
-When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process periodically checks if there is any file in spooler directory to be printed. 
+Print spooler is a perfect example to this. A print stooler is basically a program that queues the print jobs that are sent from an application to a printer. 
+When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. 
 If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
 
 With this procedure, the print jobs do not need to be sent to the printer directly. The benefit of applying this procedure is that sending print jobs to the printer directly may cause two print jobs to interfere with each other if multiple users are trying to use the printer simultaneously. And by storing the print jobs this way, we may prevent this kind of problem. 
@@ -32,24 +32,23 @@ Using a shared storage like this is cool but it brings another issue: **race con
 
 **Race Condition**: When two or more processes read from the same resource and also write into the same resource at the same time, the final result depends on the running time of these processes. And we call this condition as **race condition** since the processes are kind of racing with each other to do their tasks.
 
-
 ## Intra-Process Communication
 
-We have mentioned about the processes and inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same resources. Therefore, there should be some kind of communication between them as well. 
+We have mentioned about the processes as well as the inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same address space and other resources. Therefore, there should be some kind of communication between them as well. 
 
-And the three key points that we emphasized in inter-process communications and that need attention are valid in here as well: 
+And the three key points that need attention and that we emphasized in inter-process communications are valid in here as well: 
 
 1) The way these threads pass information to each others.
 2) Ensuring that two threads don't interfere with each other.
 3) Ordering the threads properly if there is a dependency.
 
-Until now we have talked about scenarios in which multiple entities access/share/modify the shared resources simultaneously. This situation may (and will) end up with many problems if it is not handled properly.
+Until now we have talked about scenarios in which multiple processes/threads access/modify the shared resources simultaneously. This situation may (and will) end up with many problems if it is not handled properly.
 
-And the **Read-Modify-Write Cycles** is a concept that are useful to explain before going through different solutions for preventing these problems. 
+And the **Read-Modify-Write Cycles** is a concept that are useful to introduce before going through different solutions for preventing these problems. 
 
 ## Read-Modify-Write Cycles
 
-When multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The goal is for the code to reach consistent/same view of the data. 
+When multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The overall goal is for the code to reach consistent/same view of the data. 
 
 **Read**: Reading the current value of a memory location from the memory is called **read**.
 **Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
@@ -57,15 +56,17 @@ When multiple processes or threads are accessing/sharing/modifying the shared da
 
 One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency.
 
+## Preventing Race Conditions
+
 The main way to prevent race conditions is to prevent more than one process or thread from reading and writing the shared data at the same time. In other words, if one process or thread uses a shared variable or file, the other processs or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
 
 And the section of the program/codes in which shared resources are accessed is called **critical region**. 
 
-If can develop a system in which two or more processes never be within their critical regions at the same time, we can prevent races. But the issue is that if we develop the system with this way (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) we prevent races but this also prevents parallel processes to cooperate correctly and to use shared resources efficiently. 
+If can develop a system in which two or more processes never be within their critical regions at the same time, we can prevent race conditions. But the issue is that if we develop the system with this way (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) we prevent race conditions but we also prevent parallel processes to cooperate correctly and to use shared resources efficiently. 
 
-So to prevent the races in a more efficient and better way, we should have these additional 3 conditions: 
+So to prevent the race conditions and data inconsistency in shared resources in a more efficient and better way, we should introduce these additional 3 conditions: 
 
-1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop a system that can be used in different configurations)
+1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop a system that can be used in different systems)
 2) If there is a process running outside its critical region, it shouldn't block any process. (This will ensure that processes do not block each other unnecessarily when they are not accessing shared resources)
 3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
 
@@ -77,19 +78,21 @@ Now let's try to find a method that can meet all of these four conditions.
 
 ## Mutual Exclusion with Busy Waiting
 
-**Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
+**Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing race conditions was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using **interrupts**. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory exclusively without the fear of intervention. 
 
-But using only this approach is not a good option because disabling interrupts will affect only the CPU that executed the process A (because process A was the one that disabled interrupts in our example). In this case, there is no reason for the processes in other CPUs to intervene the process A and enter their own critical regions while the process A is in it's critical region. 
+But using only this approach is not a good option because it is not the best practice to give the process in user space the ability to turn off the interrupts since it may forget to turn on the interrupt after leaving the critical region and that would cause many problems. In addition, disabling interrupts will affect only the CPU that executed the process A (because process A was the one that disabled interrupts in our example). In this case, we don't prevent the processes in other CPUs intervening the process A and entering their own critical regions while the process A is in it's critical region. 
 
-**Lock Variables:** This is another way to handle mutual exclusion. Instead of interrupts, we use a variable, which we call lock variable, that takes a value of 0 or 1. 
+So in summary, using interrupts to provide mutual exclusion is not the best way. 
 
-If the process A enter it's critical region, it sets this lock variable as 1 which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions, they will see that lock variable is 1 and they will have to wait until it is set to 0 (which means the critical region is left and one process can now enter it's own critical region).
+**Lock Variables:** Another way to apply mutual exclusion is using **lock variables**. Instead of interrupts, we can use a variable, which we call lock variable, that takes a value of 0 or 1. 
 
-But when we use just lock variables, we might encounter with the problem that we observe with print spooler. Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
+If the process A enter it's critical region, it can set this lock variable as 1 which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions, they will see that lock variable is 1 and they will have to wait until the lock variable is set to 0 (which means the critical region is left and one process can now enter it's own critical region).
 
-### Peterson's Solution for Achieving Mutual Exclusion: 
+But when we use just lock variables, we might encounter with the problem that we observe with print spooler: Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
 
-Let's say that there are two processes: 
+So using just lock variables is not the best method to achieve mutual exclusion as well. Let's take a look at another method:
+
+**Peterson's Solution for Achieving Mutual Exclusion**: Let's say that there are two processes: 
 
 ```
 Process A:
