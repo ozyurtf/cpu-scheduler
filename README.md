@@ -2,7 +2,9 @@
 
 **Parallelism**: Distributing multiple instructions into different resources and running them at the same time in parallel. 
 
-**Inter-Process Communication**: In computer, there are programs that basically includes some set of instructions that can handle some specific task. 
+## Inter-Process Communication
+
+In computer, there are programs that basically includes some set of instructions that can handle some specific task. 
 
 These instructions/codes are stored in disk or memory and cannot help us to do what we want directly. Therefore, they should be executed by the processor. 
 
@@ -32,7 +34,9 @@ One note is that using a shared storage like this brings another issue: **race c
 
 **Race Condition**: When two or more processes read from the same resource and also write into the same resource at the same time, the final result depends on the running time of these processes. And we call this condition as **race condition**.
 
-**Intra-Process Communication:** We have mentioned about the processes and inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same resources. Therefore, there should be some kind of communication between them as well. 
+## Intra-Process Communication
+
+We have mentioned about the processes and inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same resources. Therefore, there should be some kind of communication between them as well. 
 
 And the three key points that we emphasized in inter-process communications and that need attention are valid in here as well: 
 
@@ -72,7 +76,7 @@ in addition to the first condition that we defined previously
 
 Now let's try to find a method that can meet all of these four conditions. 
 
-**Mutual Exclusion with Busy Waiting:**
+## Mutual Exclusion with Busy Waiting
 
 Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
 
