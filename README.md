@@ -154,7 +154,7 @@ void leave_region(int process) {
 
 The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG:
 
-## TSL (Test and Set Lock): 
+## TSL (Test and Set Lock)
 
 ```
 enter_region:
@@ -168,7 +168,7 @@ leave_region:
   RET                | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
-## XCHG: 
+## XCHG
 
 ```
 enter_region:
