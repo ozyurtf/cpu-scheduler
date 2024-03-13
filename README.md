@@ -74,6 +74,14 @@ Now let's try to find a method that can meet all of these four conditions.
 
 **Mutual Exclusion with Busy Waiting:**
 
+Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing races was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using interrupts. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory without the fear of intervention. 
+
+But using only this approach is not a good option because disabling interrupts will only affect the CPU that executed the process A in our case (because process A was the one that disabled interrupts in our example). In this case, there is no reason for the processes in other CPUs to intervene the process A and enter their own critical regions while the process A is in it's critical region. 
+
+**Lock Variables:**
+
+
+
 
 
 
