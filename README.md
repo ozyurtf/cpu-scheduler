@@ -87,7 +87,9 @@ If the process A enter it's critical region, it sets this lock variable as 1 whi
 
 But when we use just lock variables, we might encounter with the problem that we observe with print spooler. Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
 
-**Peterson's Solution for Achieving Mutual Exclusion**: Let's say that there are two processes: 
+### Peterson's Solution for Achieving Mutual Exclusion: 
+
+Let's say that there are two processes: 
 
 ```
 Process A:
@@ -153,7 +155,7 @@ void leave_region(int process) {
 
 The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG:
 
-**TSL (Test and Set Lock)**: 
+### TSL (Test and Set Lock): 
 
 ```
 enter_region:
@@ -167,7 +169,7 @@ leave_region:
   RET                | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
-**XCHG**: 
+### XCHG: 
 
 ```
 enter_region:
@@ -197,7 +199,7 @@ leave_region:
 ```  
 
 
-## Summary
+### Summary
 
 So, the solutions we tried until now to prevent race conditions were correct. But they had some issues. 
 
@@ -208,8 +210,23 @@ In addition, suppose  that there are two processes: process A and process B and 
 So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
 
 
+### Lock Implementation with Semi-Busy Waiting 
 
+```
+mutex_lock: 
+  TSL REGISTER, MUTEX | Copy the mutex (mutual exclusion) lock to register. Then set mutex lock to 1.
+  CMP REGISTER, #0    | If the value of the mutex lock was 0, this means that mutex lock was available. In that case, jump into the JZE command and return. If the value of the mutex lock was 1, this means that mutex lock was not available. In that case, jump into the CALL command.
+  JZE ok
+  CALL thread_yield   | Mutex lock is not available. Schedule another process/thread
+    // Instead of checking the status of the lock repeatedly (busy-waiting),
+    // and wasting CPU time, we can allow another process/thread to run.
+  JMP mutex_lock      | and run the mutex_lock again with a new process/thread.
+  RET                 | Return, indicating that lock is acquired and critical region is entered..
 
+mutex_unlock:
+  MOVE_MUTEX, #0       | Store the value of 0 in lock variable meaning that the lock is released.
+  RET                 | Return, indicating that the lock is released.
+```
 
 
 
