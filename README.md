@@ -44,7 +44,44 @@ Until now we have talked about scenarios in which multiple entities access/share
 
 And the **Read-Modify-Write Cycles** is a concept that are useful to address these potential problems. 
 
-**Read-Modify-Write Cycles:** 
+**Read-Modify-Write Cycles:** When multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The goal is for the code to reach consistent/same view of the data. 
+
+**Read**: Reading the current value of a memory location from the memory is called **read**.
+**Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
+**Write**: The modified value is written back to the same memory location from where the value was read in the first step before modification.
+
+One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency.
+
+The main way to prevent race conditions is to prevent more than one process or thread from reading and writing the shared data at the same time. In other words, if one process or thread uses a shared variable or file, the other processs or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
+
+And the section of the program in which shared resources are accessed is called **critical region**. 
+
+If can develop a system in which two or more processes never be within their critical regions at the same time, we can prevent races. 
+
+But the issue is that if we develop the system with this way (in other words if we only prevent multiple processes to be not in their critical regions at the same time) we prevent races but we also prevent parallel processes cooperating correctly and using shared resources efficiently. 
+
+So to prevent the races in a more efficient and better way, we should have these additional 3 conditions: 
+
+1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop a system that can be used in different configurations)
+2) If there is a process running outside its critical region, it shouldn't block any process. (This will ensure that processes do not block each other unnecessarily when they are not accessing shared resources)
+3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
+
+in addition to the first condition that we defined previously 
+
+4) Two processes should not be in their critical regions at the same time.
+
+Now let's try to find a method that can meet all of these four conditions. 
+
+**Mutual Exclusion with Busy Waiting:**
+
+
+
+
+
+
+
+
+
 
 
 
