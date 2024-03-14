@@ -461,14 +461,14 @@ int ridx = 0; // Define an integer value to read items from the buffer (initiall
 Producer(T item) {
     wait(&empty); // Decrement the value of the empty semaphore by one. If the value of the empty semaphore was 0 before this decrementation, this means that there is no empty slot in the buffer. In this case, the producer process will be blocked and added to the empty semaphore's wait queue.
 
-    wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer.
+    wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer before putting a new item to it.
 
     buffer[widx] = item; // Put an item into the next available empty slot in the buffer
     widx = (widx + 1) % N; // Update the index of the next available empty slot (using modulo to wrap around)
 
     signal(&mutex); // Unlock the mutex after putting an item into the buffer.
 
-    signal(&full); // Increment the value of the full semaphore by one. If the value of the full semaphore was larger than or equal to N before this incrementation, this means that the buffer was full, and a consumer process waiting on the full semaphore will be unblocked and added to the ready queue.
+    signal(&full); // Increment the value of the full semaphore by one. If the value of the full semaphore was larger than or equal to N before this incrementation, this means that the buffer was full, and a consumer waiting on the full semaphore will be unblocked and added to the ready queue.
 }
 
 Consumer(T &item) {
@@ -485,9 +485,84 @@ Consumer(T &item) {
 }
 ```
 
+So, semaphores are great but like all the other methods, they have some downsides as well. 
+
+- It is not always easy to write the semaphore code. Sometimes, it can be difficult.
+- If a thread dies while holding a semaphore, the permit to access to a shared resource is basically lost. And this can prevent other threads being blocked from accessing shared resource even. That's why we need to be extra careful when constructing the semaphores.
+
+In addition, they may cause a situation called **deadlock** which we will explain in an example later. To avoid this situation, we should
+
+- acquire the multiple locks in the same order.
+- release the locks in reverse order if possible.
+
+And we can show how these solutions work to avoid what they call **deadlock** in an example. In below, you see two very similar but different codes: 
+
+**1st Scenario:**
+```
+typedef int semaphore;   
+  semaphore resource_1;
+  semaphore resource_2;
+
+  void process_A(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+  void process_B(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+```
+
+**2nd Scenario:**
+```
+typedef int semaphore;
+  semaphore resource_1;
+  semaphore resource_2;
+
+  void process_A(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+  void process_B(void) {
+    down(&resource_2);
+    down(&resource_1);
+
+    use_both_resources();
+
+    up(&resource_1);
+    up(&resource_2);
+  }
+
+```
+
+In the second case, process A can acquire resource 1, and process B can acquire resource 2. Then process A will attempt to acquire resource 2 but it won't be able to because resource 2 is hold by the process B. Similarly, process B will attempt to acquire resource 1 but it won't be able to because resource 1 is hold by the process A. This is called **deadlock** and both processes will wait to hold a resource forever if they are not interrupted. 
+
+But by applyting the two advices (acquiring locks in the same order and releasing in the reverse order) like we did in the 1st case scenario, we can avoid deadlock.
+
+
+
+
+
+
   
-
-
 
 
 
