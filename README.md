@@ -812,6 +812,45 @@ So in these examples, we tried to avoid the deadlock by using the concepts of **
 
 # Banker's Algorithm
 
+The main idea behind this algorithm is checking if granting a resource will lead to an **unsafe** state. If it won't, we just release the resource.
+
+## Applying Banker Algorithm to Single Resource
+
+```
+A | 0 | 6
+B | 0 | 5
+C | 0 | 4
+C | 0 | 7
+
+Free: 10
+
+(Safe)
+```
+
+```
+A | 1 | 6
+B | 1 | 5
+C | 2 | 4
+C | 4 | 7
+
+Free: 2
+
+(Safe)
+```
+
+```
+A | 1 | 6
+B | 2 | 5
+C | 2 | 4
+C | 4 | 7
+
+Free: 1
+
+(Unsafe)
+```
+
+## Applying Banker Algorithm to Multiple Resources
+
 
 
 
