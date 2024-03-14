@@ -50,19 +50,19 @@ And the **Read-Modify-Write Cycles** is a concept that are useful to introduce b
 
 When multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The overall goal is for the code to reach consistent/same view of the data. 
 
-**Read**: Reading the current value of a memory location from the memory is called **read**.
-**Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
-**Write**: The modified value is written back to the same memory location from where the value was read in the first step before modification.
+- **Read**: Reading the current value of a memory location from the memory is called **read**.
+- **Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
+- **Write**: The modified value is written back to the same memory location from where the value was read in the first step.
 
 One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency.
 
 # Preventing Race Conditions
 
-The main way to prevent race conditions is to prevent more than one process or thread from reading and writing the shared data at the same time. In other words, if one process or thread uses a shared variable or file, the other processs or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
+A way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared data at the same time. In other words, if one process or thread uses a shared variable or file, the other processs or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
 
 And the section of the program/codes in which shared resources are accessed is called **critical region**. 
 
-If can develop a system in which two or more processes never be within their critical regions at the same time, we can prevent race conditions. But the issue is that if we develop the system with this way (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) we prevent race conditions but we also prevent parallel processes to cooperate correctly and to use shared resources efficiently. 
+If we can develop a system in which two or more processes never be within their critical regions at the same time, we can prevent race conditions. But the issue is that if we develop the system with this way (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) we prevent race conditions but we also prevent parallel processes to cooperate correctly and to use shared resources efficiently. 
 
 So to prevent the race conditions and data inconsistency in shared resources in a more efficient and better way, we should introduce these additional 3 conditions: 
 
@@ -78,7 +78,7 @@ Now let's try to find a method that can meet all of these four conditions.
 
 # Mutual Exclusion with Busy Waiting
 
-**Interrupts:** Let's say that there is a process A that is currently in it's critical region. One of the conditions of preventing race conditions was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using **interrupts**. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory exclusively without the fear of intervention. 
+**Interrupts:** Let's say that there is a process that is currently in it's critical region and call this process as process A. One of the conditions of preventing race conditions was to exclude all other processes to enter their critical regions while process A is in it's critical region. The simplest way to do this is using **interrupts**. So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, it can access/modify the shared memory exclusively without the fear of intervention. 
 
 But using only this approach is not a good option because it is not the best practice to give the process in user space the ability to turn off the interrupts since it may forget to turn on the interrupt after leaving the critical region and that would cause many problems. In addition, disabling interrupts will affect only the CPU that executed the process A (because process A was the one that disabled interrupts in our example). In this case, we don't prevent the processes in other CPUs intervening the process A and entering their own critical regions while the process A is in it's critical region. 
 
@@ -90,7 +90,7 @@ If the process A enter it's critical region, it can set this lock variable as 1 
 
 But when we use just lock variables, we might encounter with the problem that we observe with print spooler: Sometimes two processes can see the lock variable as 0 at the same time and as a result, they can both enter their critical regions simultaneously. 
 
-In addition, let's say that there are two processes: 
+Now, let's say that there are two processes: 
 
 ```
 Process A:
@@ -114,7 +114,7 @@ while (TRUE) {
 }
 ```
 
-When process A leaves the critical region, it sets the turn variable to 1 to allow the process B to enter it's critical region. Suppose that process B finishes its critical region quickly. After then, the turn variable will be set to 0 and both process A and process B will be in their non critical regions. If process A executes it's loop again, enters the critical region, and sets the turn variable as 1, and enters it's non critical region, both process A and B will be in their non critical regions and turn variable will  equal to 1. At that moment, if process A finishes it's non-critical region and goes back to the top of it's loop, it won't be permitted to enter it's critical region because turn=1. 
+When process A leaves the critical region, it sets the turn variable to 1 to allow the process B to enter it's critical region. Suppose that process B finishes its critical region quickly. After then, the turn variable will be set to 0 and both process A and process B will be in their non critical regions. If process A executes it's loop again, enters the critical region, sets the turn variable as 1, and enters it's non critical region, both process A and B will be in their non critical regions and turn variable will be equal to 1. At that moment, if process A finishes it's non-critical region and goes back to the top of it's loop, it won't be permitted to enter it's critical region because turn=1. 
 
 That's why, this kind of procedure is not a good solution because it violates the 2nd condition that we defined previously: 
 
@@ -152,7 +152,7 @@ void leave_region(int process) {
 
 ```
 
-The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG:
+The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG.
 
 ## TSL (Test and Set Lock)
 
@@ -199,7 +199,7 @@ leave_region:
 
 So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion and prevent race conditions were correct. But they had some issues. 
 
-For instance, have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see if entry is allowed. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
+For instance, they have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see it is allowed to enter. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
 
 In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering it's critical region because process B is currently in it's critical region and holding the lock variable. And this is called **priority inversion**. 
 
@@ -320,9 +320,9 @@ So we can develop a new mechanism that allows multiple processes to access to th
 
 A semaphore is an integer value just like mutex. But the only way to access it is through two separate operations that are called **wait()** and **signal()**.
 
-- wait():  Decrements the value of the semaphore by 1 which means the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore was already being used. And after the wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread to avoid spinning and wasting CPU time.
+- wait():  Decrements the value of the semaphore by 1 which means the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore were already being used. And after wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread to avoid spinning and wasting CPU time.
 
-- signal(): Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left it's critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release a the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
+- signal(): Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left it's critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
 
 In below, you can see the implementation of Semaphore.
 
@@ -438,29 +438,29 @@ There is also another type of semaphores that is called **counting semaphores**.
 Let's review the use case of both binary/mutex semaphores and counting semaphores in the producer-consumer problem. 
 
 ```
-#define N 100
+#define N 100               // Define the size of the buffer
 
-Semaphore empty = N;
-Semaphore full = 0;
-Semaphore mutex = 1;
+Semaphore empty = N;        // Define a semaphore to manage the number of emtpy slots in the buffer
+Semaphore full = 0;         // Define a semaphore to manage the number of full slots in the buffer
+Semaphore mutex = 1;        // Define a semaphore to manage the lock/unlock process and to make operations atomic
 
-T buffer[N];
-int widx = 0,
-ridx = 0;
+T buffer[N];                // Define an empty buffer that has N elements
+int widx = 0,               // Define an integer value to write items into the buffer
+int ridx = 0;               // Define an integer value to read items from the buffer
 
 Producer(T item) {
-  wait(&empty);
-  wait(&mutex);
+  wait(&empty);             // Decrement the value of the empty semaphore by one. If the value of the empty semaphore was 0 or negative before this decrementation, this means that there is no empty slot in the buffer. And this means that because there is no empty slot in the buffer to put the item, we should add the item into the wait queue, and block it.
+  wait(&mutex);             // Lock the mutex before putting an item into the buffer.
 
-  buffer[widx] = item;
-  widx = (widx + 1) % N;
+  buffer[widx] = item;      // Put an item into the next available empty slot in the buffer
+  widx = (widx + 1) % N;    // Update the index of the next available empty slot
 
-  signal(&mutex);
-  signal(&full);
+  signal(&mutex);           // Unlock the mutex after putting an item into the buffer. 
+  signal(&full);            // Increment the value of the full semaphore by one. If the value of the full semaphore was larger than or equal to N before this incrementation, this means that the buffer was full and we cannot put a new item until a slot becomes available. Instead of waiting until that time, we extract a new item from the wait queue and add it to the scheduler.
 }
 
 Consumer(T &item) {
-  wait(&full);
+  wait(&full);              // Decrement the value of the full semaphore by one. If the value of the full semaphore was 0 or negative before this decrementation, this means that 
   wait(&mutex);
 
   item = buffer[ridx];
