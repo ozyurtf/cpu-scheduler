@@ -618,8 +618,8 @@ Well, when the deadlock happens, how can we deal with them ?
 
 - You can ignore them.
 - Let the deadlock occurs, detect it, and take an action.
-  -  As an example of an action; we can dynamically manage the resources to avoid deadlock.
-  -  We can also prevent the deadlock by breaking one of the conditions of the deadlock
+  -  As an example of an action; we can dynamically manage the resources to avoid deadlock. (Deadlock Avoidance)
+  -  We can also prevent the deadlock by breaking one of the conditions of the deadlock. (Deadlock Prevention)
 
 # Deadlock Detection and Recovery
 
@@ -894,11 +894,39 @@ The Banker Algorithm looks nice in theory but it is practically **not useful** b
 - the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or we might end up with removing some processes. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
+We talked about deadlock avoidance which basically means analyzing the resources dynamically and making decisions that won't end up with deadlock. We can see this as a more indirect way to prevent deadlocks.
+
+But we can also try to prevent the system entering into deadlock directly. And this is called **deadlock prevention**
+
+# Deadlock Prevention 
+
+We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of these conditions should be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
+
+## 1) Deadlock Prevention: Attacking the Mutual Exclusion
+
+One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource concurrently without waiting another process to release it. 
+
+Spooling can be given as an example of violating the mutual exclusion rule. A spooler is a program that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
+
+So attacking the mutual exclusion condition prevents the deadlock directly. But we cannot apply this procedure in all cases. Some resources should be exclusively accessed by one process at a time and in those cases, this solution cannot be used for those cases. 
+
+## 2) Deadlock Prevention: Attacking the Hold and Wait Condition
+
+Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes to wait for new resources if they are currently holding resources, we can prevent deadlock as well. 
+
+One way to do this is to make processes to request all of the resources at the same time before starting the execution.
+
+Imagine that there is a process named process A. If all the resources that process A needs are available, they can be allocated to the process A directly and process A can begin execution. If all the requested resources are not available, process A is not granted any resource and must wait until all the resources become available. And once the resources it needs are available to use, it can start. Through this way, we prevent incremental acquisition of the resources which is the potential cause of the deadlocks.
+
+Another way is to make the process to release all the resources it holds when it wants to acquire new resources. After releasing all the resources, now it can try to acquire all the resources it needs at the same time. 
+
+## 3) Deadlock Prevention: Attacking No Preemption Condition
+
+
+## 3 Deadlock Prevention: Attacking No Preemption Condition 
 
 
 
-
-   
 
 
 
