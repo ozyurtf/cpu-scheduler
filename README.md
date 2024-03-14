@@ -431,7 +431,47 @@ void Semaphore::signal() {
 }
 ```
 
+In the examples above, we used **binary/mutex semaphores**. These semaphores can be see nas lock. They are ideal for mutual exclusion problems. In these problems, when the semaphore value is initialized to 1, this means that the lock is available. 
 
+There is also another type of semaphores that is called **counting semaphores**. This is a type of semaphore that represents the number of processes/threads that are allowed to be in their critical regions at the same time. In cases when we want multiple processes/threads to enter their critical regions, we can use counting semaphores. But in these cases, mutual exclusion is not guaranteed. 
+
+Let's review the use case of both binary/mutex semaphores and counting semaphores in the producer-consumer problem. 
+
+```
+#define N 100
+
+Semaphore empty = N;
+Semaphore full = 0;
+Semaphore mutex = 1;
+
+T buffer[N];
+int widx = 0,
+ridx = 0;
+
+Producer(T item) {
+  wait(&empty);
+  wait(&mutex);
+
+  buffer[widx] = item;
+  widx = (widx + 1) % N;
+
+  signal(&mutex);
+  signal(&full);
+}
+
+Consumer(T &item) {
+  wait(&full);
+  wait(&mutex);
+
+  item = buffer[ridx];
+  ridx = (ridx + 1) % N;
+
+  signal(&mutex);
+  signnal(&empty);
+}
+```
+
+  
 
 
 
