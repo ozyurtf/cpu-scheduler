@@ -820,7 +820,7 @@ The main idea behind this algorithm is checking if granting a resource will lead
 A | 0 | 6
 B | 0 | 5
 C | 0 | 4
-C | 0 | 7
+D | 0 | 7
 
 Free: 10
 
@@ -831,7 +831,7 @@ Free: 10
 A | 1 | 6
 B | 1 | 5
 C | 2 | 4
-C | 4 | 7
+D | 4 | 7
 
 Free: 2
 
@@ -842,7 +842,7 @@ Free: 2
 A | 1 | 6
 B | 2 | 5
 C | 2 | 4
-C | 4 | 7
+D | 4 | 7
 
 Free: 1
 
@@ -850,6 +850,50 @@ Free: 1
 ```
 
 ## Applying Banker Algorithm to Multiple Resources
+
+As in the single-resource case, processes must state their total resource needs before executing.
+
+
+```
+Process | Tape Drives | Plotters | Printers | CD ROMs
+A       | 3           | 0        | 1        | 1
+B       | 0           | 1        | 0        | 0
+C       | 1           | 1        | 1        | 0
+D       | 1           | 1        | 0        | 1
+E       | 0           | 0        | 0        | 0
+
+(How many resources are currently assigned to each process)
+
+```
+
+```
+Process | Tape Drives | Plotters | Printers | CD ROMs
+A       | 1           | 1        | 0        | 0
+B       | 0           | 1        | 1        | 2
+C       | 3           | 1        | 0        | 0
+D       | 0           | 0        | 1        | 0
+E       | 2           | 1        | 1        | 0
+
+(How many resources each process still needs in order to be finished)
+
+Existing Resources  = Tape Drivers: 6, Plotters: 3, Printers: 4, CD ROMs: 2
+Processed Resources = Tape Drivers: 1, Plotters: 0, Printers: 2, CD ROMs: 0
+Available Resources = Tape Drivers: 5, Plotters: 3, Printers: 2, CD ROMs: 2
+
+```
+
+To find the deadlock, we 
+
+1) look for a row whose unmet resource needs are all smaller than or equal to the values in available resources. If there is no that kind of row, this means that there is a deadlock and terminate.
+2) assume the process of the chosen row requests all resources it needs and then finishes. Mark that process as terminated and release its resources back to the available resources.
+3) repeat steps 1 and 2 until either all the processes are terminated or no process is left.
+
+The Banker Algorithm looks nice in theory but it is practically **not useful** because 
+
+- prcoesses don't know the maximum number of resources they will need in advance.
+- the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or we might end up with removing some processes. In those scenarios, Banker Algorithm is not a good solution.
+- resources can vanish.
+
 
 
 
