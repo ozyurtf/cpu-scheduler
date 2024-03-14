@@ -625,7 +625,48 @@ Well, when the deadlock happens, how can we deal with them ?
 
 The system actually does not attempt to prevent the deadlock. It just detects as it happens. And once it detects the deadlcok, it takes actions to recover.
 
-But there are several issues in here. 
+But the question is: how we can detect the deadlock ? 
+
+As always, the answer to this question is: it depends. 
+
+## Deadlock Detection with One Resource of Each Type
+
+If there is only 1 resource for each type, constructing a resource graph is enough. If we detect a cycle in that graph, this means that there is a deadlock.
+
+We can give a system that has one scanner, one plotter, one tape-drive as an example of a system in which there is one resource of eacy type. Having two printers, for instance, breaks the rule. 
+
+Okay but the question now is: how to detect cycles ? In other words, how a computer can detect cycles in a graph ? 
+
+## Formal Algorithm to Detect Cycles
+
+For each node in the graph: 
+
+1) Initialize an empty list L.
+2) Add current node to the end of L.
+   - If the node appears twice, this means that there is a deadlock and we terminate the algorithm
+3) Search for an unmarked outgoing and arc.
+   - If there is an unmarked and outgoing arc, jump into the step 4.
+   - If there is no unmarked and outgoing arc, jump into the step 5.
+4) Pick an unmarked and outgoing arc randomly and mark it. Then follow it to the new node and jump into step 2.
+5) If the current node is visited first time, this means that there is no cycle and we terminate the algorithm. Otherwise, we are in dead end and we remove the node and go back to the previous node. Then we jump into the 2nd step.
+
+Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to detect them but one another question is: when to check for deadlocks ? 
+
+# When to Check Deadlocks ? 
+
+- We can check when a resource is requested but this might be very expensive to run.
+- We can check periodically (e.g. every x minutes)
+- We can also check when CPU utilization drops to a level that is lower than a specific threshold. Because if the CPU utilization is low, this means that the amount of time spent for idle tasks is high. And this means that some processes or threads are not making enough progress and it may be because of the deadlock.
+
+Okay let's say that we check the deadlocks, and detected one. Now the question is: how to recover from the deadlock ? 
+
+## 1) Recovering Through Preemption
+
+- 
+   
+
+
+
 
 
 
