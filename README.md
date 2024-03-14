@@ -36,7 +36,7 @@ Using a shared storage like this is cool but it brings another issue: **race con
 
 We have mentioned about the processes as well as the inter-process communication. One thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. In a process, if there are multiple threads, these threads work together and share the same address space and other resources. Therefore, there should be some kind of communication between them as well. 
 
-And the three key points that need attention and that we emphasized in inter-process communications are valid in here as well: 
+And the three key points that need to be emphasized and that we mentioned in inter-process communications are valid in here as well: 
 
 1) The way these threads pass information to each others.
 2) Ensuring that two threads don't interfere with each other.
