@@ -312,7 +312,42 @@ In another case, let's say that count equals to 1 and consumer begins running it
 
 The main issue in these two scenarios is that a wake-up call that is sent to a process that is not sleeping is lost. If this wake-up call wouldn't be lost, everything would work fine. 
 
-That's why a quick fix to this problem is to add a wakeup waiting bit. 
+Until now, we used variables in the form of integers to provide synchronization between processes/threads. But a mechanism that is more flexible, that has more complex features, and that allows synchronization between processes/threads based on the shared resource might be more useful compared to a simple integer value. Also, when we use an integer value to provide access to shared resources, the processes/threads can access the shared resources only one at a time. 
+
+# Semaphores 
+
+```
+class Semaphore {
+  int value;             // counter
+  queue<Thread*> waitQ;  // queue of threads blocked this sema
+  void Init(int v);      // initialization
+  void P();              // down(), wait()
+  void V();              // up(), signal ()
+}
+
+void Semaphore::Init(int v) {
+  value = v;
+  waitQ.init(); // empty queue
+}
+
+void Semaphore::P() { // or wait() or down()
+  value = value –1;
+  if (value < 0) {
+    waitQ.add(current_thread);current_thread->status = blocked;
+    schedule();      // forces wait, thread blocked
+  }
+}
+
+void Semaphore::V() {     // or signal() or up()
+  value = value + 1;
+  if (value <= 0) {
+    Thread *thd= waitQ.getNextThread();
+    scheduler->add(thd);  // make it scheduable
+  }
+}
+```
+
+
 
 
 
