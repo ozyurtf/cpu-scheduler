@@ -660,9 +660,161 @@ Okay we have mentioned about the deadlocks, conditions of the deadlock, and how 
 
 Okay let's say that we check the deadlocks, and detected one. Now the question is: how to recover from the deadlock ? 
 
-## 1) Recovering Through Preemption
+## 1) Recovering from Deadlock Through Preemption
 
-- 
+When deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention.
+
+But it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
+
+This method is often not possible because taking the resource away from the process often causes unpredictable behavior. 
+
+## 2) Recovering from Deadlock Through Rollback 
+
+We can save the information about the processes periodically. And when a deadlock happens, we can roll a process back to the previous checkpoint. 
+
+But this method may cause significant delays. 
+
+## 3) Recovering from Deadlock Through Killing Process 
+
+Another simple way to recover from deadlock is killing process(es). And we can continue killing until the deadlock is resolved. 
+
+One note is that killing a process outside of the cycle can release resources that can be used to fix the deadlock. So we can kill process(es) outside of the cycle as well. 
+
+Until now, we covered deadlocks, its conditions, how to detect them, and what kind of actions we can take if deadlock happens, but we didn't mention about how to avoid them. 
+
+# Deadlock Avoidance
+
+Most of the times, the resources are requested one at a time and we don't see many cases in which process(es) request mutliple resources at the same time.
+
+And one way to avoid deadlock is granting the resource only if it is **safe** to grant the resource. But what do we mean by **safe** ? 
+
+## Safe and Unsafe States
+
+If there is an sequence of order in which each process in the sequence can run and can be completed, that state is called **safe**. Even if every process requests the maximum number of resources immediately, as long as each process can run and finish without a problem, then the state is safe. 
+
+And an **unsafe** state is a state that will **potentially** result in deadlock in some period. 
+
+In the example above, we see 3 processes: A, B, and C. Process A has 3 resources, B has 2 resources and C has 2 resources. All together, they have 7 resources in total. And process can acquire 9 resources maximum at any given time while prcoess B can acquire 4 resources and process 7 can acquire 7 resources maximum at any given time. And let's assume that there are 10 instances of resources available. 
+
+```
+A | 3 | 9
+B | 2 | 4
+C | 2 | 7
+
+Free: 3
+```
+
+So in this example, since we have 10 instances of resources available and all the processes has 7 resources at this moment, there are 3 resources available. We can give 2 of these resources to B and in that case process B will be completed. So we can call this state as **safe** state. 
+
+Once we give 2 of the resources to process B 
+
+```
+A | 3 | 9
+B | 4 | 4
+C | 2 | 7
+
+Free: 1
+```
+
+process B will be completed and release all of the resources it was using back.
+
+```
+A | 3 | 9
+B | 0 | -
+C | 2 | 7
+
+Free: 5
+```
+
+So now, we have 5 resources. If we give these 5 resources to process A, it won't be enough for it because it needs 6 resources to complete. In that case, we end up with **unsafe** state. So we give these 5 resources to process C. 
+
+```
+A | 3 | 9
+B | 0 | -
+C | 7 | 7
+
+Free: 0
+```
+
+and once process C is completed, it will release its resources
+
+```
+A | 3 | 9
+B | 0 | -
+C | 0 | -
+
+Free: 7
+```
+
+and we will have 7 resources available. Now we can use 6 resources in process A
+
+```
+A | 9 | 9
+B | 0 | -
+C | 0 | -
+
+Free: 1
+```
+
+and complete all the processes.
+
+```
+A | 0 | -
+B | 0 | -
+C | 0 | -
+
+Free: 9
+```
+
+In this example, all of these states were **safe** because in each of them, there was a scheduling order in which each process can run and can be completed. 
+
+In another example, let's say that we have a state like this: 
+
+```
+A | 3 | 9
+B | 2 | 4
+C | 2 | 7
+
+Free: 3
+```
+
+This is a **safe** safe. And now let's say that process A acquires one resource. 
+
+```
+A | 4 | 9
+B | 2 | 4
+C | 2 | 7
+
+Free: 2
+```
+
+Now, this state is **unsafe** because the system cannot guarantee that all processes will finish unlike a **safe** state. Because at this step, we can give the available 2 resources only to process B,
+
+```
+A | 3 | 9
+B | 4 | 4
+C | 2 | 7
+
+Free: 0
+```
+
+and after process B is completed and it releases all the resources, the total number of resources that is available won't be enough for neither process A or process B.
+
+```
+A | 3 | 9
+B | 0 | -
+C | 2 | 7
+
+Free: 4
+```
+
+So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this way is called **Banker's Algorithm**. 
+
+# Banker's Algorithm
+
+
+
+
    
 
 
