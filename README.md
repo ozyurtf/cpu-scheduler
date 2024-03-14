@@ -598,15 +598,34 @@ When an interrupt happens, the information of the currently executed process (e.
 
 And if you don't know what the signal is: signal is a mechanism that is used for inter-process communication. It is sent from one process to another, or from kernel to process to notify the process about an event. Signals can be represented in various ways (e.g. constants, enumerated values, signal numbers that are basically integer values associated with specific signal types, etc.)
 
+When we explained the deadlocks, we made some **assumptions** until now. These are: 
+
+- If a process requests a resource and that resource is unavailable, the process is suspended and put into waiting (sleep) state until the requested resource becomes available for it.
+- Once the process is put into the waiting state because of the lack of resources, no interrupt can wake up that process from the sleeping/waiting state. If you can send the signal externally, you can break the deadlock but that is not the definition of the deadlock. That is the definition of how we recover from a deadlock.
+
+And now, let's explain the **conditions of a deadlock**
+
+- Each resource is either available or assigned to exactly one process
+- Only one process can use a resource at a time. In other words, the resources cannot be used by multiple processes at the same time.
+- Processes that are holding resources can request new resources.
+- Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.
+- There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain
 
 
+Well, when the deadlock happens, how can we deal with them ? 
 
+# How to Deal with Deadlocks ? 
 
+- You can ignore them.
+- Let the deadlock occurs, detect it, and take an action.
+  -  As an example of an action; we can dynamically manage the resources to avoid deadlock.
+  -  We can also prevent the deadlock by breaking one of the conditions of the deadlock
 
+# Deadlock Detection and Recovery
 
+The system actually does not attempt to prevent the deadlock. It just detects as it happens. And once it detects the deadlcok, it takes actions to recover.
 
-
-
+But there are several issues in here. 
 
 
 
