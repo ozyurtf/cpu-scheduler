@@ -304,7 +304,17 @@ And when a space becomes available in the buffer, the pipe unblocks the producer
 So, in summary pipe is a unidirectional data channel that can be used for inter-process communication. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
 
 
-## Fatal Race Condition
+In the producer-consumer problem above, the access to the count variable is not constrained. That's why a race condition might occur. 
+
+For instance, let's assume that the buffer is empty and the consumer reads the count variable to see if it is 0 or not. At that moment, consumer starts sleeping since it finds the count value as 0. Then let's say that scheduler starts running the producer. Producer produces an item and inserts it into the buffer since the buffer is not full, increments the value of count from 0 to 1, and lastly wakes up the consumer which is technically **not sleeping**.
+
+In another case, let's say that count equals to 1 and consumer begins running it's codes. It will first remove an item from the buffer since count is not 0. Then it will decrease the value of count from 1 to 0 and consume the item without waking up the producer since the buffer was not full before extracting the item from it. So, after consuming the item, the consumer will start the loop again. At that moment, count value equals to 0. That's why the consumer will sleep. Sooner or later, the producer will produce items and fill the whole buffer. At that moment, consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever. 
+
+The main issue in these two scenarios is that a wake-up call that is sent to a process that is not sleeping is lost. If this wake-up call wouldn't be lost, everything would work fine. 
+
+That's why a quick fix to this problem is to add a wakeup waiting bit. 
+
+
 
 
 
