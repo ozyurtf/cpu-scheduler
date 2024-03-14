@@ -350,10 +350,10 @@ void Semaphore::wait() {
 }
 
 void Semaphore::signal() {                   
-  value++;                              // Increment the value of the semaphore by 1.
-  if (value <= 0) {
-    Thread *thd= waitQ.getNextThread();
-    scheduler->add(thd);                
+  value++;                              // Increment the value of the semaphore by 1. The process/thread that was using a resource left it's critical region and stopped accessing to that resource. 
+  if (value <= 0) {                     // If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. 
+    Thread *thd= waitQ.getNextThread(); // In that case, after the shared resource is being released in the previous steps, one of these waiting processes/threads can now start using that resource. In that condition, we pick one thread from the wait queue. 
+    scheduler->add(thd);                // And then add it to the scheduler.
   }
 }
 ```
@@ -385,10 +385,51 @@ And assume that we want the statement A2 in process A to be completed before sta
 
 We can put the signal() call after A2, and wait() call before B4. Through that way, after B1, B2, and B3 are executed, we wait the signal coming from the signal() operation. And that signal only comes after A2 is completed. Through this way, we can ensure that statement A2 is completed before statement B4 begins.
 
+Semaphores are elegant solutions for sycnhronization of the processes/threads. But a race condition can occur like in the other methods if multiple processes/threads try to execute the wait() and signal() operatiions simultaneously. For instance, if one thread is in the middle of decrementing the semaphore value by using wait() operation and another thread tries to increment the same value in signal() operation at the same time, that will cause race condition. 
 
+Therefore, we must impement the wait() and signal() operations in atomic way so that they should be executed exclusively.
 
+We can make the wait() and signal() operations atomic by using **interrupts** and **lock variable** 
 
+```
+class Semaphore {
+  int lockvar;           // The lock variable
+  int value;             // The value of semaphore
+  queue<Thread*> waitQ;  // Queue that holds threads that are blocked (waiting) because of the lack of resources.
+  void Init(int v);      
+  void wait();           // Wait operation. This operation is called by a thread/process when it wants to release a resource.   
+  void signal();         // Signal operation. This operation is called by a thread/process when it wants to acquire a resource.
+}
 
+void Semaphore::Init(int v) {
+  value = v;
+  waitQ.init();          // Initialize an empty queue to hold threads that are blocked (waiting) because of the lack of resources.                         
+}
+
+void Semaphore::wait() {
+  lock(&lockvar);                     // Lock the lock variable so that when a process/thread acquires resources, no other process/threads can interfere with this.                 
+  value--;                            // Decrement the value of semaphore by 1. 
+  if (value < 0) {                    // If the new value of the semaphore is negative, this means that resource(s) controlled by the semaphore was already being used.
+    waitQ.add(current_thread);        // Add current thread into the wait queue, because of the lack of available resources
+    current_thread->status = blocked; // Update the status of the thread as "blocked" because it cannot access to the shared resource at this moment
+    unlock(&lockvar);                 // Unlock the lock variable so that another process/thread can start it's operations.
+    schedule();                       // Schedule another thread to avoid spinning and wasting CPU time.
+  }
+  else {
+    unlock(&lockvar);                 // Unlock the lock variable so that another process/thread can start it's operations.
+  }
+}
+
+void Semaphore::signal() {
+  lock(&lockvar);                       // Lock the lock variable so that when a process/thread release resources, no other process/threads can interfere with this.                 
+  value++;                              // Increment the value of the semaphore by 1. The process/thread that was using a resource left it's critical region and stopped accessing to that resource. 
+  if (value <= 0) {                     // If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. 
+    Thread *thd= waitQ.getNextThread(); // In that case, after the shared resource is being released in the previous steps, one of these waiting processes/threads can now start using that resource. In that condition, we pick one thread from the wait queue. 
+    scheduler->add(thd);                // And then add it to the scheduler.
+  }
+  unlock(&lockvar);                     // Unlock the lock variable so that another process/thread can start it's operations.
+}
+```
 
 
 
