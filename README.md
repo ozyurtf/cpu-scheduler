@@ -849,7 +849,7 @@ For each node in the graph:
 4) Pick an unmarked and outgoing arc randomly and mark it. Then follow it to the new node and jump into step 2.
 5) If the current node is visited first time, this means that there is no cycle and we terminate the algorithm. Otherwise, we are in dead end and we remove the node and go back to the previous node. Then we jump into the 2nd step.
 
-Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to detect them but one another question is: when to check for deadlocks ? 
+Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: when to check for deadlocks ? 
 
 # When to Check Deadlocks ? 
 
@@ -857,43 +857,43 @@ Okay we have mentioned about the deadlocks, conditions of the deadlock, and how 
 - We can check periodically (e.g. every x minutes)
 - We can also check when CPU utilization drops to a level that is lower than a specific threshold. Because if the CPU utilization is low, this means that the amount of time spent for idle tasks is high. And this means that some processes or threads are not making enough progress and it may be because of the deadlock.
 
-Okay let's say that we check the deadlocks, and detected one. Now the question is: how to recover from the deadlock ? 
+Okay let's say that we checked the deadlocks, and detected one. Now the question is: how we can recover from the deadlock ? 
 
 ## 1) Recovering from Deadlock Through Preemption
 
-When deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention.
+When a deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention. We can recover from the deadlock throug this way but it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
 
-But it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
-
-This method is often not possible because taking the resource away from the process often causes unpredictable behavior. 
+Also, this method is often not possible because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
 
 ## 2) Recovering from Deadlock Through Rollback 
 
-We can save the information about the processes periodically. And when a deadlock happens, we can roll a process back to the previous checkpoint. 
+We can also save the information about the processes periodically (e.g. every x minutes). And when a deadlock happens, we can roll the process back to the previous checkpoint. 
 
 But this method may cause significant delays. 
 
 ## 3) Recovering from Deadlock Through Killing Process 
 
-Another simple way to recover from deadlock is killing process(es). And we can continue killing until the deadlock is resolved. 
+Another simple way to recover from deadlock is killing process(es). And we can continue killing processes until the deadlock is resolved. 
 
 One note is that killing a process outside of the cycle can release resources that can be used to fix the deadlock. So we can kill process(es) outside of the cycle as well. 
 
-Until now, we covered deadlocks, its conditions, how to detect them, and what kind of actions we can take if deadlock happens, but we didn't mention about how to avoid them. 
+So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to avoid them before they happen. 
 
 # Deadlock Avoidance
 
-Most of the times, the resources are requested one at a time and we don't see many cases in which process(es) request mutliple resources at the same time.
+Most of the times, the resources are requested one at a time and we don't see many cases in which process(es) request(s) mutliple resources at the same time.
 
-And one way to avoid deadlock is granting the resource only if it is **safe** to grant the resource. But what do we mean by **safe** ? 
+One main way to avoid deadlock is granting the resource **only if** it it is **safe** to grant the resource. But what do we mean by **safe** ? 
 
 ## Safe and Unsafe States
 
-If there is an sequence of order in which each process in the sequence can run and can be completed, that state is called **safe**. Even if every process requests the maximum number of resources immediately, as long as each process can run and finish without a problem, then the state is safe. 
+If there is a sequence of order in which each process in the sequence can run and can be completed, that state is called **safe**. Even if every process requests the maximum number of resources immediately, as long as each process can run and finish without a problem, then the state is safe. 
 
 And an **unsafe** state is a state that will **potentially** result in deadlock in some period. 
 
-In the example above, we see 3 processes: A, B, and C. Process A has 3 resources, B has 2 resources and C has 2 resources. All together, they have 7 resources in total. And process can acquire 9 resources maximum at any given time while prcoess B can acquire 4 resources and process 7 can acquire 7 resources maximum at any given time. And let's assume that there are 10 instances of resources available. 
+In the example below, we see 3 processes: A, B, and C. Process A has 3 resources, B has 2 resources and C has 2 resources. All together, they have 7 resources in total. 
+
+And process A needs 9 resources to be finished while prcoess B needs 4 resources, and process C needs 7 resources. And let's assume that there are 10 instances of resources available in total. 
 
 ```
 A | 3 | 9
@@ -1081,7 +1081,7 @@ Available Resources = Tape Drivers: 5, Plotters: 3, Printers: 2, CD ROMs: 2
 
 ```
 
-To find the deadlock, we 
+To find the deadlock, we can
 
 1) look for a row whose unmet resource needs are all smaller than or equal to the values in available resources. If there is no that kind of row, this means that there is a deadlock and terminate.
 2) assume the process of the chosen row requests all resources it needs and then finishes. Mark that process as terminated and release its resources back to the available resources.
@@ -1090,16 +1090,16 @@ To find the deadlock, we
 The Banker Algorithm looks nice in theory but it is practically **not useful** because 
 
 - prcoesses don't know the maximum number of resources they will need in advance.
-- the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or we might end up with removing some processes. In those scenarios, Banker Algorithm is not a good solution.
+- the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or some of the existing processes might vanish. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
-We talked about deadlock avoidance which basically means analyzing the resources dynamically and making decisions that won't end up with deadlock. We can see this as a more indirect way to prevent deadlocks.
+We talked about deadlock avoidance which basically means analyzing the resources dynamically and trying to make decisions that won't end up with deadlock. We can see deadlock avoidance as a more indirect way to prevent deadlocks before they happen.
 
-But we can also try to prevent the system entering into deadlock directly. And this is called **deadlock prevention**
+But we can also try to prevent the system entering into deadlock directly by violating at least one of the conditions of deadlocks. And this is called **deadlock prevention**
 
 # Deadlock Prevention 
 
-We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of these conditions should be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
+We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
 
 ## 1) Deadlock Prevention: Attacking the Mutual Exclusion
 
