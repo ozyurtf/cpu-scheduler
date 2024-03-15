@@ -1105,17 +1105,17 @@ We have mentioned about the conditions of the deadlock. For a deadlock to happen
 
 One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource concurrently without waiting another process to release it. 
 
-Spooling can be given as an example of violating the mutual exclusion rule. A spooler is a program that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
+Spooling can be a way to violate the mutual exclusion rule. A spooler is a program/software that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
 
 So attacking the mutual exclusion condition prevents the deadlock directly. But we cannot apply this procedure in all cases. Some resources should be exclusively accessed by one process at a time and in those cases, this solution cannot be used for those cases. 
 
 ## 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
-Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes to wait for new resources if they are currently holding resources, we can prevent deadlock as well. 
+Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes from waiting for new resources if they are currently holding resources, we can prevent the deadlock as well. 
 
 One way to do this is to make processes to request all of the resources at the same time before starting the execution.
 
-Imagine that there is a process named process A. If all the resources that process A needs are available, they can be allocated to the process A directly and process A can begin execution. If all the requested resources are not available, process A is not granted any resource and must wait until all the resources become available. And once the resources it needs are available to use, it can start. Through this way, we prevent incremental acquisition of the resources which is the potential cause of the deadlocks.
+Imagine that there is a process named process A. If all the resources that process A needs are available, they can be allocated to the process A directly and process A can begin execution. But even if one the requested resources is not available, process A is not granted any of the resources and must wait until all the resources become available. And once the resources it needs are available to use, it can start. Through this way, we prevent incremental acquisition of the resources which is the potential cause of the deadlocks.
 
 Another way is to make the process to release all the resources it holds when it wants to acquire new resources. After releasing all the resources, now it can try to acquire all the resources it needs at the same time. 
 
@@ -1125,13 +1125,15 @@ The third condition of the deadlock was not allowing preemption. So we can preve
 
 A good strategy to do this is virtualization. 
 
-Virtualization allows multiple virtual machines/containers/etc. to share the same resources. Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logcial view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. If a process has been assigned the printer and it is in the middle of printing its output, taking away the printer would be tricky and sometimes impossible without this abstract layer. By using spooler, in other words virtualizing the resources, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now preempt the resources and as a result deadlocks. 
+Virtualization allows multiple virtual machines/containers/etc. to share the same resources. Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logical view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. 
+
+If a process has been assigned the printer and it is in the middle of printing its output, taking away the printer would be tricky and sometimes impossible without this abstract layer. By using spooler, in other words virtualizing the resources, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now preempt the resources and as a result deadlocks. 
 
 However, one thing to note is that not all resources are eligible to be virtualized. 
 
 ## 4) Deadlock Prevention: Attacking The Circular Wait Condition 
 
-**Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must release the first one. 
+**Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must first release the first resource. 
 
 **Method 2:** Another way to violate the circular wait condition is having a rule forcing the processes to request resources in numerical order. They can request resources whenever they want as long as they request in numerical order. 
 
@@ -1159,9 +1161,9 @@ at every instant, one of the assigned resources (i or j) will have the highest n
 
 In summary, deadlocks can occur in hardware resources or software resources.
 
-The operating system needs to 
-- try to avoid the as much as possible before they happen
-- detect these deadblocks when they happen
+And the operating system needs to 
+- try to avoid the as much as possible before they happen,
+- detect these deadblocks when they happen,
 - take actions and deal with them when they are detected.
 
 
