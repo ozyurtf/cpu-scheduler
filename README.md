@@ -160,7 +160,8 @@ void enter_region(int process) {
 
   while (turn == process && interested[other] == TRUE) {}
     // If its current process turn and and the other process is in its critical region,
-    // keep waiting until the other process leaves it's critical region.
+    // keep waiting until the other process leaves its critical region,
+    // in other words until interested[other] == FALSE.
 }
 
 void leave_region(int process) {
@@ -169,31 +170,36 @@ void leave_region(int process) {
 
 ```
 
-The other methods that are used to do ensure mutual exclusion and prevent race condition are called Test and Set Lock and XCHG.
+The other methods that are used to do ensure mutual exclusion are called **Test and Set Lock** and **XCHG**.
 
 ## TSL (Test and Set Lock)
 
 ```
 enter_region:
+
   TSL REGISTER, LOCK
-    | Reads the value of the lock into the register and sets the lock variable to 1 
+    | Copies the value in the lock into the register and sets the lock to 1.
+
   CMP REGISTER, #0
-    | Compares the value in the register with 0. 
+    | Compares the value in the register with 0.
+
   JNE enter_region
     | If the value in the register is not 0,
-    | this means that the another process already locked the variable and
-    | it is currently in it's critical region.
-    | That's why this process keeps waiting until the other process
-    | that locked the variable unlock it and leaves its critical region.
-  RET
+    | this means that critical region is occupied.
+    | So keep waiting until the value in the register is set to 0, in other words,
+    | until the critical region becomes vacant.
     | If the value in the register is 0,
-    | this means that the lock is available,
-    | and no other process is in its critical region right now.
-    | Therefore this function returns, allowing the process to enter it's critical region.
+    | this means that the critical region is vacant.
+    | In that case, jump into the RET.
+
+  RET
+    | Returns, allowing the process to acquire the lock and enter its critical region.
 
 leave_region:
+
   MOVE_LOCK, #0
-    | Stores the value of 0 in the lock variable and releases the lock.
+    | Releases the lock, and stores the value of 0 in the lock variable.
+
   RET
     | Returns, allowing other threads to attempt to acquire the lock.
 ```  
@@ -202,70 +208,104 @@ leave_region:
 
 ```
 enter_region:
+
   MOVE REGISTER, #1
     | Load the value of 1 into the register.
-  XCHG REGISTER, LOCK
-    | Swap the value of the register with the lock
 
+  XCHG REGISTER, LOCK
+    | Swap the value of the register with the lock.
     | Let's say that the current value of the lock is 0.
-    | The processor reads this value in the lock.
+    | This means that the lock is available and there is no process
+    | that is in its critical region right now. 
+    | So, the processor reads this value in the lock.
     | And then it writes the current value of the register (1) to lock,
-    | and writes the value of the lock (0) into the register at the same time.
+    | and writes the value of the lock (0) into the register simultaneously.
     | After this, the register is now equal to 0 (which means the lock is acquired)
     | and the lock is now equal to 1 (which represents a locked state)
-    | So by storing the initial value of the lock (0) in the register
+    | So, by storing the initial value of the lock (0) in the register
     | and using the swap operation,
     | we can check the initial value of the lock and set the lock variable
     | to a desired state in an atomic operation.
     | And this atomic operation prevents the situation in which
-    | one process (e.g. process A) checks the lock variable and another process (e.g. process B) acquires the lock
+    | one process (e.g. process A) checks the lock variable and
+    | another process (e.g. process B) acquires the lock
     | before the process A sets the lock variable.
 
+  CMP REGISTER, #0
+    | Compares the value in the register with 0.
+
   JNE enter_region
-    | If the value in register is not 0,
-    | this means that the lock is already set and
-    | some process in it's critical region. So in that case,
-    | wait until that process leaves the critical region
-    | by jumping into enter_region until the value in register is 0.
+    | If the value in the register is not 0,
+    | this means that critical region is occupied.
+    | So keep waiting until the value in the register is set to 0, in other words,
+    | until the critical region becomes vacant.
+    | If the value in the register is 0,
+    | this means that the critical region is vacant.
+    | In that case, jump into the RET.
+    
   RET
-    | Return, indicating that lock is acquired and critical region is entered..
+    | Returns, allowing the process to acquire the lock and enter its critical region.
 
 leave_region:
+
   MOVE_LOCK, #0
-    | Store the value of 0 in lock variable meaning that the lock is released.
+    | Releases the lock, and stores the value of 0 in the lock variable.
+
   RET
-    | Return, indicating that the lock is released.
+    | Returns, allowing other threads to attempt to acquire the lock.
 ```  
 
-So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion and prevent race conditions were correct. But they had some issues. 
+So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion were correct. But the thing is they had some issues. 
 
-For instance, they have the defect of busy waiting. In other words, when a process wants to enter it's critical region, it checks to see it is allowed to enter. If not, the process just sits in the loop and wait until the entry is allowed. And this waiting process wastes the CPU time. That's why it is not the best practice.
+For instance, they had the defect of **busy waiting**. In other words, when a process wanted to enter its critical region, it checked to see whether it is allowed to enter. If this was not the case, the process just waited until the its entry was allowed. And the problem is that this waiting process wastes the CPU time. That's why it should be avoided.
 
-In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering it's critical region because process B is currently in it's critical region and holding the lock variable. And this is called **priority inversion**. 
+In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering its critical region when process B is in its critical region and holding the lock variable. And this is called **priority inversion**. 
 
 So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
+
+Let's try to do the lock implementation by reducing the busy waiting. 
 
 # Lock Implementation with Semi-Busy Waiting 
 
 ```
 mutex_lock: 
-  TSL REGISTER, MUTEX | Copy the mutex (mutual exclusion) lock to register. Then set mutex lock to 1.
-  CMP REGISTER, #0    | If the value of the mutex lock was 0, this means that mutex lock was available. In that case, jump into the JZE command and return. If the value of the mutex lock was 1, this means that mutex lock was not available. In that case, jump into the CALL command.
+  TSL REGISTER, MUTEX
+    | Copies the value in the mutex (mutual exclusion) lock into the register and sets the mutex lock to 1.
+
+  CMP REGISTER, #0
+    | Compares the value in the register with 0.
+
   JZE ok
-  CALL thread_yield   | Mutex lock is not available. Schedule another process/thread
+    | If the value in the register is 0, this means that critical region is vacant.
+    | In that case, jump into RET.
+    | If the value of the register is not 0,
+    | this means that the critical region is occupied.
+    | In that case, go to the next code.
 
-    // Instead of checking the status of the lock repeatedly (busy-waiting),
-    // and wasting CPU time, we can allow another process/thread to run.
+  CALL thread_yield
+    | Instead of checking the status of the lock repeatedly (busy-waiting),
+    | and wasting CPU time, we can allow another process/thread to run.
+    | So, if critical region is currently occupied,
+    | schedule another process/thread and go to the next code.
 
-  JMP mutex_lock      | and run the mutex_lock again with a new process/thread.
-  RET                 | Return, indicating that lock is acquired and critical region is entered..
+  JMP mutex_lock
+    | Runs the mutex_lock again with a new process/thread.
+
+  RET
+    | Returns, allowing the process to acquire the lock and enter its critical region.
 
 mutex_unlock:
-  MOVE_MUTEX, #0       | Store the value of 0 in lock variable meaning that the lock is released.
-  RET                 | Return, indicating that the lock is released.
+
+  MOVE_MUTEX, #0
+    | Releases the lock, and stores the value of 0 in the mutex lock variable.
+
+  RET
+    | Returns, allowing other threads to attempt to acquire the lock.
 ```
 
-We mentioned about process/thread trying to acquire a lock. And if the lock is not available for that process/thread, we call this ```lock contention```. 
+Okay with this new method, we now reduced the **busy waiting** by scheduling another process/thread instead when the lock is not available for a process.
+
+Note that when a process/thread tries to acquire a lock, if the lock is not available for that process, we call this **lock contention**
 
 # Lock Contention
 
