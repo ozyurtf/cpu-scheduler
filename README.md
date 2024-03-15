@@ -922,8 +922,51 @@ Another way is to make the process to release all the resources it holds when it
 
 ## 3) Deadlock Prevention: Attacking No Preemption Condition
 
+The third condition of the deadlock was not allowing preemption. So we can prevent the deadlock by preempting a resource from a process when the same resource is required by another process. 
 
-## 3 Deadlock Prevention: Attacking No Preemption Condition 
+A good strategy to do this is virtualization. 
+
+Virtualization allows multiple virtual machines/containers/etc. to share the same resources. Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logcial view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. If a process has been assigned the printer and it is in the middle of printing its output, taking away the printer would be tricky and sometimes impossible without this abstract layer. By using spooler, in other words virtualizing the resources, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now preempt the resources and as a result deadlocks. 
+
+However, one thing to note is that not all resources are eligible to be virtualized. 
+
+## 4) Deadlock Prevention: Attacking The Circular Wait Condition 
+
+**Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must release the first one. 
+
+**Method 2:** Another way to violate the circular wait condition is having a rule forcing the processes to request resources in numerical order. They can request resources whenever they want as long as they request in numerical order. 
+
+Let's say that we have these resources: 
+
+1) Imagesetter
+2) Printer
+3) Plotter
+4) Tape Drive
+5) Blu-ray Drive
+
+So if we apply this method, a process may request printer first and then a tape driver second but it can never request a plotter first and then printer second. 
+
+If we have the process A and process B, and the resources are i and j, for instance, 
+
+```
+A   B
+|   | 
+i   j
+```
+
+at every instant, one of the assigned resources (i or j) will have the highest number. The process that is holding that resource will never ask for another resource that was already assigned. It will either be completed (if it doesn't require any other source) or request even higher numbered resources (and all of them will be available). This way, circular wait condition won't occur and as a result we won't see deadlock.
+
+# Conclusion 
+
+In summary, deadlocks can occur in hardware resources or software resources.
+
+The operating system needs to 
+- try to avoid the as much as possible before they happen
+- detect these deadblocks when they happen
+- take actions and deal with them when they are detected.
+
+
+
 
 
 
