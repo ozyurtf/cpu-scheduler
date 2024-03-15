@@ -145,17 +145,22 @@ So we can conclude that using lock variables solely is not the best method to ac
 #define N 2
 
 int turn;          
-int interested[N];                                        // interested = [. , .]
+int interested[N];
+  // interested = [. , .]
 
 void enter_region(int process) {
   int other;
 
-  other = 1 - process;                                    // Other process. If the current process is 0, other process will be 1. If current process is 1, other process will be 0.
+  other = 1 - process;
+    // Other process. If the current process is 0, other process will be 1.
+    // If current process is 1, other process will be 0.
 
-  turn = process;                                         // Which process' turn to enter its critical region ?
+  turn = process;
+    // Which process' turn to enter its critical region ?
 
-  while (turn == process && interested[other] == TRUE) {} // If its current process turn and and the other process is in its critical region, keep waiting until the other process leaves it's critical region.
-
+  while (turn == process && interested[other] == TRUE) {}
+    // If its current process turn and and the other process is in its critical region,
+    // keep waiting until the other process leaves it's critical region.
 }
 
 void leave_region(int process) {
@@ -170,43 +175,66 @@ The other methods that are used to do ensure mutual exclusion and prevent race c
 
 ```
 enter_region:
-  TSL REGISTER, LOCK | Reads the value of the lock into the register and sets the lock variable to 1 
-  CMP REGISTER, #0   | Compares the value in the register with 0. 
-  JNE enter_region   | If the value in the register is not 0, this means that the another process already locked the variable and it is currently in it's critical region. That's why this process keeps waiting until the other process that locked the variable unlock it and leaves it's critical region.
-  RET                | If the value in register is 0, this means that the lock is available, and no other process is in it's critical region right now. And therefore this function returns allowing the process to enter it's critical region.
+  TSL REGISTER, LOCK
+    | Reads the value of the lock into the register and sets the lock variable to 1 
+  CMP REGISTER, #0
+    | Compares the value in the register with 0. 
+  JNE enter_region
+    | If the value in the register is not 0,
+    | this means that the another process already locked the variable and
+    | it is currently in it's critical region.
+    | That's why this process keeps waiting until the other process
+    | that locked the variable unlock it and leaves its critical region.
+  RET
+    | If the value in the register is 0,
+    | this means that the lock is available,
+    | and no other process is in its critical region right now.
+    | Therefore this function returns, allowing the process to enter it's critical region.
 
 leave_region:
-  MOVE_LOCK, #0      | Stores the value of 0 in the lock variable and releases the lock.
-  RET                | Returns, allowing other threads to attempt to acquire the lock.
+  MOVE_LOCK, #0
+    | Stores the value of 0 in the lock variable and releases the lock.
+  RET
+    | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
 ## XCHG
 
 ```
 enter_region:
-  MOVE REGISTER, #1   | Load the value of 1 into the register.
-  XCHG REGISTER, LOCK | Swap the value of the register with the lock
+  MOVE REGISTER, #1
+    | Load the value of 1 into the register.
+  XCHG REGISTER, LOCK
+    | Swap the value of the register with the lock
 
-    // Let's say that the current value of the lock is 0.
-    // The processor reads this value in the lock.
-    // And then it writes the current value of the register (1) to lock,
-    // and writes the value of the lock (0) into the register at the same time.
-    // After this, the register is now equal to 0 (which means the lock is acquired)
-    // and the lock is now equal to 1 (which represents a locked state)
-    // So by storing the initial value of the lock (0) in the register
-    // and using the swap operation,
-    // we can check the initial value of the lock and set the lock variable
-    // to a desired state in an atomic operation.
-    // And this atomic operation prevents the situation in which
-    // one process (e.g. process A) checks the lock variable and another process (e.g. process B) acquires the lock
-    // before the process A sets the lock variable.
+    | Let's say that the current value of the lock is 0.
+    | The processor reads this value in the lock.
+    | And then it writes the current value of the register (1) to lock,
+    | and writes the value of the lock (0) into the register at the same time.
+    | After this, the register is now equal to 0 (which means the lock is acquired)
+    | and the lock is now equal to 1 (which represents a locked state)
+    | So by storing the initial value of the lock (0) in the register
+    | and using the swap operation,
+    | we can check the initial value of the lock and set the lock variable
+    | to a desired state in an atomic operation.
+    | And this atomic operation prevents the situation in which
+    | one process (e.g. process A) checks the lock variable and another process (e.g. process B) acquires the lock
+    | before the process A sets the lock variable.
 
-  JNE enter_region    | If the value in register is not 0, this means that the lock is already set and some process in it's critical region. So in that case, wait until that process leaves the critical region by jumping into enter_region until the value in register is 0.
-  RET                 | Return, indicating that lock is acquired and critical region is entered..
+  JNE enter_region
+    | If the value in register is not 0,
+    | this means that the lock is already set and
+    | some process in it's critical region. So in that case,
+    | wait until that process leaves the critical region
+    | by jumping into enter_region until the value in register is 0.
+  RET
+    | Return, indicating that lock is acquired and critical region is entered..
 
 leave_region:
-  MOVE_LOCK, #0       | Store the value of 0 in lock variable meaning that the lock is released.
-  RET                 | Return, indicating that the lock is released.
+  MOVE_LOCK, #0
+    | Store the value of 0 in lock variable meaning that the lock is released.
+  RET
+    | Return, indicating that the lock is released.
 ```  
 
 So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion and prevent race conditions were correct. But they had some issues. 
