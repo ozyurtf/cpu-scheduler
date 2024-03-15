@@ -45,16 +45,77 @@ Also one note is that if we have two same applications, their address space will
 
 Okay we talked about the processes, how do they look like, what kind of components they include, how they access to the information in the memory. Let's now talk about the lifecycle of a process from process creation to process implementation and process termination.
 
+So, maybe the first question we should ask is: when processes are created ? 
+
 ## Process Creation 
 
-So when processes are created ? 
-
-- When a computer initializes the operationg system and loads it to the memory, it may create many different processes during this time.
-- During system initialization, the user can initiate process as well.
-- And similary during system initialization, processes can be created by the system to run in the background without user interaction.
+- When the system is initialized.
+      - When a computer initializes the operationg system and loads it to the memory, initialize hardware devices, etc. And during these times, new processes can be created.
+      - During system initialization, some processes are created to run in the foreground to allow the users to interact with them. 
+      - And similarly during system initialization, some processes are created to run in the background to perform tasks (e.g. managing resources, without interacting with the user. 
 - When processes are running, these processes typically create new processes as well.
-- The user can execute some codes or open applications and these create processes as well.
-- The operationg system can create processes that will run in the background and that will be used to manage system resources or to provide services.
+- The user can execute some codes or open applications and these actions create processes as well.
+- The operationg system can create processes that will to provide services.
+- When the user enters into a system interactively (e.g through terminal, remote shell, or a graphical login screen), a new process is created to be able to handle the user's session and allow the user to interact with the system.
+
+Now the question is: how the processes are implemented ? 
+
+## Process Implementation
+
+Once the processes are created, there might be too many of them. And in each one of these processes, there might be too many information that we have to deal with. Therefore, to be able to manage all the processes properly, we can try to store the important information about these processes (e.g. state of the process, its priority, program counter, pointers to memory, IO status information, etc.) in a data structure, and manage the processes through this data structure more easily. 
+
+We call this data structure **Process Control Block (PCB)**. The process control block is basically created and managed by the operating system. 
+
+Since each process will have a distinct process control block, to be able to access these process control blocks properly, we can assign a unique ID, which we call **Process ID (PID)**, to each process, and store the process ID and process control block in a new data structure. And we call this data structure **Process Table**. 
+
+```
+---------
+Memory    -------------------> Memory Tabke
+---------
+Devices   -------------------> IO Table
+---------
+Files     -------------------> File Table
+---------
+Processes -------------------> Process Table
+----------                     -------------    
+                               PID | PCB
+                                1  |  x 
+                                2  |  x 
+                               ... | ...
+                                n  |  x ⁻⁻⁻⁻⁻⁻|
+                                              |
+                                              |
+                                              V
+                                          ---------------
+                                          Process State
+                                          ---------------
+                                          Priority
+                                          ---------------
+                                          Program Counter
+                                          ---------------
+                                          Memory Pointers
+                                          ---------------
+                                          IO Status Info
+                                          ---------------
+                                          ...
+                                          ---------------
+
+```   
+
+One of the benefits of using process control block is, for example, by storing the state information of the process in the process control block, it becomes possible to interrupt a running process and then resume its execution later. So, it allows us to support/manage multiple processes.
+
+
+## Process Termination 
+
+- When a process completes its execution without any problem, it exits **voluntarily**. We can call this **normal exit**
+- When a process encounters an error/exception during its execution, it exits **voluntarily**. We can call this **error exit**.
+- When a process encounters a severe error that will prevent the operating system to operate safely (e.g. by potentially damaging the system or causing data loss), the operating system terminates the process immediately. When this kind of severe error happens, the process is not given a chance to take any action, that's why the exit is **involuntary** and the user may end up with losing the changes he made before the error. We can call this **fatal error**.
+- Sometimes, a prcoess may explicitly terminate another process. One example of this might be terminating a process that has not been responding for a very long time. Because the process is not given any chance to take action, this is an **involuntary** termination as well.
+- When a process has run longer than expected, they may be terminated as well. We can call this **time limit exceeded error**
+
+
+
+
 
 
 ## Thread
