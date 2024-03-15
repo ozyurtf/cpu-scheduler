@@ -689,17 +689,17 @@ Consumer(T &item) {
 }
 ```
 
-So, semaphores are great but like all the other methods, they have some downsides as well. 
+So, semaphores are great but like all the other methods, they have some downsides as well:
 
-- It is not always easy to write the semaphore code. Sometimes, it can be difficult.
+- It is not always easy to write the codes with semaphores.
 - If a thread dies while holding a semaphore, the permit to access to a shared resource is basically lost. And this can prevent other threads being blocked from accessing shared resource even. That's why we need to be extra careful when constructing the semaphores.
 
-In addition, they may cause a situation called **deadlock** which we will explain in an example later. To avoid this situation, we should
+In addition, they may cause a situation in which the processes had to wait for resources(s) forever. To avoid this situation, we should
 
 - acquire the multiple locks in the same order.
-- release the locks in reverse order if possible.
+- release the locks in reverse order ideally.
 
-And we can show how these solutions work to avoid what they call **deadlock** in an example. In below, you see two very similar but different codes: 
+And we can show how these solutions work in an example. In below, we can see two very similar but different codes: 
 
 **1st Scenario:**
 ```
@@ -757,28 +757,30 @@ typedef int semaphore;
 
 ```
 
-In the second case, process A can acquire resource 1, and process B can acquire resource 2. Then process A will attempt to acquire resource 2 but it won't be able to because resource 2 is hold by the process B. Similarly, process B will attempt to acquire resource 1 but it won't be able to because resource 1 is hold by the process A. This is called **deadlock** and both processes will wait to hold a resource forever if they are not interrupted. 
+In the second case, process A can acquire the resource 1, and process B can acquire the resource 2. Then process A will attempt to acquire the resource 2 but it won't be able to because the resource 2 is hold by the process B. 
 
-But by applyting the two advices (acquiring locks in the same order and releasing in the reverse order) like we did in the 1st case scenario, we can avoid deadlock.
+Similarly, process B will attempt to acquire the resource 1 but it won't be able to because the resource 1 is hold by the process A. This is called **deadlock** and both processes will wait to hold a resource forever.
 
-! Slides between 50 and 72 are passed 
+But by acquiring locks in the same order and releasing them in the reverse order we can avoid deadlock.
 
-Sometimes people can get confused about **deadlock** and **starvation**. So, let's define both of them in more detail
+Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
+
+**Slides between 50 and 72 are passed**
 
 # Deadlock vs Starvation
 
-- **Deadlock**: This occurs when the processes wait for resource that will never be available. 
+- **Deadlock**: This occurs when the processes wait for a resource that will never be available. 
 - **Starvation** The resource can become available at some point but if a process cannot get access to that resource, that process will experience starvation. In other words, the process waits for its turn but its turn never comes even if there is an available resource.
 
-Deadlock occurs when **none** of the processes are able to move ahead while starvation occurs when a process waits for indefinite time to get the resource it needs to move forward. 
+Deadlock occurs when **none** of the processes are able to move ahead while starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward. 
 
-If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependeny between processes to move forward. Deadlock occurs among processes that need to acquire resources in order to progress.
+If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependency between processes to move forward. Deadlock occurs among processes that are waiting to acquire resources in order to progress forever.
 
-Okay but still, the definition of resource seems vague. What are the things that we call **resource** in general ? 
+Okay we compared the deadlock and starvation and explained their differences but we also talked about the resources. What are the things that we call **resource** in general ? 
 
 # Resources
 
-We call anything that needs to be 
+If we want to explain simply, we call anything that needs to be 
 
 1) acquired
 2) used
@@ -796,16 +798,12 @@ We can also divide the resources into two categories: **Reusable**, and **Consum
 
 **Consumable Resources**: These are the resources that can be created and then destroyed/consumed and once we consume these resources, they are not going to be available to be used anymore. **Interrupts, signals, messages, information in I/O buffers can be given as an example of consumable resources**. 
 
-If you don't know what the interrupt is: interrupt is basically a signal/notification that is sent by hardware or software to the CPU. It indicates that an event happened that requires attention. The interrupts are generated by external devices such as keyboard, mouse, etc. or internal system components such as disk controller, timer, etc. One way to represent interrupts is using a vector of numerical values associated with a specific interrupt type. 
+We have explained the interrupts before but if you don't know what the signal is: signal is a kind of mechanism that is used for **inter-process communication**. It is sent from one process to another, or from kernel to process to notify the process about an event. Signals can be **represented** in various ways **(e.g. constants, enumerated values, signal numbers that are basically integer values associated with specific signal types, etc.)**
 
-When an interrupt happens, the information of the currently executed process (e.g. registers, program counter, etc.) is saved and the control is transferred to the interrupt handler, which is a software responsbile from handling interrupts. And the intrrupt handler performs the necessary actions. 
-
-And if you don't know what the signal is: signal is a mechanism that is used for inter-process communication. It is sent from one process to another, or from kernel to process to notify the process about an event. Signals can be represented in various ways (e.g. constants, enumerated values, signal numbers that are basically integer values associated with specific signal types, etc.)
-
-When we explained the deadlocks, we made some **assumptions** until now. These are: 
+One thing to note is that when we explained the deadlocks, we have made some **assumptions**. And these are: 
 
 - If a process requests a resource and that resource is unavailable, the process is suspended and put into waiting (sleep) state until the requested resource becomes available for it.
-- Once the process is put into the waiting state because of the lack of resources, no interrupt can wake up that process from the sleeping/waiting state. If you can send the signal externally, you can break the deadlock but that is not the definition of the deadlock. That is the definition of how we recover from a deadlock.
+- Once the process is put into the waiting state because of the lack of resources, no interrupt can wake up that process from the sleeping/waiting state. If you can send the signal externally, you can break the deadlock but that is not the definition of the deadlock. That is the definition of how we can recover from a deadlock.
 
 And now, let's explain the **conditions of a deadlock**
 
@@ -815,31 +813,28 @@ And now, let's explain the **conditions of a deadlock**
 - Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.
 - There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain
 
-
-Well, when the deadlock happens, how can we deal with them ? 
+Well, it is good to know the conditions of a deadlock but another important question that we should answer is: when the deadlock happens, how can we deal with them ? 
 
 # How to Deal with Deadlocks ? 
 
 - You can ignore them.
 - Let the deadlock occurs, detect it, and take an action.
-  -  As an example of an action; we can dynamically manage the resources to avoid deadlock. (Deadlock Avoidance)
-  -  We can also prevent the deadlock by breaking one of the conditions of the deadlock. (Deadlock Prevention)
+  -  We can dynamically manage the resources to avoid deadlock. **(Deadlock Avoidance)**
+  -  We can also break one of the conditions of the deadlock and prevent the deadlock. **(Deadlock Prevention)**
 
 # Deadlock Detection and Recovery
 
-The system actually does not attempt to prevent the deadlock. It just detects as it happens. And once it detects the deadlcok, it takes actions to recover.
+The system actually does not attempt to prevent the deadlock. It just detects the deadlock as it happens. And once it detects the deadlock, it takes actions to recover.
 
 But the question is: how we can detect the deadlock ? 
-
-As always, the answer to this question is: it depends. 
-
+ 
 ## Deadlock Detection with One Resource of Each Type
 
-If there is only 1 resource for each type, constructing a resource graph is enough. If we detect a cycle in that graph, this means that there is a deadlock.
+If there is only 1 resource for each type, constructing a resource graph is a good way to detect the deadlock. Because if we detect a cycle in that graph, this means that there is a deadlock.
 
-We can give a system that has one scanner, one plotter, one tape-drive as an example of a system in which there is one resource of eacy type. Having two printers, for instance, breaks the rule. 
+We can give a system that has one scanner, one plotter, one tape-drive as an example of a system in which there is one resource of eacy type. Having two printers, however, would break the rule. 
 
-Okay but the question now is: how to detect cycles ? In other words, how a computer can detect cycles in a graph ? 
+Okay now the question is: how to detect cycles ? We can detect it by simply looking at it but how a computer can detect a cycle in a graph ? 
 
 ## Formal Algorithm to Detect Cycles
 
