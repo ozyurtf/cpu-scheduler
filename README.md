@@ -1,3 +1,71 @@
+# Processes and Threads 
+
+## Process
+
+In computer, there are programs that basically consists a set of instructions that are written to handle specific tasks. 
+
+These instructions/codes are stored in the disk or memory and they need to be executed by the processor/CPU to give us what we want. 
+
+When these set of instructions are executed, we can call the process of the execution of these instructions as **process**. Process is an abstraction of running program. 
+
+And sometimes a process may create new process(es) to be able to finish its tasks. In those cases, we can represent the processes in a process tree:
+
+```
+      A
+     / \
+    /   \
+   B     C
+  / \
+ D   F
+```
+
+In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
+
+In addition, a process typically includes information like:
+
+- variables of the program
+- code of the program
+- program counter (it is a hardware resource that keeps track off the next instruction to be executed)
+- registers (this is another hardware resource that can hold any kind of data that is necessary for the execution)
+- process state (this state can be "Created", "Running", "Ready", etc. and it represents the current state of the process)
+
+Okay these are good to know but where are these information stored ? The answer is what they call **address space** 
+
+### Address Space 
+
+In a program, there are many information that are stored in memory such as the variables, codes, 
+
+## Thread
+
+And in these processes, there might be smaller units of execution as well and we call these units **threads**. If there are multiple threads in a process, these threads need to work together and share the same address space and many other resources. 
+
+Okay we have defined the processes and threads but what is exactly processor/CPU ? 
+
+CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is execute the instructions and perform operations on the data. 
+
+Imagine that you ran a program in your computer. This program includes some set of instructions. And these instructions are sent to the CPU. Then CPU follows these instructions step by step to do the required tasks specified in the program. And while doing that, it can retrieve data from the memory, manipulate that data according to the instructions, and then store the results back in the memory or maybe send them to monitor, or printer for instance. 
+
+A CPU generally has one or more cores. These cores are physical processing units that are responsible from executing instructions and performing computations in general. 
+
+And we can divide the core into three groups: 
+
+- Memory: In core, a memory unit is built to store & transfer information fastly/efficiently. This memory unit consists of registers and cache.
+- Control Unit: These units fetches the instructions that are represented as bits from the memory unit, and translates those instructions into electricity or maybe light so that they can be sent to other parts of the computer as signal. 
+- Arithmetic Logic Unit: This unit includes electronic circuits. And these circuits are responsible from arithmetic and logic operations. 
+
+The operating system can schedule a process or thread onto each hardware thread. And a hardware thread consists of 
+
+- Program Counter: Keeps track of the next instruction to be executed
+- Registers: These are used to store information about the thread (e.g. status information, and addresses of the thread)
+- Cache Resources: Each hardware thread owns some part of core's cache to store its own data and instructions.
+- Execution Resources: These are the resources it needs for executing the instructions.
+
+Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
+
+And because processor can only run one process/thread at a time, it is switched among multiple processors/threads to improve efficiency. This is called **context switching**. As a result of this switching, the units of executon will all look like progressing but at a slower speed. 
+
+The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks. 
+
 # Reminder 
 
 **Concurrency**: Executing multiple instructions in an interleaved manner. 
@@ -765,7 +833,7 @@ But by acquiring locks in the same order and releasing them in the reverse order
 
 Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
 
-**Slides between 50 and 72 are passed**
+**!!Lecture 4 - Slides between 50 and 72 are passed!!**
 
 # Deadlock vs Starvation
 
