@@ -311,55 +311,29 @@ Note that when a process/thread tries to acquire a lock, if the lock is not avai
 
 Lock contention depends on 
 
-1) the frequency of attempts to acquire the lock      (as the number of attempts to acquire the lock increases, the probability of lock contention increases)
-2) the amount of time a process/thread holds the lock (if a process hold the lock very short time, the probability of lock contention decreases)
-3) number of processes/threads that acquired the lock (as the number of processes that want to acquire the lock increases, the probability of lock contention increases)
+1) the frequency of attempts to acquire the lock      *(as the number of attempts to acquire the lock increases, the probability of lock contention increases)*
+2) the amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
+3) number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
 
-If the lock contention is low, this means that the length of time a process/thread waits for the lock variable to be unlocked is low. In other words, processes/threads don't wait too much and in that kind of scenario, TSL might be a good solution.
+If the lock contention is low, this means that the length of time a process/thread spends to wait for the lock variable to be available is low. In other words, processes/threads don't wait too much and in that kind of scenario, TSL might be a good solution.
+
+Until now, we used lock variable to ensure that only one process can occupy the critical region at a time. We can do this with methods other than a simple lock variable as well. 
+
+Let's explain this in a new problem that is called **producer-consumer problem**.
 
 # Producer-Consumer Problem
 
-In producer-consumer problem, there are two processes. And t hey share a common buffer which it's size is fixed. 
+In producer-consumer problem, there are two processes. And they share a common buffer (temporary data storage) which it's size is fixed. 
 
-One of these two processes produces information and puts it into this buffer. We call this process **producer**. Another process takes this information from the buffer and we call this process **consumer**. 
+One of these two processes produces information and puts that information into this buffer. We can call this process **producer**. 
 
-Now imagine that the buffer is full and there is no empty space. In that case, if the producer wants to put a new information into this buffer, that would cause a problem. The solution in here is for the producer to go to sleep, and when the consumer removes one or more items and buffer has empty slot(s), the producer can be awakened and put it's information into the buffer. 
+Another process takes this information from the buffer and uses it. We can call this process **consumer**. 
 
-Similarly, if the buffer is completely empty, and if the consumer wants to remove an item from that buffer, that's a problem too since there is nothing to remove. The solution for the consumer is to sleep and once the producer puts an information to the buffer and buffer becomes non-empty, the consumer can be awakened and consume the information in the buffer.
+Now imagine that the buffer is full and there is no empty space. In that case, if the producer wants to put a new information into this buffer, that would cause a problem. One solution for the producer might be being forced to sleep until being awakened. And when the consumer removes one or more items from the buffer and buffer has empty slot(s), it can wake up the producer as well so that it can put its information into the buffer. 
 
-Here is a smiple application of this problem:
+Similarly, if the buffer is completely empty, and if the consumer wants to remove an item from that buffer, that's a problem too since there is nothing to remove. And again one solution for the consumer might be being forced to sleep until being awakened. And when the producer puts information to the buffer and buffer has a non-empty slot, it can wake up the consumer as well so that it can extract the information from the buffer and use (consume) it. 
 
-```
-#define N 100                // The length of buffer
-int count = 0;               // Number of items in the buffer
-
-void producer(void) {
-  int item = produce_item(); // Produce the next item
-  if (count == N) {
-    sleep();                 // If the buffer is full, don't put the item into the buffer and sleep until being awakened
-  }
-  insert_item();             // Now put the item into the buffer
-  count++;                   // Increase the number of items in the buffer by 1
-  if (count == 1) {
-    wakeup(consumer);        // If an item is available in the buffer, wake up the consumer and let it know about this
-  }
-}
-
-void consumer(void) {
-  if (count == 0) {      
-    sleep();                 // If the buffer is empty, don't attempt to extract item from the buffer and sleep until being awakened
-  }
-  int item = remove_item();  // Now extract an item from the buffer
-  count--;                   // Decrease the number of items in the buffer by 1
-  if (count == N-1) {
-    wakeup(producer);        // If the buffer was full before extracting an item, this means that an empty slot became available in the buffer. In that case, wake up the producer and let it know about this so that it can put a new item into the buffer if it is waiting. 
-  }
-  consume_item(item);
-}
-    
-```
-
-But there are some key points that we should consider: 
+But there are some issues in these solution.
 
 If we look at from the producer's perspective: 
 
@@ -383,8 +357,69 @@ And when a space becomes available in the buffer, the pipe unblocks the producer
 
 So, in summary pipe is a unidirectional data channel that can be used for inter-process communication. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
 
+So, now let's turn back to the producer-consumer problem. You can see a smiple application of this problem in below:
 
-In the producer-consumer problem above, the access to the count variable is not constrained. That's why a race condition might occur. 
+```
+#define N 100
+  // The length of buffer
+
+int count = 0;
+  // Number of items in the buffer
+
+void producer(void) {
+
+  int item = produce_item();
+    // Produce the next item
+
+  if (count == N) {
+    sleep();
+      // If the buffer is full, don't put the item into the buffer
+      // and sleep until being awakened by the consumer.
+  }
+
+  insert_item();
+    // Now put the item into the buffer
+
+  count++;
+    // Increase the number of items in the buffer by 1.
+
+  if (count == 1) {
+    wakeup(consumer);
+      // If an item is available in the buffer,
+      // wake up the consumer and let it know about this
+  }
+}
+
+void consumer(void) {
+  if (count == 0) {      
+    sleep();
+      // If the buffer is empty, don't attempt to extract item from the buffer and
+      // sleep until being awakened.
+  }
+
+  int item = remove_item();
+    // Now extract an item from the buffer
+
+  count--;
+    // Decrease the number of items in the buffer by 1
+
+  if (count == N-1) {
+
+    wakeup(producer);
+      // If the buffer was full before extracting an item,
+      // this means that an empty slot became available in the buffer.
+      // In that case, wake up the producer and let it know about this so that
+      // it can put a new item into the buffer if it is waiting. 
+  }
+
+  consume_item(item);
+}
+    
+```
+
+Okay, we explained the producer-consumer problem, brought a new method (sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time. But there is still some issue. 
+
+In the producer-consumer problem above, the access to the count variable is not constrained. And as a result of this, we may encounter with a race condition. 
 
 For instance, let's assume that the buffer is empty and the consumer reads the count variable to see if it is 0 or not. At that moment, consumer starts sleeping since it finds the count value as 0. Then let's say that scheduler starts running the producer. Producer produces an item and inserts it into the buffer since the buffer is not full, increments the value of count from 0 to 1, and lastly wakes up the consumer which is technically **not sleeping**.
 
