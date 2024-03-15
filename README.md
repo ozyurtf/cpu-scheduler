@@ -70,7 +70,7 @@ Since each process will have a distinct process control block, to be able to acc
 
 ```
 ---------
-Memory    -------------------> Memory Tabke
+Memory    -------------------> Memory Table
 ---------
 Devices   -------------------> IO Table
 ---------
@@ -100,9 +100,18 @@ Processes -------------------> Process Table
                                           ...
                                           ---------------
 
-```   
+```
 
 One of the benefits of using process control block is, for example, by storing the state information of the process in the process control block, it becomes possible to interrupt a running process and then resume its execution later. So, it allows us to support/manage multiple processes.
+
+And the operating system maintains multiple tables (e.g. Memory Table, IO Table, File Table, Process Table) to be able to manage the resources when the processes are being executed. 
+
+**!Slides between 17 and 28 are skipped!**
+
+Okay, we have mentioned that the state of the process is stored in the process control block. But what do we mean by a "state" ? 
+
+## Process State Model 
+
 
 
 ## Process Termination 
