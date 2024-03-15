@@ -29,11 +29,33 @@ In addition, a process typically includes information like:
 - registers (this is another hardware resource that can hold any kind of data that is necessary for the execution)
 - process state (this state can be "Created", "Running", "Ready", etc. and it represents the current state of the process)
 
-Okay these are good to know but where are these information stored ? The answer is what they call **address space** 
+Okay these are good to know but where are these information stored and how the process can access to these information ?
+
+These information are basically stored in physical memory. Each of these information has a physical address. Hardware components such as CPU, for example, use these physical addresses directly when fetching/storing data in the physical memory. But processes don't load/store information through physical addresses. For processes to access to the information in memory, we first virtualize the addresses in the memory, in other words, we translates the physical addresses into virtual addresses. These virtual addresses are represented as strings and they basically point to the physical addresses. Processes interact with these virtual addresses directly and the virtual address the process wants to access is translated into physical address and the information that is located at that physical address in the memory is retrieved to the process.  
+
+And we call a range of these virtual addresses **address space**. 
 
 ### Address Space 
 
-In a program, there are many information that are stored in memory such as the variables, codes, 
+Address spaces can be generally either flat or segmented. In flat address space, we store the virtual addresses consecutively just like how we store data in array. In segmented address space, we group the virtual addresses and divide them into segments based on their groups, and store these virtual addresses in segments. When we make groups in the address space, the operationg system can effectively treat these segments as a region that has the same properties. 
+
+Segmented address space also provides protection of each segment. We can assign different access permissions (e.g. read only, reaad write, execute only) to different segments and this can prevent unauthorized access to the critical memory regions. 
+
+Also one note is that if we have two same applications, their address space will be exactly the same. 
+
+Okay we talked about the processes, how do they look like, what kind of components they include, how they access to the information in the memory. Let's now talk about the lifecycle of a process from process creation to process implementation and process termination.
+
+## Process Creation 
+
+So when processes are created ? 
+
+- When a computer initializes the operationg system and loads it to the memory, it may create many different processes during this time.
+- During system initialization, the user can initiate process as well.
+- And similary during system initialization, processes can be created by the system to run in the background without user interaction.
+- When processes are running, these processes typically create new processes as well.
+- The user can execute some codes or open applications and these create processes as well.
+- The operationg system can create processes that will run in the background and that will be used to manage system resources or to provide services.
+
 
 ## Thread
 
