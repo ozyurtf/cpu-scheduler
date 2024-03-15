@@ -372,7 +372,7 @@ void producer(void) {
     // Produce the next item
 
   if (count == N) {
-    sleep();
+    sleep(producer);
       // If the buffer is full, don't put the item into the buffer
       // and sleep until being awakened by the consumer.
   }
@@ -392,7 +392,7 @@ void producer(void) {
 
 void consumer(void) {
   if (count == 0) {      
-    sleep();
+    sleep(consumer);
       // If the buffer is empty, don't attempt to extract item from the buffer and
       // sleep until being awakened.
   }
@@ -421,59 +421,97 @@ Okay, we explained the producer-consumer problem, brought a new method (sleep() 
 
 In the producer-consumer problem above, the access to the count variable is not constrained. And as a result of this, we may encounter with a race condition. 
 
-For instance, let's assume that the buffer is empty and the consumer reads the count variable to see if it is 0 or not. At that moment, consumer starts sleeping since it finds the count value as 0. Then let's say that scheduler starts running the producer. Producer produces an item and inserts it into the buffer since the buffer is not full, increments the value of count from 0 to 1, and lastly wakes up the consumer which is technically **not sleeping**.
+## Fatal Race Condition
 
-In another case, let's say that count equals to 1 and consumer begins running it's codes. It will first remove an item from the buffer since count is not 0. Then it will decrease the value of count from 1 to 0 and consume the item without waking up the producer since the buffer was not full before extracting the item from it. So, after consuming the item, the consumer will start the loop again. At that moment, count value equals to 0. That's why the consumer will sleep. Sooner or later, the producer will produce items and fill the whole buffer. At that moment, consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever. 
+For instance, let's assume that the buffer is empty and the consumer reads the count variable as 0. At that moment, consumer starts sleeping. Then let's say that a scheduler starts running the producer. Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
-The main issue in these two scenarios is that a wake-up call that is sent to a process that is not sleeping is lost. If this wake-up call wouldn't be lost, everything would work fine. 
+In another case, let's say that count value equals to 1 and consumer begins running its codes. It will first remove an item from the buffer since count is not 0. Then it will decrease the value of count from 1 to 0, and consume the item without waking up the producer since the buffer was not full before extracting the item from it. 
 
-In addition, we used variables in the form of integers to provide synchronization between processes/threads until now. When we use just an integer value to provide access to shared resources, the processes/threads can access to the shared resources only one at a time.  
+So, after consuming the item, the consumer will start the loop again. At that moment, count value equals to 0. That's why the consumer will sleep. Sooner or later, the producer will produce items and fill the whole buffer. At that moment, consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever. 
 
-So we can develop a new mechanism that allows multiple processes to access to the shared resources simultaneously. We call this mechanism **semaphores**.
+The main issue in these two scenarios is that the wakeup() call that is sent to a process that is not sleeping is lost. 
+
+So we can develop a new mechanism in that allows multiple processes to access to the shared resources simultaneously on the basis shared resource. We call this mechanism **semaphores**.
 
 # Semaphores 
 
 A semaphore is an integer value just like mutex. But the only way to access it is through two separate operations that are called **wait()** and **signal()**.
 
-- wait():  Decrements the value of the semaphore by 1 which means the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore were already being used. And after wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread to avoid spinning and wasting CPU time.
+- **wait():**  Decrements the value of the semaphore by 1 which means that the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore was/were already being used. And after wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread and run the wait() operation again to avoid spinning and wasting CPU time.
 
-- signal(): Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left it's critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
+- **signal():** Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left its critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
 
-In below, you can see the implementation of Semaphore.
+You can see the implementation of Semaphore below:
 
 ```
 class Semaphore {
-  int value;             // The value of semaphore
-  queue<Thread*> waitQ;  // Queue that holds threads that are blocked (waiting) because of the lack of resources.
-  void Init(int v);      
-  void wait();           // Wait operation. This operation is called by a thread/process when it wants to release a resource.   
-  void signal();         // Signal operation. This operation is called by a thread/process when it wants to acquire a resource.
+
+  int value;
+    // The value of semaphore
+
+  queue<Thread*> waitQ;
+    // Queue that holds threads that are blocked (waiting) because of the lack of resources.
+
+  void Init(int v);
+
+  void wait();
+    // This operation is called by a thread/process when it wants to acquire a resource.
+
+  void signal();
+    // This operation is called by a thread/process when it wants to release a resource.
 }
 
 void Semaphore::Init(int v) {
+
   value = v;
-  waitQ.init();          // Initialize an empty queue to hold threads that are blocked (waiting) because of the lack of resources.                         
+
+  waitQ.init();
+    // Initialize an empty queue to hold threads
+    // that are blocked (waiting) because of the lack of resources.                         
 }
 
 void Semaphore::wait() {                  
-  value--;                            // Decrement the value of semaphore by 1. 
-  if (value < 0) {                    // If the new value of the semaphore is negative, this means that resource(s) controlled by the semaphore was already being used.
-    waitQ.add(current_thread);        // Add current thread into the wait queue, because of the lack of available resources
-    current_thread->status = blocked; // Update the status of the thread as "blocked" because it cannot access to the shared resource at this moment
-    schedule();                       // Schedule another thread to avoid spinning and wasting CPU time.
+  value--;
+    // Decrement the value of semaphore by 1.
+
+  if (value < 0) {
+
+    waitQ.add(current_thread);
+      // If the new value of the semaphore is negative,
+      // this means that resource(s) controlled by the semaphore was already being used.
+      // In that case, add current thread into the wait queue because of the lack of available resources.
+
+    current_thread->status = blocked;
+      // Update the status of the thread as "blocked"
+      // because it cannot access to the shared resource at this moment
+
+    schedule();
+      // Schedule another thread to avoid spinning and wasting CPU time.
   }
 }
 
 void Semaphore::signal() {                   
-  value++;                              // Increment the value of the semaphore by 1. The process/thread that was using a resource left it's critical region and stopped accessing to that resource. 
-  if (value <= 0) {                     // If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. 
-    Thread *thd= waitQ.getNextThread(); // In that case, after the shared resource is being released in the previous steps, one of these waiting processes/threads can now start using that resource. In that condition, we pick one thread from the wait queue. 
-    scheduler->add(thd);                // And then add it to the scheduler.
+  value++;
+    // Increment the value of the semaphore by 1.
+    // This means that the process/thread that was using a resource left its critical region
+    // and stopped accessing to that resource.
+
+  if (value <= 0) {
+
+    Thread *thd= waitQ.getNextThread();
+      // If the semaphore value was negative before this increment,
+      // this means that there were waiting processes/threads in the wait queue.
+      // In that case, after the shared resource is being released in the previous steps,
+      // one of these waiting processes/threads can now start using that resource.
+      // In that condition, we pick one thread from the wait queue.
+
+    scheduler->add(thd);
+      // And then add the tread to the scheduler.
   }
 }
 ```
 
-Imagine that there are two processes: process A and process B: 
+Let's give another implementation of semaphores. Imagine that there are two processes: process A and process B: 
 
 ```
 process A             process B 
@@ -496,59 +534,110 @@ A4                   B4
 A5                   B5 
 ```
 
-And assume that we want the statement A2 in process A to be completed before statement B4 begins in process B. How to do this ? 
+And assume that we want the statement A2 in process A to be completed before statement B4 begins in process B. How we can do this ? 
 
-We can put the signal() call after A2, and wait() call before B4. Through that way, after B1, B2, and B3 are executed, we wait the signal coming from the signal() operation. And that signal only comes after A2 is completed. Through this way, we can ensure that statement A2 is completed before statement B4 begins.
+We can put the **signal()** call after A2, and **wait()** call before B4. Through that way, after B1, B2, and B3 are executed, we wait the signal coming from the signal() operation. And that signal only comes after A2 is completed. Through this way, we can ensure that statement A2 is completed before statement B4 begins.
 
-Semaphores are elegant solutions for sycnhronization of the processes/threads. But a race condition can occur like in the other methods if multiple processes/threads try to execute the wait() and signal() operatiions simultaneously. For instance, if one thread is in the middle of decrementing the semaphore value by using wait() operation and another thread tries to increment the same value in signal() operation at the same time, that will cause race condition. 
+So if we want to summarize: semaphores are elegant solutions for sycnhronization of the processes/threads. But a **race condition** can **occur** like in the other methods if multiple processes/threads try to **execute the wait() and signal() operations simultaneously**. 
 
-Therefore, we must impement the wait() and signal() operations in atomic way so that they should be executed exclusively.
+For instance, if one thread is in the middle of decrementing the semaphore value by using wait() operation and another thread tries to increment the same value in signal() operation at the same time, that will cause race condition. 
 
-We can make the wait() and signal() operations atomic by using **interrupts** and **lock variable** 
+Therefore, we must **impement the wait() and signal()** operations in **atomic** way so that they should be executed exclusively.
+
+We can make the wait() and signal() operations atomic by using **lock variable** 
+
 
 ```
 class Semaphore {
-  int lockvar;           // The lock variable
-  int value;             // The value of semaphore
-  queue<Thread*> waitQ;  // Queue that holds threads that are blocked (waiting) because of the lack of resources.
-  void Init(int v);      
-  void wait();           // Wait operation. This operation is called by a thread/process when it wants to release a resource.   
-  void signal();         // Signal operation. This operation is called by a thread/process when it wants to acquire a resource.
+  int lockvar;
+    // The lock variable
+
+  int value;
+    // The value of semaphore
+
+  queue<Thread*> waitQ;
+    // Queue that holds threads that are blocked (waiting) because of the lack of resources.
+
+  void Init(int v);
+
+  void wait();
+    // This operation is called by a thread/process when it wants to acquire a resource.
+
+  void signal();
+    // This operation is called by a thread/process when it wants to release a resource.
 }
 
 void Semaphore::Init(int v) {
+
   value = v;
-  waitQ.init();          // Initialize an empty queue to hold threads that are blocked (waiting) because of the lack of resources.                         
+
+  waitQ.init();
+    // Initialize an empty queue to hold threads
+    // that are blocked (waiting) because of the lack of resources.                         
 }
 
 void Semaphore::wait() {
-  lock(&lockvar);                     // Lock the lock variable so that when a process/thread acquires resources, no other process/threads can interfere with this.                 
-  value--;                            // Decrement the value of semaphore by 1. 
-  if (value < 0) {                    // If the new value of the semaphore is negative, this means that resource(s) controlled by the semaphore was already being used.
-    waitQ.add(current_thread);        // Add current thread into the wait queue, because of the lack of available resources
-    current_thread->status = blocked; // Update the status of the thread as "blocked" because it cannot access to the shared resource at this moment
-    unlock(&lockvar);                 // Unlock the lock variable so that another process/thread can start it's operations.
-    schedule();                       // Schedule another thread to avoid spinning and wasting CPU time.
+  lock(&lockvar);
+    // Lock the lock variable so that when a process/thread acquires resources,
+    // no other process/threads can interfere with this.
+
+  value--;
+    // Decrement the value of semaphore by 1.
+
+  if (value < 0) {
+
+    waitQ.add(current_thread);
+      // If the new value of the semaphore is negative,
+      // this means that resource(s) controlled by the semaphore was already being used.
+      // In that case, add current thread into the wait queue because of the lack of available resources.
+
+    current_thread->status = blocked;
+      // Update the status of the thread as "blocked"
+      // because it cannot access to the shared resource at this moment
+
+    unlock(&lockvar);
+      // Unlock the lock variable so that another process/thread can start it's operations.
+
+    schedule();
+      // Schedule another thread to avoid spinning and wasting CPU time.
   }
   else {
-    unlock(&lockvar);                 // Unlock the lock variable so that another process/thread can start it's operations.
+    unlock(&lockvar);
+      // Unlock the lock variable so that another process/thread can start it's operations.
   }
 }
 
 void Semaphore::signal() {
-  lock(&lockvar);                       // Lock the lock variable so that when a process/thread release resources, no other process/threads can interfere with this.                 
-  value++;                              // Increment the value of the semaphore by 1. The process/thread that was using a resource left it's critical region and stopped accessing to that resource. 
-  if (value <= 0) {                     // If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. 
-    Thread *thd= waitQ.getNextThread(); // In that case, after the shared resource is being released in the previous steps, one of these waiting processes/threads can now start using that resource. In that condition, we pick one thread from the wait queue. 
-    scheduler->add(thd);                // And then add it to the scheduler.
+
+  lock(&lockvar);
+    // Lock the lock variable so that when a process/thread release resources,
+    // no other process/threads can interfere with this.
+
+  value++;
+    // Increment the value of the semaphore by 1.
+    // This means that the process/thread that was using a resource left its critical region
+    // and stopped accessing to that resource.
+
+  if (value <= 0) {
+
+    Thread *thd= waitQ.getNextThread();
+      // If the semaphore value was negative before this increment,
+      // this means that there were waiting processes/threads in the wait queue.
+      // In that case, after the shared resource is being released in the previous steps,
+      // one of these waiting processes/threads can now start using that resource.
+      // In that condition, we pick one thread from the wait queue.
+
+    scheduler->add(thd);
+      // And then add the tread to the scheduler.
   }
-  unlock(&lockvar);                     // Unlock the lock variable so that another process/thread can start it's operations.
+  unlock(&lockvar);
+    // Unlock the lock variable so that another process/thread can start it's operations.
 }
 ```
 
-In the examples above, we used **binary/mutex semaphores**. These semaphores can be see nas lock. They are ideal for mutual exclusion problems. In these problems, when the semaphore value is initialized to 1, this means that the lock is available. 
+In the examples above, we used **binary/mutex semaphores**. These semaphores can be seen as lock. They are ideal for mutual exclusion problems. In these problems, when the semaphore value is initialized to 1, this means that the lock is available. 
 
-There is also another type of semaphores that is called **counting semaphores**. This is a type of semaphore that represents the number of processes/threads that are allowed to be in their critical regions at the same time. In cases when we want multiple processes/threads to enter their critical regions, we can use counting semaphores. But in these cases, mutual exclusion is not guaranteed. 
+There is also another type of semaphores that is called **counting semaphores**. This is a type of semaphore that represents the number of processes/threads that are allowed to be in their critical regions at the same time. In cases when we want multiple processes/threads to enter their critical regions simultaenously, we can use counting semaphores. But in these cases, mutual exclusion is not guaranteed. 
 
 Let's review the use case of both binary/mutex semaphores and counting semaphores in the producer-consumer problem. 
 
