@@ -64,9 +64,13 @@ Now the question is: how the processes are implemented ?
 
 Once the processes are created, there might be too many of them. And in each one of these processes, there might be too many information that we have to deal with. Therefore, to be able to manage all the processes properly, we can try to store the important information about these processes (e.g. state of the process, its priority, program counter, pointers to memory, IO status information, etc.) in a data structure, and manage the processes through this data structure more easily. 
 
-We call this data structure **Process Control Block (PCB)**. The process control block is basically created and managed by the operating system. 
+We call this data structure **Process Control Block (PCB)**. The process control block is basically created and managed by the operating system. This means that there is no reference other than the process ID to access to that object from the user space. 
+
+All the information in the process control block must be saved when the process is switched from one state to another. When the process transitions from one state to another, the operating system must update the information in the process control block. And when the processors switches from executing one process to another process, the state of the current process and the contents of its registers must be saved. This ensures that when the process continues to be executed later, it can continue execution from where it stopped without losing any important data or progress.
 
 Since each process will have a distinct process control block, to be able to access these process control blocks properly, we can assign a unique ID, which we call **Process ID (PID)**, to each process, and store the process ID and process control block in a new data structure. And we call this data structure **Process Table**. 
+
+When we pass the process ID, the kernel will basically look that process ID in the process table and verify that you have the rights to access the process control block.
 
 ```
 ---------
@@ -110,7 +114,98 @@ And the operating system maintains multiple tables (e.g. Memory Table, IO Table,
 
 Okay, we have mentioned that the state of the process is stored in the process control block. But what do we mean by a "state" ? 
 
+## Process State
+
+State basically means the current activity of the process. It is specified with strings and stored in the process control block in that way.
+
+A process can have 5 different states depending on its current activity:
+
+- When the process is created, its state will be **New**.
+- When the process are being executed, its state becomes **Running**.
+- Sometimes processes might wait for an event and expereince delay because of this. When this happens, the state of the process becomes **Waiting/Blocked**.
+- And when the process becomes ready to be executed by the CPU, its state becomes **Ready**.
+- Lastly, when the process is terminated, the state becomes **Terminated**.
+
+As can be seen from above, a state can go through different stages until it is terminated. The representation of the all the stages a process can go through is called process state model. 
+
 ## Process State Model 
+
+There can be several possible state models depending on our implementation. 
+
+
+If it is okay for us to assign two states (**Not Running**, or **Running**) to each process, for example, we can implement 2-State Model
+
+### Two-State Model
+
+```
+      |-----------|
+      | Dispatch* |
+      |           | 
+      |           V
+Not Running     Running 
+      Ʌ           |
+      |           | 
+      |   Pause   |
+      |-----------|
+
+```
+
+**Dispatch is the action of assigning the process to the running state. When a process is dispatched, this means that it is selected by the CPU to be executed.*
+
+In a system that we developed according to the 2-State Model, a process can be assigned either **Running** or **Not Running** state.
+
+But the problem is that if a process is not in the running state, there might be many reasons why it is not in the running state: maybe it is waiting an IO operation, or maybe it is ready to and waiting for the CPU to be executed. In two state model, we ignore all of these possibilities and simply assign not running state if the process is not running. 
+
+And two state model is efficient only if all the processes that are in not running state are ready for execution. But this may not be the case sometimes. Sometimes, a process that is in not running state might be waiting for some IO operation or another event. In those cases, the dispatcher cannot simply select the process from the front of the queue. It would have to scan the queue to search for the process that can be executed at that moment. The best way to solve this problem is to split the not running state into separate groups. 
+
+So, we can try to introduce these factors in a new state model. 
+
+### Three-State Model
+
+```
+             |--------------|     
+             V              |
+     |----Running----|      |
+     |               |      |
+     |               |      |  
+     V               V      |
+  Blocked ------> Ready -----    
+```
+
+When we use three-state model, now the process can be moved to blocked state when it starts waiting for an event such as an IO operation. And when that event happens, this means that the process is ready to be executed again so it is moved from the blocked state into the ready state. 
+
+And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run long enough, we can move the currently running process from running state into the ready state. Then we can execute another process that is waiting to be executed by moving it from ready state into running state. 
+
+Okay these are good but we still ignore the fact that some process has to be created in the first step. Not having a state for the process creation specifically may cause the system to not being able to allocate resources to the newly created processes until they are ready to be executed. Similarly, not having a state for the process termination specifically may cause the system to not being able to manage the resources efficiently after a process finishes its execution. 
+
+Thereofre, it may be better to develop another state model that can take these details into account. 
+
+## Five State Model 
+
+                     Timeout
+              -----------------------    
+              |                     | 
+              |                     |
+     Admit    V     Dispatch        |     Release
+New -------> Ready -----------> Running ----------> Exit
+              Ʌ                 /
+              |                / 
+              |               /
+              |              /    
+              |             /
+              |            /
+              |           /
+              |          /
+              |         /
+              |        /
+              |       /
+              |      /
+              |     /
+              |    /
+              |   /
+              |  V
+           Blocked
+```
 
 
 
