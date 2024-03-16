@@ -6,9 +6,9 @@ In computer, there are programs that basically consists a set of instructions th
 
 These instructions/codes are stored in the disk or memory and they need to be executed by the processor/CPU to give us what we want. 
 
-When these set of instructions are executed, we can call the process of the execution of these instructions as **process**. Process is an abstraction of running program. 
+When these sets of instructions are executed, we can call the `process of the execution of these instructions` as **process**. We can also say that process is an abstraction of running program. 
 
-And sometimes a process may create new process(es) to be able to finish its tasks. In those cases, we can represent the processes in a process tree:
+And sometimes a process may create new process(es) to be able to finish its executions. In those cases, we can represent the processes in a process tree:
 
 ```
       A
@@ -23,62 +23,88 @@ In the process tree above, the process A created two child processes: process B 
 
 In addition, a process typically includes information like:
 
-- variables of the program
-- code of the program
-- program counter (it is a hardware resource that keeps track off the next instruction to be executed)
-- registers (this is another hardware resource that can hold any kind of data that is necessary for the execution)
-- process state (this state can be "Created", "Running", "Ready", etc. and it represents the current state of the process)
+- variables
+- code 
+- program counter *(it is a hardware resource that keeps track of the next instruction to be executed)*
+- registers *(this is another hardware resource that can hold any kind of data that is necessary for the execution)*
+- process state *(this is the current activity of the process)*
 
-Okay these are good to know but where are these information stored and how the process can access to these information ?
-
-These information are basically stored in physical memory. Each of these information has a physical address. Hardware components such as CPU, for example, use these physical addresses directly when fetching/storing data in the physical memory. But processes don't load/store information through physical addresses. For processes to access to the information in memory, we first virtualize the addresses in the memory, in other words, we translates the physical addresses into virtual addresses. These virtual addresses are represented as strings and they basically point to the physical addresses. Processes interact with these virtual addresses directly and the virtual address the process wants to access is translated into physical address and the information that is located at that physical address in the memory is retrieved to the process.  
-
-And we call a range of these virtual addresses **address space**. 
+Okay these are good to know but where are these features stored and how the process can access to them ?
 
 ### Address Space 
 
-Address spaces can be generally either flat or segmented. In flat address space, we store the virtual addresses consecutively just like how we store data in array. In segmented address space, we group the virtual addresses and divide them into segments based on their groups, and store these virtual addresses in segments. When we make groups in the address space, the operationg system can effectively treat these segments as a region that has the same properties. 
+These information are basically stored in physical memory. And each of these information has a physical address in the memory. 
+
+Hardware components such as CPU, for example, use these physical addresses directly when storing/fetching data through physical memory. But processes don't access to the information in the physical memory through physical addresses. 
+
+For processes to access to the information in memory, we virtualize the addresses in the memory, in other words, we translate the physical addresses into virtual addresses. These virtual addresses are represented as strings and they basically point to the physical addresses in the memory. And when a process wants to access to the information in the memory, it can use its virtual address and the information in the memory that is pointed by the virtual address is retrieved to the process.  
+
+We call a range of these virtual addresses **address space**. 
+
+Address spaces can be either flat or segmented in general. In the flat address space, we store the virtual addresses consecutively just like how we store data in array. The entire virtual address space is treated as a single, continuous region.
+
+In segmented address space, however, we group the virtual addresses based on their properties and divide them into segments based on their groups, and store the virtual addresses in segments. When we make groups in the address space, the operationg system can treat these segments as a region that has the same properties. 
 
 Segmented address space also provides protection of each segment. We can assign different access permissions (e.g. read only, reaad write, execute only) to different segments and this can prevent unauthorized access to the critical memory regions. 
 
 Also one note is that if we have two same applications, their address space will be exactly the same. 
 
-Okay we talked about the processes, how do they look like, what kind of components they include, how they access to the information in the memory. Let's now talk about the lifecycle of a process from process creation to process implementation and process termination.
+Okay we talked about the processes, how do they look like, what kind of components they include, how they access to the information in the memory.
 
-So, maybe the first question we should ask is: when processes are created ? 
+But now the question is: when are these processes are created ? 
 
 ## Process Creation 
 
+Processes are created in many different time frames. In below, we can see some of the periods when the processes are created:
+
 - When the system is initialized.
-      - When a computer initializes the operationg system and loads it to the memory, initialize hardware devices, etc. And during these times, new processes can be created.
-      - During system initialization, some processes are created to run in the foreground to allow the users to interact with them. 
-      - And similarly during system initialization, some processes are created to run in the background to perform tasks (e.g. managing resources, without interacting with the user. 
+      - When a computer initializes hardware devices, and the operationg system and it loads the operating system into the memory, new processes are be created.
+      - During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with them. 
+      - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. managing resources) without interacting with the user. 
 - When processes are running, these processes typically create new processes as well.
-- The user can execute some codes or open applications and these actions create processes as well.
+- The user can execute some codes or open applications and these actions create processes.
 - The operationg system can create processes that will to provide services.
 - When the user enters into a system interactively (e.g through terminal, remote shell, or a graphical login screen), a new process is created to be able to handle the user's session and allow the user to interact with the system.
 
-Now the question is: how the processes are implemented ? 
+After learning how/when the processes are created, the next thing we might ask is: how these processes are implemented and then terminated ? 
+
+## Process Termination 
+
+Here are some of the distinct scenarios of process termination
+
+- When a process completes its execution without any problem, it exits **voluntarily**. We can call this **normal exit**
+- When a process encounters an error/exception during its execution, it exits **voluntarily**. We can call this **error exit**.
+- When a process encounters a severe error that will cause the operating system to operate unsafely (e.g. by potentially damaging the system or causing data loss), the operating system terminates the process immediately. The process is not given a chance to take any action, that's why the exit is **involuntary** and the user may end up with losing the changes he made before the error. We can call this **fatal error**.
+- Sometimes, a prcoess may explicitly terminate another process. One example of this might be terminating a process that has not been responding for a very long time. Because the process is not given any chance to take action, this is an **involuntary** termination as well.
+- When a process has run longer than expected, they may be terminated as well. We can call this **time limit exceeded error**
 
 ## Process Implementation
 
-Once the processes are created, there might be too many of them. And in each one of these processes, there might be too many information that we have to deal with. Therefore, to be able to manage all the processes properly, we can try to store the important information about these processes (e.g. state of the process, its priority, program counter, pointers to memory, IO status information, etc.) in a data structure, and manage the processes through this data structure more easily. 
+In any given time, there might be many different processes that are in different states. Some of them might be waiting to be executed by the CPU, some of the others might be running, some others might already be terminated, etc. 
 
-We call this data structure **Process Control Block (PCB)**. The process control block is basically created and managed by the operating system. This means that there is no reference other than the process ID to access to that object from the user space. 
+And in addition, in each one of these processes, there might be too many information that we have to deal with. These are too many information. Therefore, to be able to manage all the processes properly, we can try to store all the important information about these processes (e.g. state of the process, its priority, program counter, pointers to memory, IO status information, etc.) in a data structure, and manage the processes through this data structure. 
 
-All the information in the process control block must be saved when the process is switched from one state to another. When the process transitions from one state to another, the operating system must update the information in the process control block. And when the processors switches from executing one process to another process, the state of the current process and the contents of its registers must be saved. This ensures that when the process continues to be executed later, it can continue execution from where it stopped without losing any important data or progress.
+We call this data structure **Process Control Block (PCB)**. It is created and managed by the operating system. This means that there is no reference other than some kind of ID to access to these objects from the user space. 
 
-Since each process will have a distinct process control block, to be able to access these process control blocks properly, we can assign a unique ID, which we call **Process ID (PID)**, to each process, and store the process ID and process control block in a new data structure. And we call this data structure **Process Table**. 
+Also, let's say that there are two processes: process A and process B and CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, all the information in the process A's process control block must be saved. This ensures that when the process A continues to be executed later, it can continue its execution from where it stopped without losing any important data or without losing its progress.
 
-When we pass the process ID, the kernel will basically look that process ID in the process table and verify that you have the rights to access the process control block.
+One of the benefits of using process control block is, for example, it becomes possible to interrupt a running process and then resume its execution later by storing the state information of the process in the process control block. So, process control block allows us to support/manage multiple processes.
+
+Since each process has a distinct process control block, to be able to access these process control blocks properly, we can assign a unique ID, which we call **Process ID (PID)**, to each process. And we can store the process ID along with the process control block in a new data structure. And we call this data structure **Process Table**. 
+
+When we pass the process ID, the kernel will basically look that process ID in the process table and verify whether you have the right to access the process control block or not.
+
+In addition to the process table, the operating system maintains some other tables as well such as memory table, IO table, file table to be able to manage the resources properly when the processes are being executed. 
+
+In below, we can see the tables that are maintained by the operating system to manage the execution of processes and their accesses to the system resources.       
 
 ```
 ---------
-Memory    -------------------> Memory Table
+Memory    -------------------> Memory Table (memory allocation and usage for each process)
 ---------
-Devices   -------------------> IO Table
+Devices   -------------------> IO Table (available IO devices, their status, associated processes)
 ---------
-Files     -------------------> File Table
+Files     -------------------> File Table (open files file descriptors, file access permissions)
 ---------
 Processes -------------------> Process Table
 ----------                     -------------    
@@ -106,34 +132,29 @@ Processes -------------------> Process Table
 
 ```
 
-One of the benefits of using process control block is, for example, by storing the state information of the process in the process control block, it becomes possible to interrupt a running process and then resume its execution later. So, it allows us to support/manage multiple processes.
-
-And the operating system maintains multiple tables (e.g. Memory Table, IO Table, File Table, Process Table) to be able to manage the resources when the processes are being executed. 
-
 **!Slides between 17 and 28 are skipped!**
 
 Okay, we have mentioned that the state of the process is stored in the process control block. But what do we mean by a "state" ? 
 
 ## Process State
 
-State basically means the current activity of the process. It is specified with strings and stored in the process control block in that way.
+State basically means the current activity of the process. It is generally expressed with strings and stored in the process control block.
 
-A process can have 5 different states depending on its current activity:
+A process can have many different states depending on its current activity:
 
-- When the process is created, its state will be **New**.
-- When the process are being executed, its state becomes **Running**.
-- Sometimes processes might wait for an event and expereince delay because of this. When this happens, the state of the process becomes **Waiting/Blocked**.
-- And when the process becomes ready to be executed by the CPU, its state becomes **Ready**.
+- When the process is created, its state becomes **New/Created**.
+- When the process is executed by the CPU, its state becomes **Running**.
+- Sometimes processes might wait for an external event and as a result may experience delay. If this happens, the state of the process becomes **Waiting/Blocked**.
+- And when the process is ready to be executed by the CPU, its state becomes **Ready**.
 - Lastly, when the process is terminated, the state becomes **Terminated**.
 
-As can be seen from above, a state can go through different stages until it is terminated. The representation of the all the stages a process can go through is called process state model. 
+A process can transition from one process to another depending on its activity. The representation of the all the possible states and all the transitions between these states is called process state model. 
 
 ## Process State Model 
 
 There can be several possible state models depending on our implementation. 
 
-
-If it is okay for us to assign two states (**Not Running**, or **Running**) to each process, for example, we can implement 2-State Model
+Sometimes, it may be convenient for us to assign only two states such as **Not Running** or **Running** to a process. In those cases, we can implement 2-State Model.
 
 ### Two-State Model
 
@@ -149,13 +170,13 @@ If it is okay for us to assign two states (**Not Running**, or **Running**) to e
 
 **Dispatch is the action of assigning the process to the running state. When a process is dispatched, this means that it is selected by the CPU to be executed.*
 
-In a system that we developed according to the 2-State Model, a process can be assigned either **Running** or **Not Running** state.
+But the thing is: if a process is not in the **running** state, there might be many reasons why it is not in the **running** state: maybe it is waiting for an IO operation, or maybe it is actually ready to be executed by the CPU but it is still waiting for it. In the two state model, we ignore all of these possibilities and simply assign **not running** state if the process is not running. 
 
-But the problem is that if a process is not in the running state, there might be many reasons why it is not in the running state: maybe it is waiting an IO operation, or maybe it is ready to and waiting for the CPU to be executed. In two state model, we ignore all of these possibilities and simply assign not running state if the process is not running. 
+Two state model is efficient only if all the processes that are in **not running** state are ready for execution. But this may not be the case sometimes. 
 
-And two state model is efficient only if all the processes that are in not running state are ready for execution. But this may not be the case sometimes. Sometimes, a process that is in not running state might be waiting for some IO operation or another event. In those cases, the dispatcher cannot simply select the process from the front of the queue. It would have to scan the queue to search for the process that can be executed at that moment. The best way to solve this problem is to split the not running state into separate groups. 
+Sometimes, the reason why a process is **not running** might be because it is waiting for some IO operation or another event. In those cases, the dispatcher cannot simply select a process that is in **not running** state. Because it doesn't know if the process in the **not running** state is **ready** to be executed, or if it is **blocked** and still waiting an IO operation or another event completion. 
 
-So, we can try to introduce these factors in a new state model. 
+The best way to solve this problem is to split the **not running** state into two new states: **ready** and **blocked**. 
 
 ### Three-State Model
 
@@ -190,13 +211,15 @@ So, we can try to introduce these factors in a new state model.
 Blocked
 ```
 
-When we use three-state model, now the process can be moved to blocked state when it starts waiting for an event such as an IO operation. And when the event the process was waitin for happens, this means that the process is now ready to be executed again so it is moved from the blocked state into the ready state. 
+In the three-state model, now the process can be moved to **blocked** state when it starts waiting for an event such as an IO operation. And when the event the process was waiting for occurs, this means that the process is now **ready** to be executed again. Therefore it is moved from the **blocked** state into the **ready** state in that case. 
 
-And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run long enough, we can move the currently running process from running state into the ready state. Then we can execute another process that is waiting to be executed by moving it from ready state into running state. 
+And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run for a long time, we can move the currently running process from the **running** state into the **ready** state. Then we can execute another process that has been waiting to be executed by moving it from **ready** state into **running** state. 
 
-Okay these are good but we still ignore the fact that some process has to be created in the first step. Not having a state for the process creation specifically may cause the system to not being able to allocate resources to the newly created processes until they are ready to be executed. Similarly, not having a state for the process termination specifically may cause the system to not being able to manage the resources efficiently after a process finishes its execution. 
+Okay these are good updates but we still ignore the fact that some processes have to be created in the first step. Not having a state for the process creation specifically may cause the system to not being able to allocate resources to the newly created processes until they are ready to be executed. 
 
-Therefore, it may be better to develop another state model that can take these details into account. 
+Similarly, not having a state for the process termination specifically may cause the system to not being able to manage the resources efficiently after a process finishes its execution. 
+
+Therefore, for those cases, it may be better to develop another state model that can take these details into account. 
 
 ## Five State Model 
 
@@ -230,13 +253,15 @@ New -------> Ready -----------> Running -----------> Exit
            Blocked
 ```
 
-And in the five-state model, we fixed the issues that we mentioend in three-state model. 
+So, in the five-state model, we introduced new states: **new** and **exit** to solve the issue that we mentioned in three-state model.  
 
-But there is one major flaw in the five-state model. CPU is much faster than the IO devices. Therefore, if the CPU executes very fastly and all of the processes move to the waiting/blocked state as a result of this, there will be no processes in the ready state anymore. All the processes will just wait for an IO event and CPU will sit idle and wait for at least one process to leave from IO. And this will lead to low CPU utilization. 
+But there is one major flaw in the five-state model. CPU is much faster than the IO devices. Therefore, if the CPU executes very fastly and all of the processes are moved to the **blocked** state, there will be no processes in the ready state anymore as a result of this. All the processes will just wait for an IO event and CPU will sit idle and wait for at least one process to leave from IO and ready to be executed. And this will lead to low CPU utilization. 
 
-To prevent this, If all processes in the main memory are in waiting/blocked state, the operationg system can suspend a process in waiting/blocked state, stores all of the suspended processes in a queue named suspend queue and move the suspended process to the disk to free up main memory. After this, CPU can now bring some other processes to the main memory and this prevents it from staying idle. 
+To prevent this, the operationg system can suspend a process that is in **blocked** state, stores all of the suspended processes in a queue named suspend queue and move the suspended process to the disk to free up main memory if all processes in the main memory are in **blocked** state. 
 
-So in six-state model, we can add another state named **Suspend**.
+After this, CPU can now bring some other processes to the main memory and this prevents it from staying idle. 
+
+So in six-state model, we can add another state named **suspend**.
 
 ## Six State Model 
 
@@ -270,16 +295,16 @@ New -------> Ready -----------> Running -----------> Exit
 Suspend <--- Blocked
 ```
 
-In the six-state model, we fixed the issue that we mentioend in five-state model. 
+In the six-state model, we fixed the issue that we mentioend in five-state model by adding a new state. 
 
-But now the problem is: how to decide if we should bring a brand new process to the main memory or if we should bring a process from the suspend queue. In addition, CPU doesn't know which process in the suspend queue is ready for execution and which process is not. And because it doesn't know this, it may try to take a process in suspend queue that is still waiting for an event completion and try to execute it. 
+But now the issue is: how to decide if we should bring a brand new process to the main memory or if we should bring a process from the suspend queue ? In addition, CPU doesn't know which process in the suspend queue is ready for execution and which process is not. And because it doesn't know this, it may try to take a process in suspend queue that is still waiting for an event completion and try to execute that process. 
 
-To avoid this, we can divide suspend state into two new states: **Ready/Suspend**, and **Blocked/Suspend** 
+To avoid this, we can divide suspend state into two new states: **Ready - Suspend**, and **Blocked - Suspend** 
 
-- **Ready/Suspend**: This state means that the process is currently in the disk and ready for execution.
-- **Blocked/Suspend**: This state means that the process is currently in the disk but still waiting for an event completion. 
+- **Ready - Suspend**: This state means that the process is currently in the disk and ready for execution.
+- **Blocked - Suspend**: This state means that the process is currently in the disk but still waiting for an event completion. 
 
-When we introduce these two states instead of **Suspend** state, the new model will have seven states in total and we call this **Seven-State Model**.
+When we introduce these two states and remove the **suspend** state, the new model will have seven states in total and we call this **Seven-State Model**.
 
 In all of these state models, sometimes there might be multiple processes that are ready and waiting to be executed. How we can decide which one of these processes to run ? 
 
@@ -287,13 +312,7 @@ Wouldn't it be better if we would store the processes that are ready and waiting
 
 **!Slides 32-33 are skipped!**
 
-## Process Termination 
 
-- When a process completes its execution without any problem, it exits **voluntarily**. We can call this **normal exit**
-- When a process encounters an error/exception during its execution, it exits **voluntarily**. We can call this **error exit**.
-- When a process encounters a severe error that will prevent the operating system to operate safely (e.g. by potentially damaging the system or causing data loss), the operating system terminates the process immediately. When this kind of severe error happens, the process is not given a chance to take any action, that's why the exit is **involuntary** and the user may end up with losing the changes he made before the error. We can call this **fatal error**.
-- Sometimes, a prcoess may explicitly terminate another process. One example of this might be terminating a process that has not been responding for a very long time. Because the process is not given any chance to take action, this is an **involuntary** termination as well.
-- When a process has run longer than expected, they may be terminated as well. We can call this **time limit exceeded error**
 
 ## Thread
 
