@@ -188,11 +188,14 @@ Thereofre, it may be better to develop another state model that can take these d
               |                     | 
               |                     |
      Admit    V     Dispatch        |     Release
-New -------> Ready -----------> Running ----------> Exit
-              Ʌ                 /
-              |                / 
+New -------> Ready -----------> Running -----------> Exit
+              Ʌ                    /
+              |                   / 
+              |                  /
+              |                 /    
+              |                /
               |               /
-              |              /    
+              |              /
               |             /
               |            /
               |           /
@@ -204,7 +207,8 @@ New -------> Ready -----------> Running ----------> Exit
               |     /
               |    /
               |   /
-              |  V
+              |  /      
+              | V
            Blocked
 ```
 
