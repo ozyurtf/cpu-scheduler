@@ -287,7 +287,6 @@ Wouldn't it be better if we would store the processes that are ready and waiting
 
 **!Slides 32-33 are skipped!**
 
-
 ## Process Termination 
 
 - When a process completes its execution without any problem, it exits **voluntarily**. We can call this **normal exit**
@@ -295,8 +294,6 @@ Wouldn't it be better if we would store the processes that are ready and waiting
 - When a process encounters a severe error that will prevent the operating system to operate safely (e.g. by potentially damaging the system or causing data loss), the operating system terminates the process immediately. When this kind of severe error happens, the process is not given a chance to take any action, that's why the exit is **involuntary** and the user may end up with losing the changes he made before the error. We can call this **fatal error**.
 - Sometimes, a prcoess may explicitly terminate another process. One example of this might be terminating a process that has not been responding for a very long time. Because the process is not given any chance to take action, this is an **involuntary** termination as well.
 - When a process has run longer than expected, they may be terminated as well. We can call this **time limit exceeded error**
-
-
 
 ## Thread
 
