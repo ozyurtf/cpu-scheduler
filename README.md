@@ -182,6 +182,7 @@ Thereofre, it may be better to develop another state model that can take these d
 
 ## Five State Model 
 
+```
                      Timeout
               -----------------------    
               |                     | 
