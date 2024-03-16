@@ -138,15 +138,12 @@ If it is okay for us to assign two states (**Not Running**, or **Running**) to e
 ### Two-State Model
 
 ```
-      |-----------|
-      | Dispatch* |
-      |           | 
-      |           V
-Not Running     Running 
-      Ʌ           |
-      |           | 
-      |   Pause   |
-      |-----------|
+                 Pause
+      --------------------------  
+      |                        | 
+      |                        |
+      V        Dispatch*       |   
+ Not Running -------------> Running 
 
 ```
 
@@ -162,23 +159,44 @@ So, we can try to introduce these factors in a new state model.
 
 ### Three-State Model
 
+
 ```
-             |--------------|     
-             V              |
-     |----Running----|      |
-     |               |      |
-     |               |      |  
-     V               V      |
-  Blocked ------> Ready -----    
+         Timeout
+  -----------------------    
+  |                     | 
+  |                     |
+  V     Dispatch        |   
+ Ready -----------> Running 
+  Ʌ                    /
+  |                   / 
+  |                  /
+  |                 /    
+  |                /
+  |               /
+  |              /
+  |             /
+  |            /
+  |           /
+  |          /
+  |         /
+  |        /
+  |       /
+  |      /
+  |     /
+  |    /
+  |   /
+  |  /      
+  | V
+Blocked
 ```
 
-When we use three-state model, now the process can be moved to blocked state when it starts waiting for an event such as an IO operation. And when that event happens, this means that the process is ready to be executed again so it is moved from the blocked state into the ready state. 
+When we use three-state model, now the process can be moved to blocked state when it starts waiting for an event such as an IO operation. And when the event the process was waitin for happens, this means that the process is now ready to be executed again so it is moved from the blocked state into the ready state. 
 
 And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run long enough, we can move the currently running process from running state into the ready state. Then we can execute another process that is waiting to be executed by moving it from ready state into running state. 
 
 Okay these are good but we still ignore the fact that some process has to be created in the first step. Not having a state for the process creation specifically may cause the system to not being able to allocate resources to the newly created processes until they are ready to be executed. Similarly, not having a state for the process termination specifically may cause the system to not being able to manage the resources efficiently after a process finishes its execution. 
 
-Thereofre, it may be better to develop another state model that can take these details into account. 
+Therefore, it may be better to develop another state model that can take these details into account. 
 
 ## Five State Model 
 
@@ -212,6 +230,62 @@ New -------> Ready -----------> Running -----------> Exit
            Blocked
 ```
 
+And in the five-state model, we fixed the issues that we mentioend in three-state model. 
+
+But there is one major flaw in the five-state model. CPU is much faster than the IO devices. Therefore, if the CPU executes very fastly and all of the processes move to the waiting/blocked state as a result of this, there will be no processes in the ready state anymore. All the processes will just wait for an IO event and CPU will sit idle and wait for at least one process to leave from IO. And this will lead to low CPU utilization. 
+
+To prevent this, If all processes in the main memory are in waiting/blocked state, the operationg system can suspend a process in waiting/blocked state, stores all of the suspended processes in a queue named suspend queue and move the suspended process to the disk to free up main memory. After this, CPU can now bring some other processes to the main memory and this prevents it from staying idle. 
+
+So in six-state model, we can add another state named **Suspend**.
+
+## Six State Model 
+
+```
+                     Timeout
+              -----------------------    
+              |                     | 
+              |                     |
+     Admit    V     Dispatch        |     Release
+New -------> Ready -----------> Running -----------> Exit
+             Ʌ Ʌ                    /
+            /  |                   / 
+           /   |                  /
+          /    |                 /    
+         /     |                /
+        /      |               /
+       /       |              /
+      /        |             /
+     /         |            /
+    /          |           /
+   |           |          /
+   |           |         /
+   |           |        /
+   |           |       /
+   |           |      /
+   |           |     /
+   |           |    /
+   |           |   /
+   |           |  /      
+   |           | V
+Suspend <--- Blocked
+```
+
+In the six-state model, we fixed the issue that we mentioend in five-state model. 
+
+But now the problem is: how to decide if we should bring a brand new process to the main memory or if we should bring a process from the suspend queue. In addition, CPU doesn't know which process in the suspend queue is ready for execution and which process is not. And because it doesn't know this, it may try to take a process in suspend queue that is still waiting for an event completion and try to execute it. 
+
+To avoid this, we can divide suspend state into two new states: **Ready/Suspend**, and **Blocked/Suspend** 
+
+- **Ready/Suspend**: This state means that the process is currently in the disk and ready for execution.
+- **Blocked/Suspend**: This state means that the process is currently in the disk but still waiting for an event completion. 
+
+When we introduce these two states instead of **Suspend** state, the new model will have seven states in total and we call this **Seven-State Model**.
+
+In all of these state models, sometimes there might be multiple processes that are ready and waiting to be executed. How we can decide which one of these processes to run ? 
+
+Wouldn't it be better if we would store the processes that are ready and waiting to be executed in a data structure so that we can manage them and decide which one to send to be executed more easily ? 
+
+**!Slides 32-33 are skipped!**
 
 
 ## Process Termination 
@@ -221,9 +295,6 @@ New -------> Ready -----------> Running -----------> Exit
 - When a process encounters a severe error that will prevent the operating system to operate safely (e.g. by potentially damaging the system or causing data loss), the operating system terminates the process immediately. When this kind of severe error happens, the process is not given a chance to take any action, that's why the exit is **involuntary** and the user may end up with losing the changes he made before the error. We can call this **fatal error**.
 - Sometimes, a prcoess may explicitly terminate another process. One example of this might be terminating a process that has not been responding for a very long time. Because the process is not given any chance to take action, this is an **involuntary** termination as well.
 - When a process has run longer than expected, they may be terminated as well. We can call this **time limit exceeded error**
-
-
-
 
 
 
