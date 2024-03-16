@@ -369,6 +369,10 @@ In addition, the ability for the parallel tasks to share an address space and al
 Lastly, it is important to note that threads are especially useful when there is a substantial computing + substantial IO operations because in those cases while one thread is waiting for an IO event, other threads can continue their executions. But if none of the threads will wait for an IO event, threads will not result in 
 performance gain. 
 
+So in summary, processes are essentially programs that encapsulate various resources that are required for executing the instructions. And these resoruces can be memory, files, etc. Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why process can be seen as **unit of protection** as well. 
+
+**Threads** or **lightweight procss**, on the other hand, can be seen as **the unit of dispatching**. These are the entities within processes. Because threads are scheduled for execution on CPUs, they can be in any of several states like processes such as **Running, Blocked, Ready, Terminated** etc. And when there are multiple threads in a process, this means that the operating system can support multiple concurrent paths of execution within a single process. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
+
 ```
 Single-Threaded Process
 ----------   ----------
@@ -405,7 +409,30 @@ Multi-Threaded Process
               Thread-1     Thread-2
 ```
 
+Because threads within the same process share the same address space, unlike processes, one thread can completely modify another thread's stack. In other words, there is no protection among threads because of this. Even though lack of protection looks negative, it allows efficient communication between different threads. But it also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
 
+A thread typically has: 
+- a state (current activity of the thread such as running, ready, blocked, etc.)
+- saved thread context (when CPU stops running thread A and starts running the thread B, the thread context of the thread A is saved so that the next time it executes thread A, it can start from where it left off)
+- stack
+- storage for local variables
+- access to the memory and resources of the process that it is part of
+
+What threads add t othe process is to allow multiple executions to take place in the same process environment. Having threads running in one process is analogue to the having process running in one computer. In the former case, the threads share an address space and other resources in the process, in the latter case processes share physical memory, disks, printers, and other resources in the computer. 
+
+Items that are shared by all threads in a process: 
+- address space
+- global variables
+- open files
+- child processes
+- signals
+- signal handlers, etc.
+
+Items that are private to each thread: 
+- program counter
+- register
+- state
+- stack (each thread's stack contains the procedure's local variables and the return address to use when the procedure call is finished.  If procedure X calls procedure Y and procedure Y calls procedure Z, then while procedure Z is executingm the frames for X,Y, and Z will all be on the stack. Each thread will generally call different procedures and thus have a different execution history. That's why each thread need its own stack)
 
 
 Okay we have defined the processes and threads but what is exactly processor/CPU ? 
