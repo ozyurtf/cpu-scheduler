@@ -496,8 +496,53 @@ We can use the ratio of the user-level threads and kernel level threads to refer
 - M:N (hybrid model)
 
 
+## PCB vs TCB
 
+Process Control Block handles resources such as 
+- virtual address space and memory mappings
+- global variables
+- open files
+- child processes
+- process state
+- maximum CPU time
+- process wide scheduling priorities
+- interprocess communication resources (e.g., pipes, message queues, etc.)
 
+These are resources that are global to the entire process and shared among all the threads within a process.
+
+Thread Control Blokc handles resources such as 
+- program counter
+- registers
+- stack
+- thread state
+
+These are thread execution resources. 
+
+## How are Threads Created ? 
+
+1) We first allocate a memory for the thread's stack using a memory allocation function (e.g. malloc())
+2) Then we create a new thread within the current process (by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)
+3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
+4) ...
+5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate by marking this thread schedulable.
+
+## Thread State Model      
+
+It is pretty much the same with the Process State Model. Nothing changes.
+
+## Context Switch 
+
+Context switch happens when
+- current process (thread) blocks OR 
+- preemption occurs via interrupt
+
+When context switch occurs: 
+- the CPU resources must be released (why ?)
+- all registers should be stored in the PCB or TCB
+
+All these procedures are written in assembler.
+
+multiprogramming vs multithreading.
 
 Okay we have defined the processes and threads but what is exactly processor/CPU ? 
 
