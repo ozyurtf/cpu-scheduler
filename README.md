@@ -350,34 +350,56 @@ Okay these are great information but if we want to turn back to multiprogramming
 
 ### How to Do Multiprogramming ? 
 
-Multiprogramming is really achieved through the operating system's ability to start, run and complete multiple processes in overlapping time periods. And we call this ability **concurrency**. 
+Multiprogramming is achieved through the operating system's ability to start, run and complete multiple processes in overlapping time periods. And we call this ability **concurrency**. 
 
-Note that concurrency is not the same as parallelism in which the processes are run at the same time in multicore processor. In concurrency, the processes do not have to be run at the same time. Multitasking on a single core processor can be given as an example of concurrency. 
+Note that concurrency is not the same as parallelism in which the processes are run at the same time in multicore processor. In concurrency, the processes are run in an interleaved manner and they are managed at the same time. But they don't have to run at the same time. Multitasking on a single core processor can be given as an example of concurrency. 
 
-Therefore, the question of how to do multiprogramming is actually a question of **how to increase concurrency** and **how to switch from process A to process B** if process A is waiting for an external event. 
+And in parallelism, the processes are run at the same time.
 
-Imagine that there is a web server that is handled by only one process. In this kind of system, whenever the process is blocked and starts waiting for an external event (e.g. reading from a socket, writing to disk, etc.), the entire web server is blocked as well and waits for that external event to be done. This will obviously result in delays and reduced throughput. 
+Therefore, the question of how to do multiprogramming is actually a question of **how to increase concurrency**, in other words, **how to manage execution of multiple processes at the same time** and **how to switch from process A to process B** if process A is waiting for an external event. 
 
-A solution to this problem might be using multiple processes instead of one process. Through that way, each process can handle different task and if one of them is blocked, the others can continue their executions. But the issue in here is that each process will have its own address space (e.g. stack, heap, files, etc.) and these multiple address spaces will consume more memory and other resources. And this is resource-intensive.
+Imagine that there is a web server that is handled by only one process. In this kind of system, whenever the process is blocked and starts waiting for an external event (e.g. reading from a socket, writing to disk, etc.), the entire web server is blocked as well because everything is handled with only one process. That's why the entire web server would wait for the external event to be done. This will obviously result in delays and reduced throughput. 
 
-Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space. And this execution unit is called **threads**.
+A solution to this problem might be using multiple processes instead of one process. Through that way, each process can handle different tasks and if one of them is blocked, the others can continue their executions. 
+
+But the issue in here is that, if we create multiple processes, each of them will have its own address space (e.g. stack, heap, files, etc.) and these multiple address spacess will consume memory and other resources more. This is resource-intensive.
+
+Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space and that shares the resources. And this execution unit is called **threads**.
 
 ## Thread
 
-Threads are multiple unit of executions inside the processes. If there are multiple threads within a process, they work together and share the same address space and other resources. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
+Threads are multiple unit of executions inside the processes. If there are multiple threads within a process, they work together and share the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
 
-Without threads, if an application would want to perform multiple tasks concurrently, it would need to manage these tasks explicitly within the process. And this would require significant state management.
+A thread typically has: 
+- a state *(current activity of the thread such as running, ready, blocked, etc.)*
+- saved thread context *(when CPU stops running thread A and starts running the thread B, the context of the thread A is saved so that the next time thread A is executed, it can start from where it lefts off)*
+- stack
+- storage for local variables
+- access to the memory and resources of the process that it is part of
+- ...
 
-In addition, threads prevent us to create new address space and manage separate memory regions. They just need a **stack** and **execution unit** (hardware component that is responsible from executing instructions) and they share the same address space and resources. That's why they are faster to create/restore and they lighter than processes. When the number of execution units that are needed changes dynamically and rapidly, this property is useful to have. 
+If an application wants to perform multiple tasks concurrently, and if there are no threads, for example, each process can only execute one task at a time. Therefore, whenever we need to switch between different tasks, we would have to save and restore all the information of these processes (e.g., variables, register values, etc.) everytime we stop executing one task and start executing another. And this would require significant state management. 
 
-In addition, the ability for the parallel tasks to share an address space and all of its data among themselves is essential for certain applications, which is why having multiple processes (with their separate address spaces) will not work in those cases. Consider an example in which we need mutliple execution units that should work on the same document. In here having multiple separate processes would not work here because what we want is for execution units to share a common memory and to to access to the same document. That's why in situations like these, we must use threads instead of processes. 
+In addition, threads prevent us to create new address spaces and to manage separate memory regions. They just need a **stack** and **execution unit** (hardware component that is responsible from executing instructions) and they share the same address space and resources of the process they are part of. 
 
-Lastly, it is important to note that threads are especially useful when there is a substantial computing + substantial IO operations because in those cases while one thread is waiting for an IO event, other threads can continue their executions. But if none of the threads will wait for an IO event, threads will not result in 
-performance gain. 
+That's why they are faster to create/restore and they lighter than processes. When the number of execution units that are needed changes dynamically and rapidly, this is a good feature to have. 
 
-So in summary, processes are essentially programs that encapsulate various resources that are required for executing the instructions. And these resoruces can be memory, files, etc. Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why process can be seen as **unit of protection** as well. 
+In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. which is why having multiple processes (that have their own separate address spaces) will not work in those cases. 
 
-**Threads** or **lightweight procss**, on the other hand, can be seen as **the unit of dispatching**. These are the entities within processes. Because threads are scheduled for execution on CPUs, they can be in any of several states like processes such as **Running, Blocked, Ready, Terminated** etc. And when there are multiple threads in a process, this means that the operating system can support multiple concurrent paths of execution within a single process. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
+Consider an example in which we need mutliple execution units that should work on the same document. In this case, having multiple separate processes would not work because what we want is for execution units to share a common memory and to access to the same document. That's why we should use threads instead of processes in situations like these.
+
+Lastly, it is important to note that threads are especially useful when there is a substantial computing + substantial IO operations because in these cases while one thread is waiting for an IO event, other threads can continue their executions. But if none of the threads are waiting for an IO event, threads will not result in 
+a performance gain. 
+
+In summary, processes are essentially programs that encapsulate various resources that are required for executing the instructions. And these resoruces can be memory, files, etc. 
+
+Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process cannot modify the address space of another process because they are independent. Because of this, we can say that address spaces are protected by being modified/destroyed by another process and that's why process can also be seen as **unit of protection**. 
+
+**Threads** or **lightweight procss**, on the other hand, can be seen as **the unit of dispatching**. These are basically the entities within processes. 
+
+Because threads are scheduled for execution on CPUs, they can be in any of several states such as **Running, Blocked, Ready, Terminated** etc like processes. 
+
+And when there are multiple threads in a process, this means that the operating system can support multiple concurrent paths of execution within a single process. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
 
 ```
 Single-Threaded Process
@@ -415,16 +437,13 @@ Multi-Threaded Process
               Thread-1     Thread-2
 ```
 
-Because threads within the same process share the same address space, unlike processes, one thread can completely modify another thread's stack. In other words, there is no protection among threads because of this. Even though lack of protection looks negative, it allows efficient communication between different threads. But it also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
+Because threads within the same process share the same address space, one thread can completely modify or even destroy another thread's stack. In other words, there is no protection among threads. 
 
-A thread typically has: 
-- a state (current activity of the thread such as running, ready, blocked, etc.)
-- saved thread context (when CPU stops running thread A and starts running the thread B, the thread context of the thread A is saved so that the next time it executes thread A, it can start from where it left off)
-- stack
-- storage for local variables
-- access to the memory and resources of the process that it is part of
+Even though the lack of protection may seem negative, the factor that causes this lack of protection (sharing address space and resources) is actually what allows efficient communication between different threads.
 
-What threads add t othe process is to allow multiple executions to take place in the same process environment. Having threads running in one process is analogue to the having process running in one computer. In the former case, the threads share an address space and other resources in the process, in the latter case processes share physical memory, disks, printers, and other resources in the computer. 
+But as we mentioned, sharing address space and resources also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
+
+What threads add to the process is the ability to allow multiple executions to take place in the same process environment. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
 
 Items that are shared by all threads in a process: 
 - address space
@@ -576,12 +595,6 @@ Note that the instructions and registers are not virtualized by their nature. Th
 And because processor can only run one process/thread at a time, it is switched among multiple processors/threads to improve efficiency. This is called **context switching**. As a result of this switching, the units of executon will all look like progressing but at a slower speed. 
 
 The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks. 
-
-# Reminder 
-
-**Concurrency**: Executing multiple instructions in an interleaved manner. It doesn't mean that they will both be running at the same instant. 
-
-**Parallelism**: Distributing multiple instructions into different resources and running them at the same time in parallel. It happens when multiple tasks run on a multicore processor at the same time. 
 
 # Inter-Process Communication
 
