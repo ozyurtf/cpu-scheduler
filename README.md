@@ -480,7 +480,24 @@ Disadvantages:
 
 ### Combined Approach
 
-In the combined approach, threads are created in user-space. When we want to schedule and sycnhronize the threads in bulk, these are done by the application in the user space as well. Then these threads that are implemented in user space are mapped onto smaller or equal number of kernel threads.
+In the combined approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. Then these threads that are implemented in user space are mapped onto smaller or equal number of kernel threads.
+
+The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to switch from user mode to kernel mode whenever the user requests services from the operating system (e.g. IO operations), when interrupts (e.g, timer interrupts, device interrupts) or exceptions (e.g., page faults, division by zero) occur, and in some other cases. And switching to kernel mode is expensive. One of the reasons why this transition is expensive is, for example, because every time we switch from user mode to kernel mode, the CPU has to save the current execution context (e.g., program counter, register values, etc.) of the currently running mode (either user or kernel) and then load the context of the mode it is switching to.
+
+That's why creating threads in the user space involves less overhead. 
+
+It is good to create the threads in the user space but one problem we need to solve is letting know the kernel about these threads since they are not located in the kernel. And we do this by first creating equal or smaller number of threads in the kernel and then associating the user level threads with these kernel level threads. By this way, kernel can use these kernel level threads to manage the user level threads. Associating the user level threads with the equal or smaller number of kernel level threads can be done with load balancing, round robin, etc. 
+
+We can use the ratio of the user-level threads and kernel level threads to refer different thread models. 
+
+- 1:1 (1 user level thread, 1 kernel level thread -> each user thread = kernel thread)
+- M:1 (M user level thread, 1 kernel level thread -> user level thread model)
+- 1:N (1 user level thread, N kernel level thread -> kernel level thread model)
+- M:N (hybrid model)
+
+
+
+
 
 Okay we have defined the processes and threads but what is exactly processor/CPU ? 
 
