@@ -444,7 +444,7 @@ We can put the threads entirely in the user space. When we do this, the kernel w
 
 The advantage of putting threads to the user space entirely is that user-level threads can be implemented in an operating system that does not support multithreading. This approach is also developed to run on kernels that are not capable of multithreading. With this approach, threads are implemented in the library/application and all the thread management is handled in there (user space). 
 
-In addition, if there is a process named process A, only one thread of the process A can be executed at a given time (Why ?)
+In addition, because kernel is not aware of the existence of threads, and it only recognizes the processes, only one thread of the process can be executed at a given time. 
 
 When we implement the threads in the user space, each process needs its own private thread table in the userspace. This thread table basically contains thread ID, and thread control block pairs for each thread. Thread tables are analogous to the kernel's process table except that it keeps track of the properties of each thread (e.g. thread ID, thread stack, thread state, register values, priority, etc.). 
 
@@ -468,7 +468,19 @@ As we might guess, when we implement the threads in the kernel space, they are m
 
 Also because they are implemented in the kernel, kernel knows about these threads and manage them and creating / destroying or doing any other operations that are related to threads requires us to do system call.
 
+In addition, when threads are implemented in kernel, which has already the right infrastructure (e.g., built-in data structures such as process & thread control blocks, algorithms for process & thread scheduling, synchronization systems, etc.) for managing threads, no runtime system is needed in each process because programs can directly interface with the services provided by the kernel without needing an additional runtime system. If the threads are implemented in the user-space using a library, however, all these services that could be provided by the kernel have to be implemented in the user-space. In that case, a runtime system would be needed.
 
+And the advantages of implementing threads in the kernel are: 
+
+- Because the kernel is aware of the individual threads in the processes, and threads can access to the resources, kernel can simultaneously schedule multiple threads from the same process.
+- If one thread is blocked, the other threads can continue their execution.
+
+Disadvantages: 
+- If we want to switch from executing one thread to another within the same process, we need to switch to kernel mode. (But note that if we would try to do the same thing in user-space implementation of the threads, we would have to send a signal which would be more expensive)
+
+### Combined Approach
+
+In the combined approach, threads are created in user-space. When we want to schedule and sycnhronize the threads in bulk, these are done by the application in the user space as well. Then these threads that are implemented in user space are mapped onto smaller or equal number of kernel threads.
 
 Okay we have defined the processes and threads but what is exactly processor/CPU ? 
 
