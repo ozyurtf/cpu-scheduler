@@ -378,6 +378,20 @@ A thread typically has:
 - access to the memory and resources of the process that it is part of
 - ...
 
+Items that are shared by all threads in a process: 
+- address space
+- global variables
+- open files
+- child processes
+- signals
+- signal handlers, etc.
+
+Items that are private to each thread: 
+- program counter
+- register
+- state
+- stack *(each thread's stack contains the procedure's local variables and the return address to use when the procedure call is finished. Each thread will generally execute different instructions. That's why they have a different execution history. And that's why each thread need its own stack)*
+
 If an application wants to perform multiple tasks concurrently, and if there are no threads, for example, each process can only execute one task at a time. Therefore, whenever we need to switch between different tasks, we would have to save and restore all the information of these processes (e.g., variables, register values, etc.) everytime we stop executing one task and start executing another. And this would require significant state management. 
 
 In addition, threads prevent us to create new address spaces and to manage separate memory regions. They just need a **stack** and **execution unit** (hardware component that is responsible from executing instructions) and they share the same address space and resources of the process they are part of. 
@@ -445,55 +459,49 @@ But as we mentioned, sharing address space and resources also introduces the ris
 
 What threads add to the process is the ability to allow multiple executions to take place in the same process environment. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
 
-Items that are shared by all threads in a process: 
-- address space
-- global variables
-- open files
-- child processes
-- signals
-- signal handlers, etc.
-
-Items that are private to each thread: 
-- program counter
-- register
-- state
-- stack (each thread's stack contains the procedure's local variables and the return address to use when the procedure call is finished.  If procedure X calls procedure Y and procedure Y calls procedure Z, then while procedure Z is executing the stack frames for X,Y, and Z will all be on the stack. Each thread will generally call different procedures and thus have a different execution history. That's why each thread need its own stack)
+Where do we implement these threads though ? 
 
 ## Where to Put Thread ? 
+
+### Implementing Threads in User-Space
 
 There are two places to implement threads: 
 - user space
 - kernel space
 
-We can put the threads entirely in the user space. When we do this, the kernel won't know anything about them. It will just try to manage ordinarty, single-threaded processes. 
+We can put the threads entirely in the user space. But when we do this, the kernel won't know anything about these threads. It will see the processes as single threaded and just try to manage the processes directly.
 
-The advantage of putting threads to the user space entirely is that user-level threads can be implemented in an operating system that does not support multithreading. This approach is also developed to run on kernels that are not capable of multithreading. With this approach, threads are implemented in the library/application and all the thread management is handled in there (user space). 
+The advantage of putting threads to the user space entirely is that through this way, we can implement threads in an operating system that does not support multithreading. With this approach, threads are implemented in the library/application and all the thread management is handled in there (user space). 
 
 In addition, because kernel is not aware of the existence of threads, and it only recognizes the processes, only one thread of the process can be executed at a given time. 
 
-When we implement the threads in the user space, each process needs its own private thread table in the userspace. This thread table basically contains thread ID, and thread control block pairs for each thread. Thread tables are analogous to the kernel's process table except that it keeps track of the properties of each thread (e.g. thread ID, thread stack, thread state, register values, priority, etc.). 
+When we implement the threads in the user space, each process needs its own private thread table in the userspace. This thread table basically contains thread ID, and thread control block pairs for each thread. Thread tables are analogous to the kernel's process table that we have mentioned previously. The difference is that thread tables keep track of the properties of each thread (e.g. thread ID, thread stack, thread state, register values, priority, etc.). 
 
-Thread tables are managed by the runtime system. Runtime means the instructions that are executed when your program is running. And runtime system provides environment for executing these instructions.
+Also when threads are implemented in the user space, thread tables are managed by the runtime system that is provided by the programming language. Runtime means the instructions that are executed when your program is running. And runtime system provides the environment, necessary services and infrastructure for executing these instructions. It acts as a layer between the program code and the underlying operating system and hardware.
 
-There are both advantages and disadvantages of implementing threads in the user space. 
+Like in all the other methods, there are both advantages and disadvantages of this method (implementing threads in the user space) as well: 
 
 Advantages: 
 - When threads are switched, we don't need to enter into the kernel mode because threads are not located in kernel.
-- Because threads are implemented by the user-level library, so does the scheduling system. Therefore, we can implement application specific scheduling system rather than relying on the general purpose scheduler of the kernel.
+- Because threads are implemented by the user-level library, the scheduling system is handled in the user space as well. Therefore, we can implement application specific scheduling systems rather than relying on the general purpose scheduler of the kernel.
 - Because threads are implemented in the user space, we can run them in any operating system.
-- User-level threads also scale better. wBecause when we implement threads in the user-level using a library, the library only needs to allocate memory from the process' heap, set up stack in the user space, and add the thread to a queue in the user-space. Because all of these happen in the user space without switching to the kernel mode, we can say that user-level threads scale better. In addition, the procedure to save the thread's state and scheduling the next thread are just local procedures when we implement the threads in the user space. So invoking them is much more efficient because we don't need a kernel call, no trap or context switch is needed is needed. These make thread scheduling very fast when we use user-level threads.
+- User-level threads also scale better. Because when we implement threads in the user-level space using a library, the library only needs to allocate memory from the process' heap, set up stack in the user space, and add the thread to a queue in the user-space. Because all of these happen in the user space without switching to the kernel mode, we can say that user-level threads scale better. In addition, the procedure of saving the thread's state and scheduling the next thread are just local procedures when we implement the threads in the user space. So invoking them is much more efficient because we don't need a kernel call, trap or context switch. These make thread scheduling very fast when we use user-level threads.
 
 Disadvantages: 
-- We have mentioned that the user level threads are located in the user space and kernel is not aware of their existence. The only thing kernel access is processes. That's why kernels are unaware of the activities of the threads in the user space. That's why, if a thread starts waiting for an external event, the process and as a result, all the threads in that process are blocked as well. Similarly when page fault happens, the entire process and as a result all the threads are blocked.
+- We have mentioned that the user level threads are located in the user space and kernel is not aware of their existence. The only thing kernel access is processes. That's why kernels are unaware of the activities of the threads in the user space. So, if a thread starts waiting for an external event, the whole process and as a result, all the threads in that process are blocked as well. Similarly when page fault happens, the entire process and all the threads are blocked as a result.
 - Also, if threads are managed at the user-level, they are not aware of the underlying hardware architecture and therefore cannot be efficiently scheduled across multiple processors by the operating system. As a result, they may end up running on the same processor instead of being distributed across multiple processors for parallel execution.
 
-What if we implement the threads in the kernel space ? 
+So what if we implement the threads in the kernel space ? 
+
+### Implementing Threads in Kernel-Space
 
 As we might guess, when we implement the threads in the kernel space, they are managed by the kernel. No thread management is handled by an application/library.
 
-Also because they are implemented in the kernel, kernel knows about these threads and manage them and creating / destroying or doing any other operations that are related to threads requires us to do system call.
+Also because they are implemented in the kernel, kernel is aware of these threads and can be able to manage them. And creating / destroying or doing any other operations to threads requires us to do system call.
 
-In addition, when threads are implemented in kernel, which has already the right infrastructure (e.g., built-in data structures such as process & thread control blocks, algorithms for process & thread scheduling, synchronization systems, etc.) for managing threads, no runtime system is needed in each process because programs can directly interface with the services provided by the kernel without needing an additional runtime system. If the threads are implemented in the user-space using a library, however, all these services that could be provided by the kernel have to be implemented in the user-space. In that case, a runtime system would be needed.
+In addition, when threads are implemented in the kernel, which has already the right infrastructure (e.g., built-in data structures such as process & thread control blocks, algorithms for process & thread scheduling, synchronization systems, etc.), for managing threads, no runtime system is needed in each process. Because programs can directly interface with the services provided by the kernel without needing an additional runtime system. 
+
+If the threads are implemented in the user-space using a library, however, all these services that could be provided by the kernel have to be implemented in the user-space. In that case, a runtime system will be needed.
 
 And the advantages of implementing threads in the kernel are: 
 
@@ -501,11 +509,11 @@ And the advantages of implementing threads in the kernel are:
 - If one thread is blocked, the other threads can continue their execution.
 
 Disadvantages: 
-- If we want to switch from executing one thread to another within the same process, we need to switch to kernel mode. (But note that if we would try to do the same thing in user-space implementation of the threads, we would have to send a signal which would be more expensive)
+- If we want to switch from executing one thread to another within the same process, we need to switch to kernel mode. *(But note that if we would try to do the same thing in user-space implementation of the threads, we would have to send a signal which would be more expensive)*
 
-### Combined Approach
+### Hybrid Approach
 
-In the combined approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. Then these threads that are implemented in user space are mapped onto smaller or equal number of kernel threads.
+In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. Then these threads that are implemented in user space are mapped onto smaller or equal number of kernel threads.
 
 The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to switch from user mode to kernel mode whenever the user requests services from the operating system (e.g. IO operations), when interrupts (e.g, timer interrupts, device interrupts) or exceptions (e.g., page faults, division by zero) occur, and in some other cases. And switching to kernel mode is expensive. One of the reasons why this transition is expensive is, for example, because every time we switch from user mode to kernel mode, the CPU has to save the current execution context (e.g., program counter, register values, etc.) of the currently running mode (either user or kernel) and then load the context of the mode it is switching to.
 
