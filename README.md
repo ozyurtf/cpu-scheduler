@@ -534,39 +534,47 @@ Also, we can use the ratio of the user-level threads and kernel level threads to
 - 1:N *(1 user level thread, N kernel level thread -> kernel level thread model)*
 - M:N *(hybrid model)*
 
-### PCB vs TCB
 
-Process Control Block handles resources such as 
-- virtual address space and memory mappings
+## PCB vs TCB
+
+We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads to the process control block. And because of that we can say that process control block handles resources that are global to the process. 
+
+Here is the information that is carried by each process:
+
+- address space 
 - global variables
 - open files
 - child processes
 - process state
-- maximum CPU time
-- process wide scheduling priorities
-- interprocess communication resources (e.g., pipes, message queues, etc.)
+- ...
 
-These are resources that are global to the entire process and shared among all the threads within a process.
+Threads, on the other hand, are primarly focusing on managing resources that are needed for execution. 
 
-Thread Control Blokc handles resources such as 
+Here is the information that is carried by each thread:
+
 - program counter
 - registers
-- stack
+- stack/stack pointer *(points to the thread's stack in the process)*
 - thread state
 
-These are thread execution resources. 
+Until now, we talked about different features of the threads, their benefits, where they are created etc. But we didn't mention about how they are created. 
 
-## How are Threads Created ? 
+## How Threads Are Created ? 
 
-1) We first allocate a memory for the thread's stack using a memory allocation function (e.g. malloc())
-2) Then we create a new thread within the current process (by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)
+1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
+2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
 3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
-4) ...
-5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate by marking this thread schedulable.
+4) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
 
-## Thread State Model      
+While we were mentioning about the steps of thread creation, it may be useful to talk about different states a thread can have after they are created.
 
-It is pretty much the same with the Process State Model. Nothing changes.
+### Thread State
+
+Just like the processes, threads can get the same states: **New/Created**, **Running**, **Blocked**, **Terminated**, etc. 
+
+And we can create a thread state model just like how we created the process state model. There is really no difference in terms of how state models are implemented and what types of states can be assigned. 
+
+**!Slides 64 and 65 are skipped!**
 
 ## Context Switch 
 
