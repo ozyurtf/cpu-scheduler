@@ -576,21 +576,7 @@ And we can create a thread state model just like how we created the process stat
 
 **!Slides 64 and 65 are skipped!**
 
-### Context Switch 
-
-Context switch happens when
-- current process (thread) blocks OR 
-- preemption occurs via interrupt
-
-When context switch occurs: 
-- the CPU resources must be released (why ?)
-- all registers should be stored in the PCB or TCB
-
-All these procedures are written in assembler.
-
-multiprogramming vs multithreading.
-
-Okay we have defined the processes and threads but what is exactly processor/CPU ? 
+Okay we have defined the processes and threads but we didn't talk much about the processor/CPU.
 
 CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is execute the instructions and perform operations on the data. 
 
@@ -614,6 +600,18 @@ The operating system can schedule a process or thread onto each hardware thread.
 Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
 
 And because processor can only run one process/thread at a time, it is switched among multiple processors/threads to improve efficiency. This is called **context switching**. As a result of this switching, the units of executon will all look like progressing but at a slower speed. 
+
+### Context Switching
+
+Context switching happens when
+- current process (thread) blocks OR 
+- preemption occurs via interrupt
+
+When context switch occurs: 
+- the CPU resources must be released so that they can be used by other execution unit.
+- all registers should be stored in the PCB or TCB. 
+
+All these procedures are written in assembler.
 
 The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks. 
 
