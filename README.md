@@ -461,7 +461,7 @@ What threads add to the process is the ability to allow multiple executions to t
 
 Where do we implement these threads though ? 
 
-## Where to Put Thread ? 
+### Where to Put Thread ? 
 
 ### Implementing Threads in User-Space
 
@@ -535,7 +535,7 @@ Also, we can use the ratio of the user-level threads and kernel level threads to
 - M:N *(hybrid model)*
 
 
-## PCB vs TCB
+### PCB vs TCB
 
 We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads to the process control block. And because of that we can say that process control block handles resources that are global to the process. 
 
@@ -559,7 +559,7 @@ Here is the information that is carried by each thread:
 
 Until now, we talked about different features of the threads, their benefits, where they are created etc. But we didn't mention about how they are created. 
 
-## How Threads Are Created ? 
+### How Threads Are Created ? 
 
 1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
 2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
@@ -576,7 +576,7 @@ And we can create a thread state model just like how we created the process stat
 
 **!Slides 64 and 65 are skipped!**
 
-## Context Switch 
+### Context Switch 
 
 Context switch happens when
 - current process (thread) blocks OR 
