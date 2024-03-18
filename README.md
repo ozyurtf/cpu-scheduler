@@ -219,7 +219,7 @@ Similarly, not having a state for the process termination specifically may cause
 
 Therefore, it may be better to develop another state model that can take these details into account. 
 
-## Five State Model 
+### Five State Model 
 
 ```
                      Timeout
@@ -263,7 +263,7 @@ Through this way, CPU can now bring other processes to the main memory and start
 
 Therefore, we can add another state named **suspend**. After this update, we will have 6 states in total and we call this model **six state model**.
 
-## Six State Model 
+### Six State Model 
 
 ```
                      Timeout
