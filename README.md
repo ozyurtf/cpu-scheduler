@@ -6,7 +6,7 @@ In computer, there are programs that basically consist a set of instructions tha
 
 These instructions/codes are stored in the disk or memory and they need to be executed by the processor/CPU to do the tasks they are expected. 
 
-When these sets of instructions are executed, we can call the `process of the execution of these instructions` as **process**. We can also say that process is an abstraction of running program. 
+When these sets of instructions are executed, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. 
 
 And sometimes a process may create new process(es) to be able to finish its executions. In those cases, we can represent the processes in a process tree:
 
@@ -21,51 +21,51 @@ And sometimes a process may create new process(es) to be able to finish its exec
 
 In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
 
-In addition, a process typically includes information like:
+In addition, a **process** typically **includes** information like:
 
-- variables *(global variables, local variables, and any other data structures required by the program)*
-- code *(instructions or machine code that make up the program being executed by the process)*
-- program counter *(hardware resource that keeps track of the next instruction to be executed)*
-- registers *(hardware resource that are used to hold data during the execution of instructions)*
-- process state *(current activity of the process)*
+- **variables** *(global variables, local variables, and any other data structures required by the program)*
+- **code** *(instructions or machine code that make up the program being executed by the process)*
+- **program counter** *(hardware resource that keeps track of the next instruction to be executed)*
+- **registers** *(hardware resource that are used to hold data during the execution of instructions)*
+- **process state** *(current activity of the process)*
 - ...
 
-Okay these are good to know but where are these information stored and how a process can access to them ?
+Okay these are good to know but where are these information stored and how a process can access to these information ?
 
 ### Address Space 
 
-These information are basically stored in physical memory. And each of these information has a physical address in the memory. So we can access to a specific information by using its address.
+These information are basically stored in physical memory. And each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
 
 Hardware components such as CPU, for example, use these physical addresses directly when they store/fetch data in physical memory. But processes cannot use a physical address and access to the information located in that address in physical memory. 
 
 For processes, we virtualize the addresses in the memory. In other words, we translate the physical addresses into virtual addresses. These virtual addresses are typically represented as strings. And they point to the physical addresses in the memory. When a process wants to access to a specific information in the memory, it can use the virtual address of that information. And the information in the memory that is pointed by the virtual address is retrieved to the process.  
 
-We call a list of these virtual addresses **address space**. 
+So now imagine a bunch of virtual addresses together. We call that **address space**. 
 
 Address spaces typically can either be flat or segmented. In the flat address space, we store the virtual addresses consecutively, just like how we store data in array. Therefore, the entire virtual address space is treated as a single, continuous region.
 
-In segmented address space, however, we group the virtual addresses based on their properties, divide them into segments, and store the virtual addresses in segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a region that has the same properties. 
+In segmented address space, however, we group the virtual addresses based on their properties, divide them into segments, and store the virtual addresses in these segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a region that has the same properties. 
 
-A good thing about the segmented address space is that we can assign different access permissions (e.g. read only, reaad write, execute only) to different segments. And this can prevent unauthorized access to the critical memory regions. 
+A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions**. 
 
 *Also one note is that if we have two same applications, their address space will be exactly the same.*
 
-Okay we talked about the processes, how do they look like, how they access to the information in the memory, etc. But when these processes are created ? 
+Okay we talked about the processes, how do they look like, how they access to the information in the memory, etc. But when these processes are actually created, implemented and lastly terminated ? Let's talk a little bit about these.
 
 ### Process Creation 
 
-Processes are created in many different time frames. In below, we can see some of the periods when the processes are created:
+Processes are created in many different periods. In below, we can see some of the periods when the processes are created:
 
 - When the system is initialized.
    - When a computer initializes hardware devices & operationg system and when it loads the operating system into the memory, new processes are created.
    - During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with the computer. 
-   - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. managing resources) without interacting with the user. 
+   - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. an eaxmple of these tasks might be managing resources) without interacting with the user. 
 - When processes are running, these processes typically create new processes as well.
 - The user can execute some codes or open applications and these actions create processes.
-- The operationg system can create processes to provide services (e.g., network services, file system service, printing services, etc.)
-- When the user enters into a system interactively (e.g through terminal, remote shell, graphical login screen, etc.), a new process is created to be able to handle the user's interactive session and to allow the user to interact with the system.
+- The operationg system can create processes to provide services *(e.g., network services, file system service, printing services, etc.)*
+- When the user enters into a system interactively *(e.g through terminal, remote shell, graphical login screen, etc.)*, a new process is created to be able to handle the user's interactive session and to allow the user to interact with the system.
 
-So these are some of the timeframes when processes are created. Now, after learning how/when the processes are created, the next thing that we might ask might be: how/when these processes are implemented and how/when they are terminated ? 
+So these are some of the timeframes when processes are created. Now, after learning how/when the processes are created, the next thing that we might ask might be: how/when these processes are implemented and how/when they are terminated ? Let's explain how/when they are terminated first since process implementationo is fairly larger topic.  
 
 ### Process Termination 
 
@@ -77,21 +77,25 @@ Here are some of the distinct scenarios how/when processes are terminated:
 - Sometimes, a process may explicitly terminate another process. One example to this scenario might be terminating a process that has not been responding for a very long time. Like in the fatal error, the process is not given any chance to take action. That's why this is an **involuntary** termination as well.
 - When a process has run longer than expected, they may be terminated as well. We can call this kind of error **time limit exceeded error**
 
+Okay new we can discuss about how processes are implemented. 
+
 ### Process Implementation
 
-In any given time, there might be many different processes that are in different states. Some of them might be waiting to be executed by the CPU, some of them might be currently running, some others might already be terminated, etc. 
+In any given time, there might be many different processes that are in different states. Some of them might be waiting to be executed by the CPU. Some of them might be currently executed by the CPU. Some others might already be terminated, etc. 
 
-In addition, in each one of these processes, there might be too many information that we have to deal with. 
+In each one of these processes, there might be too many information (e.g. process state, the priority of the process, program counter, pointers to memory, IO status information, etc.) that we have to deal with. 
 
-Therefore, to be able to manage all the processes more easily, we can try to store all the relevant information about these processes (e.g. process state, the priority of the process, program counter, pointers to memory, IO status information, etc.) in a data structure. By using this data structure, we can manage the processes more easily. And we call this data structure **Process Control Block (PCB)**. It is **created and managed by the operating system**. 
+Therefore, to be able to manage all the processes more easily, we can try to store all these information in a data structure. By using this data structure, we can manage the processes more easily. 
 
-Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A. Because through this way process A can continue its execution from where it left off without losing any important data or without losing any progress when the process A becomes ready to be executed later. Process control blocks are also very useful for this purpose. They help us to save the execution context of the processes during context switching. And through this way the operating system can support/manage multiple processes.
+So we call this data structure **Process Control Block (PCB)** and it is **created and managed by the operating system** because processes are implemented in the kernel. 
+
+Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A. Because through this way, process A can continue its execution from where it left off without losing any important data or without losing any progress when the process A becomes ready to be executed again later. **Process control blocks** are also very useful for this purpose. They help us to **save the execution context of the processes** during **context switching**. And through this way the **operating system** can **support/manage multiple processes**.
 
 Because each process has a distinct process control block, we can assign a unique ID to these processes, which we call **Process ID (PID)**. These process IDs help us to access the execution context of different processes. 
 
 And we can store the process ID along with the process control block in a new data structure. We call this data structure **Process Table**. 
 
-When we pass the process ID, the kernel will basically look that process ID in the process table and verify whether you have the right to access the process control block or not. If you do, you will be able to access to the process control block. 
+When we pass the process ID, the kernel will basically look at that process ID in the process table and verify whether you have the right to access the process control block or not. If you do, you will be able to access to the process control block. 
 
 In addition to the process table, the operating system maintains some other tables (e.g., memory table, IO table, file table) to be able to manage the resources properly when the processes are being executed. 
 
@@ -130,6 +134,14 @@ Processes -------------------> Process Table
                                           ---------------
 
 ```
+
+**!Slides between 17 and 28 are skipped!**
+
+Okay after these definitions, now let's take a look at how processes are implemented and how process looks like in Linux. 
+
+## Linux Process Object 
+
+
 
 **!Slides between 17 and 28 are skipped!**
 
@@ -880,7 +892,7 @@ Until now, we talked about distribution of CPU among **different processes**, an
 
 Now it is time to try to be fair to the **users**. Fair Share Scheduler is a mechanism which its goal is to distribute the CPU among **different users** or **different process groups** equally/fairly. In Fair Share Scheduler, the schedule is not only based on individual processes but also the process' owner/user.
 
-**Note**: 
+**Note**: Policy is deciding what should be done. 
 
 ## Scheduling in Real-Time
 
