@@ -613,7 +613,63 @@ When context switch occurs:
 
 All these procedures are written in assembler.
 
-The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks. 
+The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks.
+
+# Process & Thread Scheduling 
+
+Scheduling is a mechanism that decides which process/thread should be executed by the CPU within a group of ready processes/threads. During this decision, multiple factors are taken into account: 
+
+- When these processes/threads should be scheduled ?
+- What kind of scheduling algorithm do we want to use ? (e.g., interactive, real-time, batch, etc.)
+- Whether the scheduling algorithm is preemptive or nonpreemptive.
+- The goals of the scheduling algorithms.
+
+Whether scheduling is made based on processes or threads depend on whether the operating system is capable of multithreading or not. Because in a single-threaded operating system, the unit of execution is basically process. Therefore, the operating system schedules and switches between **processes**. In an operating system that is capable of multithreading, the operating system can manage individual threads within the processes. Because the execution unit is thread, the operating system can schedule threads. 
+
+## When Processes/Threads Should be Scheduled ? 
+
+- Whenever a process is created.
+- Whenever a process is terminated.
+- Whenever a process blocks.
+- Whenever an IO event occurs.
+
+## What Kind of Scheduling Algorithm Do We Want to Use ?
+
+### Interactive 
+
+In interactive systems, the ability of taking away the CPU from the process and giving it to another process is essential. This is called **preemption**. Because in the interactive systems, there are users whose jobs need to be done more urgently. Whenever a task comes from the user, we should prioritize the user request over many of the processes that are currently running. That's why we should have the ability to take the CPU away from a process and give it to another one.
+
+### Batch 
+
+In batch systems, there is no user who is waiting impatiently. In these systems, the jobs are grouped together and executed in batches in a predetermined order rather than being executed individually, immediately or interactively. And human intervention does not occur when processes are executed. That's why when we use a scheduling algorithm in these systems, it doesn't have to be preemptive most of the times. Even if preemption feature is used, it has preemption period for each process so switching from one process to another is not the case in these systems. 
+
+### Real-Time 
+
+Real time systems are used when we want to provide predictable and timely responses with strict timing constraints. That's why the deadlines are important to take into account when we use a scheduling algorithm. 
+
+## Measures of the Scheduling Algorithms
+
+**Turnaround Time**: The length of time from the process creation to process termination. In other words, this measures how long it took for the process to be completed.
+
+It is a good metric to use in batch systems because the goal of the batch systems is to minimize the average turnaround time for all processes/threads. The lower turnaround time means that the less time it took for the processes to be completed on average. 
+
+**Throughput**: The rate of processes/threads that are completed per unit of time. The higher throughput means the higer number of processes/threads are completed in a specified time frame.
+
+**Response Time**: The time between the user's request and the system's response to the user's request. As we might guess, the goal of the interactive systems is to reduce the average response time to minimize the response time experienced by the users. 
+
+It is a good metric to use in interactive systems.
+
+**Average Wait Times**: Average time the processes/threads spend waiting to be executed by the CPU. And the less average wait times is better for us. 
+
+**CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly dependent on the process' behavior. 
+
+**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly dependent on the system's behavior. For example, the number of other IO events, the speed of device, etc.) can change the IO Burst. 
+
+CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change. 
+
+## Goals of the Scheduling Algorithms 
+
+
 
 # Inter-Process Communication
 
