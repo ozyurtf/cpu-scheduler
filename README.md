@@ -798,7 +798,37 @@ And dynamic priorities are assigned/updated based on the current state of the pr
 
 And by using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.
 
-### Multi Level Queueing (MLQ)
+### Multi Level Queue (MLQ) Scheduling
+
+```
+Priority Level     Runnable Processes
+--------------     --------------------------------------------
+| Priority 4 |---- Process 8, Process 9, Process 10, Process 11 ---- Highest Priority    (System)
+--------------    
+
+--------------
+| Priority 3 |---- Process 5, Process 6, Process 7
+--------------
+                                                                ----- Medium Priority  (Interactive)
+--------------
+| Priority 2 |---- Process 4
+--------------
+
+--------------
+| Priority 1 |---- Process 1, Process 2, Process 3              ----- Lowest Priority    (Batch)
+--------------
+
+```
+
+In multi level queue scheduling, processes are basically divided into different groups based on their priorities. And these processes are stored in queues. And each of these queues that have different priority level can use a different scheduling algorithm.
+
+The system processes (e.g. kernel processes that are responsible from memory management, task scheduling, interrupt handling, etc.) have the highest priority over the other processes. 
+
+The interactive processes (e.g. graphical user interface processes, processes that are used in interactive applications such as web browsers, text editors, etc.) have lower priority compared to system processes but higher priority over batch processes. 
+
+And the batch processes (e.g. processes that are used for large scale data processing, automated system maintenance such as backups, system updates, virus scans, et.) have the lowest priorities.
+
+But the issue with multi level queue scheduling is that starvation might happen if there is always a process to run in the highest priority queues. 
 
 ### The Effects of Scheduling on Scheduling Metrics
 
