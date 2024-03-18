@@ -719,7 +719,64 @@ The operating system maintains a data structure to store all the processes that 
 
 ### First-Come First-Served (FCFS/FIFO) 
 
+When a new process enters the system and becomes ready for execution, or when a blocked process becomes ready, it is added to the end of the ready queue. And the scheduler selects a process from the ready queue in the order based on its arrival time without taking any other factors (e.g. priority, time quantum) into account. And the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
 
+The main disadvantage of this scheduler is that it performs poorly when there are processes with frequent and/or long IO operations.
+
+### Shortest Job First 
+
+When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know or we can estimate the burst time of each process in advance. The estimation can be done based on the execution histories of the processes or other methods. Once the processes are in the ready queue, we sort these processes based on their burst time and pick the process with shortest burst time. Then the selected process is executed by the CPU. Like FCFS, this scheduler is not preemptive as well, in other words, once we start running a process, we cannot take the CPU away from that process and the process is executed until it is finished. 
+
+This scheduler is only optimal when all the jobs are available simultaneously and we have a good idea about their burst times in advance. When all the processes are available simultaneously at the beginning, in other words they all arrive to the ready queue at the same time, the scheduler can schedule these processes optimally by executing the shortest job first and executing the next shortest job, etc.
+
+```
+     8      4    4    4
+________________________
+|A       | B  | C  | D  |
+------------------------
+
+Ready queue in original order
+
+Average Wait Time = (0 + 8 + 12 + 16) / 4 = 9
+```
+
+```
+  4    4    4      8
+________________________
+|B  | C  | D  | A      | 
+------------------------
+
+Ready queue in shortest job first
+
+Average Wait Time = (0 + 4 + 8 + 12) / 4 = 6
+```
+
+### Shortest Remaining Time Next 
+
+Scheduler always chooses the process whose remaining time is the shortest. 
+
+
+## Scheduling in Interactive Systems 
+
+### Round Robin
+
+### Priority Scheduling 
+
+### Multi Level Queueing (MLQ)
+
+### Multi Level Feedback Queueing (MLFQ) 
+
+## Lottery Scheduling 
+
+## Fair Share Scheduler
+
+## Scheduling in Real-Time
+
+## Thread Scheduling
+
+## SMP Scheduling
+
+## Load Balancing
 
 # Inter-Process Communication
 
