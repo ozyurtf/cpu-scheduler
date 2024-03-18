@@ -647,13 +647,15 @@ In batch systems, there is no user who is waiting impatiently. In these systems,
 
 Real time systems are used when we want to provide predictable and timely responses with strict timing constraints. That's why the deadlines are important to take into account when we use a scheduling algorithm. 
 
+It doesn't mean that it has to be fast. It just means there has to be deadlines. In chemcial operations, for example, the real time could mean minutes,hours,days,etc. to initiate something. 
+
 ## Measures of the Scheduling Algorithms
 
 **Turnaround Time**: The length of time from the process creation to process termination. In other words, this measures how long it took for the process to be completed.
 
 It is a good metric to use in batch systems because the goal of the batch systems is to minimize the average turnaround time for all processes/threads. The lower turnaround time means that the less time it took for the processes to be completed on average. 
 
-**Throughput**: The rate of processes/threads that are completed per unit of time. The higher throughput means the higer number of processes/threads are completed in a specified time frame.
+**Throughput**: The rate of processes/threads that are completed per unit of time. The higher throughput means the higer number of processes/threads are completed in a specified time frame. A scheduling algorithm that tries to macimize throughput may not necessarily minimize turnaround time. For example, given a mix of short jobs and long jobs, a scheduler that always ran short jobs and never ran long jobs might achieve great throughput but at the expense of bad turnaround time for the long jobs. If short jobs keep arriving at a steady rate, the long jobs might never run. And this makes the average turnaround time infinite while achieving high throughput. 
 
 **Response Time**: The time between the user's request and the system's response to the user's request. As we might guess, the goal of the interactive systems is to reduce the average response time to minimize the response time experienced by the users. 
 
@@ -668,6 +670,54 @@ It is a good metric to use in interactive systems.
 CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change. 
 
 ## Goals of the Scheduling Algorithms 
+
+The goals generally change from systems to systems. 
+
+In batch systems, for example, the goal might be 
+- maximizing the number of processes that are completed per hour (throughput) (all things considered, finishing 50 jobs per hour is better than finishing 40 jobs per hour. But this might not be the case in other systems that has other priorities other than the number of completed processes in a time unit)
+- minimizing the time between process creation/submission and process termination (turnaround time)
+- increasing CPU utilization (keeping CPU busy as much as possible)
+
+In interactive systems, the goal might be 
+- minimizing response time so that the system can be able to respond to users quickly
+- meeting users' expectations as much as possible
+
+In real-time systems, the goal might be 
+- meeting deadlines (avoid losing data)
+- predictability (the ability of the system to provide reliable and consistent performance)
+
+And the goals that are important for all of the systems in general
+- fairness (giving each process a fair share of CPU execution)
+- balance (keeping all parts of the system busy)
+- policy enforcement (policy in here means a set of predefined rules that specify how processes should be scheduled and executed. These policies can be priority assignment, resource allocation, preemption rules, scheduling criteria, etc.)
+
+## State Transitions and Scheduler Invocations
+
+```
+                 x
+             Interrupt 
+      ----------------------
+      |                    |
+      |                    |
+ x    V                    |      x
+---> Ready -----------> Running ---->
+       Ʌ                 /
+        \               /
+    IO   \             / IO Called
+Completed \           /      x    
+    x      \         /
+            \       V
+             Blocked
+
+```
+
+When the process becomes ready to be executed *(either because it was recently created or it completed its IO operation or it has run long enough and it was interrupted to give the CPU to another process or another process with higher priority arrives while it was running and it was interrupted because of this and the CPU was given to another process)*, when it starts waiting for an IO event, or when it stops running, scheduler is called to make a scheduling decision and to potentially switch the CPU from one process/thread to another. 
+
+The operating system maintains a data structure to store all the processes that are ready to be run. This data structure is called **ready queue** or **run queue** and the scheduler picks a process from this data structure and the selected process is executed by the CPU.
+
+## Scheduling in Batch Systems 
+
+### First-Come First-Served (FCFS/FIFO) 
 
 
 
