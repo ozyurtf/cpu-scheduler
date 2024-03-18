@@ -534,7 +534,6 @@ Also, we can use the ratio of the user-level threads and kernel level threads to
 - 1:N *(1 user level thread, N kernel level thread -> kernel level thread model)*
 - M:N *(hybrid model)*
 
-
 ### PCB vs TCB
 
 We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads to the process control block. And because of that we can say that process control block handles resources that are global to the process. 
@@ -725,7 +724,9 @@ The main disadvantage of this scheduler is that it performs poorly when there ar
 
 ### Shortest Job First 
 
-When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know or we can estimate the burst time of each process in advance. The estimation can be done based on the execution histories of the processes or other methods. Once the processes are in the ready queue, we sort these processes based on their burst time and pick the process with shortest burst time. Then the selected process is executed by the CPU. Like FCFS, this scheduler is not preemptive as well, in other words, once we start running a process, we cannot take the CPU away from that process and the process is executed until it is finished. 
+When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know or we can estimate the burst time of each process in advance. The estimation can be done based on the execution histories of the processes or other methods. 
+
+Once the processes are in the ready queue, we sort these processes based on their burst time and pick the process with shortest burst time. Then the selected process is executed by the CPU. Like FCFS, this scheduler is not preemptive as well, in other words, once we start running a process, we cannot take the CPU away from that process and the process is executed until it is finished. 
 
 This scheduler is only optimal when all the jobs are available simultaneously and we have a good idea about their burst times in advance. When all the processes are available simultaneously at the beginning, in other words they all arrive to the ready queue at the same time, the scheduler can schedule these processes optimally by executing the shortest job first and executing the next shortest job, etc.
 
@@ -755,16 +756,53 @@ Average Wait Time = (0 + 4 + 8 + 12) / 4 = 6
 
 Scheduler always chooses the process whose remaining time is the shortest. 
 
+In the first step processes are added to the ready queue after they become ready to be executed. The burst time required for each process is assumed to be known in advance. Then the processes in the ready queue are sorted based on their remaining time and the process with the shortest remaining time is selected by the scheduler and executed by the CPU. We can set this scheduler either preemptive or nonpreemptive. 
+
+When a process that has shorter remaining time compared to the currently running process arrives, if our scheduler is preemptive, the currently running process stop being executed by the CPU, and the CPU is given to the newly arrived process that has shorter remaining time. 
+
+If our scheduler is not preemptive, this preemption does not happen and the selected processes are run until their executions are finished. 
+
+As we mentioned previously, the turnaround time is the time between process' arrival and its termination. 
+
+And because we are always prioritizing the processes that are closest to their completion, we minimize the amount of time processes spend waiting to be executed in the ready queue. Because as we choose the processes that has the shortest remaining time, processes are completed more quickly and this allows choosing a new process from the ready more quickly. That's why we can say that processes are completed faster on average and that's why average turnaround time is shorter with this scheduler.
+
+But if a stream of short processes keep arriving continuously, longer processes may not be given a chance to be executed with this scheduler and this would cause starvation for longer processes. Also, assuming that the burst time of the processes are known is another negative side of this scheduler because in real life it is very hard to estimate the CPU burst time in advance.
+
+In addition, this scheduler does not consider the priorities of the processes. Sometimes when a process is running, another process with higher priority might arrive. But when we use this scheduler, the newly arrived process with higher priority is not executed directly unless its remaining time is shorter than the currently running process. This might be okay for some systems but not an ideal solution in interactive systems.  
 
 ## Scheduling in Interactive Systems 
 
 ### Round Robin
 
+In Round Robin, each process is assigned a time limit. After a process starts being executed, if it reaches this time limit, the CPU simply stops executing this procses and starts executing another process (**preemption**). This time limit is also known as **time quantum**.
+
+When the time quantum is too short, this means that processes are given very short time frame to be executed. And once they reach these short time limits, they are preempted. That's why if the time quantum is too short, preemption occurs more frequently and this means too many context switches and that means lower CPU efficiency. 
+
+When the time quantum is too large, this means that processes are given a very long time frame to be executed. In that case, long processes are given a chance to be executed for an extended period of time. As a result, short processes may have to wait to be executed for a long time. 
+
+That's why if we choose a time quantum that is larger than the typical CPU burst, preemption and context switch does not occur very frequently. In addition, short processes does not have to be wait too much. That's why choosing a time quantum larger then the typical CPU burst is ideal.
+
+Round Robin can be seen as First Come First Served scheduler with preemption. Or we can also say that First Come First Served can be seen as Round Robin with a very large time quantum. 
+
+Lastly, becuase there is a preemption, Round Robin scheduler promotes fairness. But it does not take priority of the processes into account like previous schedulers.
+
 ### Priority Scheduling 
+
+In priority scheduling, each process is assigned priority. And a process that is ready to be executed and that has the highest priority is selected by the scheduler and then CPU starts executing that process.
+
+Priorities in here can be assigned either statically or dynamically. 
+
+Static priorities are generally assigned based on the type of application, its importance, etc. 
+
+And dynamic priorities are assigned/updated based on the current state of the process, time quantum and how long the process ran, whether the process is preempted or not, whether the process returned back from the IO operation or not, etc.
+
+And by using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.
 
 ### Multi Level Queueing (MLQ)
 
-### Multi Level Feedback Queueing (MLFQ) 
+### The Effects of Scheduling on Scheduling Metrics
+
+## Multi Level Feedback Queueing (MLFQ) 
 
 ## Lottery Scheduling 
 
