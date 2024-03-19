@@ -6,7 +6,7 @@
 
 In computer, there are programs that basically consist a set of instructions that are written to handle specific tasks. 
 
-These instructions/codes are stored in the disk or memory passively. They need to be executed by the processor/CPU to do the tasks they are expected. 
+These **instructions/codes** are **stored** in the **disk or memory passively**. They need to be executed by the processor/CPU to do the tasks they are expected. 
 
 When these sets of instructions are executed, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
 
@@ -34,19 +34,19 @@ In addition, a **process** typically **includes** information like:
 
 Okay these are good to know but where are these information stored and how a process can access to these information ?
 
-### Address Space 
-
 These information are basically stored in physical memory. And each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
 
 Hardware components such as CPU, for example, use these physical addresses directly when they store/fetch data in physical memory. But processes cannot use a physical address and access to the information located in that address in physical memory. 
 
-For processes, we virtualize the addresses in the memory. In other words, we translate the physical addresses into virtual addresses. These virtual addresses are typically represented as strings. And they point to the physical addresses in the memory. When a process wants to access to a specific information in the memory, it can use the virtual address of that information. And the information in the memory that is pointed by the virtual address is retrieved to the process.  
+For processes, we virtualize the addresses in the memory. In other words, we translate the physical addresses into virtual addresses. These virtual addresses are typically represented as strings. And they point to the physical addresses in the memory. When a process wants to access to a specific information in the memory, it can use the virtual address of that information. And the information in the memory that is pointed by the virtual address is retrieved to the process. 
 
-So now imagine a bunch of virtual addresses together. We call that **address space**. 
+### Address Space 
 
-Address spaces typically can either be flat or segmented. In the flat address space, we store the virtual addresses consecutively, just like how we store data in array. Therefore, the entire virtual address space is treated as a single, continuous region.
+Imagine a bunch of virtual addresses together. And that's what we call that **address space**. 
 
-In segmented address space, however, we group the virtual addresses based on their properties, divide them into segments, and store the virtual addresses in these segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a region that has the same properties. 
+Address spaces typically can either be **flat** or **segmented**. In the flat address space, we store the virtual addresses consecutively, just like how we store data in array. Therefore, the entire virtual address space is treated as a **single, continuous region**.
+
+In segmented address space, however, we **group** the virtual addresses **based on their properties**, divide them into segments, and store the virtual addresses in these segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a **region** that has the **same properties**. 
 
 A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions**. 
 
@@ -56,7 +56,7 @@ Okay we talked about the processes, how do they look like, how they access to th
 
 ### Process Creation 
 
-Processes are created in many different periods. In below, we can see some of the periods when the processes are created:
+Processes are created in many different time frames. In below, we can see some of the time frames when the processes are created:
 
 - When the system is initialized.
    - When a computer initializes hardware devices & operationg system and when it loads the operating system into the memory, new processes are created.
@@ -71,7 +71,7 @@ So these are some of the timeframes when processes are created. Now, after learn
 
 ### Process Termination 
 
-Here are some of the distinct scenarios how/when processes are terminated:
+Here are some of the distinct scenarios when processes are terminated:
 
 - When a process completes its execution without any problem, it exits **voluntarily**. We can call this **normal exit**
 - When a process encounters an **error/exception** during its execution, it exits **voluntarily**. We can call this **error exit**.
@@ -83,23 +83,23 @@ Okay new we can discuss about how processes are implemented.
 
 ### Process Implementation
 
-In any given time, there might be many different processes that are in different states. Some of them might be waiting to be executed by the CPU. Some of them might be currently executed by the CPU. Some others might already be terminated, etc. 
+In any given time, there might be many different processes that are in different states. Some of them might be **waiting** to be executed by the CPU. Some of them might be **running**, in other words, might be currently executed by the CPU. Some others might already be **terminated**, etc. 
 
-In each one of these processes, there might be too many information (e.g. process state, the priority of the process, program counter, pointers to memory, IO status information, etc.) that we have to deal with. 
+In each one of these processes, there are too many information (e.g. process state, the priority of the process, program counter, pointers to memory, IO status information, etc.) that we have to deal with. 
 
-Therefore, to be able to manage all the processes more easily, we can try to store all these information in a data structure. By using this data structure, we can manage the processes more easily. 
+Therefore, to be able to manage all the processes more easily, we can try to store all these information in a data structure. And then by using this data structure, we can manage the processes more easily. 
 
-So we call this data structure **Process Control Block (PCB)** and it is **created and managed by the operating system** because processes are implemented in the kernel. 
+So we call this data structure **Process Control Block (PCB)** and it is **created and managed by the operating system**.
 
-Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A. Because through this way, process A can continue its execution from where it left off without losing any important data or without losing any progress when the process A becomes ready to be executed again later. **Process control blocks** are also very useful for this purpose. They help us to **save the execution context of the processes** during **context switching**. And through this way the **operating system** can **support/manage multiple processes**.
+Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A. Because through this way, process A can continue its execution from where it lefts off without losing any important data and its progress. **Process control blocks** are also very useful for this purpose. They help us to **save the execution context of the processes** during the **context switch**. And through this way the **operating system** can **support/manage multiple processes**.
 
-Because each process has a distinct process control block, we can assign a unique ID to these processes, which we call **Process ID (PID)**. These process IDs help us to access the execution context of different processes. 
+Because **each process** has a **distinct process control block**, we can assign a unique ID to these processes, which we call **Process ID (PID)**. These process IDs help us to access the execution context of different processes. 
 
-And we can store the process ID along with the process control block in a new data structure. We call this data structure **Process Table**. 
+And we can **store** the **process ID** along with the **process control block** in a new data structure. We call this data structure **Process Table**. 
 
 When we pass the process ID, the kernel will basically look at that process ID in the process table and verify whether you have the right to access the process control block or not. If you do, you will be able to access to the process control block. 
 
-In addition to the process table, the operating system maintains some other tables (e.g., memory table, IO table, file table) to be able to manage the resources properly when the processes are being executed. 
+In addition to the process table, the **operating system maintains some other tables** **(e.g., memory table, IO table, file table)** to be able to **manage** the **resources** properly **when** the **processes** are **being executed**. 
 
 In below, we can see the tables that are maintained by the operating system to manage the execution of processes and their accesses to the system resources.       
 
@@ -137,21 +137,25 @@ Processes -------------------> Process Table
 
 ```
 
-Okay after these definitions, now let's finally take a look at how processes are implemented and how process looks like in the operating systems. 
+Okay after these definitions, now let's take a look at process creation/implementation in a real operating system. 
 
 #### Linux Process Object 
 
-In Linux, there is a data structure called **struct task**. It is used to **represent both processes and threads** and it contains **all the information about the process/thread (e.g., state, program counter, open files, etc.)**.  
+In Linux, there is a data structure called **struct task**. This data structure is used to **represent processes as well as the threads** and it contains **all the information about the process/thread (e.g., state, program counter, open files, etc.)**.  
 
 The size of this data structure is approximately 1.5KB. 
 
-Along with the struct task, each process in the Linux requires two stacks (one for the user space and the other is for the kernel space). As we might guess, the user stack is used to execute the code (e.g., function calls, local variables, function parameters, etc.) in the user space. 
+Along with the struct task, **each process** in the Linux **requires** **two stacks** (one for the **user space** and the other is for the **kernel space**). 
 
-When we switch from the user mode to the kernel mode, kernel stack is used. It handles interrupts, system calls, and other kernel operations that are related to the process. Using two separate stacks for user space and kernel space helps us to maintain isolation between user space and kernel space. When a process executes a system call or when it encounters an exception, we need switch to the kernel mode, and handle the tasks in the kernel by using the kernel stack.
+As we might guess, the **user stack** is used to **execute the code** (e.g., function calls, local variables, function parameters, etc.) in the user space. 
+
+And **kernel stack** handles interrupts, system calls, and other kernel operations that are related to the process. When we switch from the user mode to the kernel mode, kernel stack is used. 
+
+Using **two separate stacks** for user space and kernel space helps us to **maintain isolation between user space and kernel space**. When a process executes a system call or when it encounters an exception, we need switch to the kernel mode, and handle the tasks in the kernel by using the kernel stack.
 
 The size of the kernel stack is somewhere between 4KB and 8KB and the user stack can grow dynamically until the stack ran out of space. 
 
-And when we want to **create a new process**, we can use a system call named **fork()**.
+And when we want to **create a new process**, we can make a system call named **fork()**.
 
 #### fork()
 
@@ -173,24 +177,24 @@ After fork()
 ------------
 ```
 
-When fork() is called, it creates the copy of the process that called fork(). The process that was used to create a new process is called parent and the newly created process is called child. 
+When fork() is called, it creates the **copy of the process** that was used during the fork() system call. The process that was used to create a new process is called **parent process** and the newly created process is called **child process**. 
 
 fork() is called **once** but it returns **twice**: once in the parent and once in the child. 
 
-Child process is an exact duplicate of the process except for: 
-  - the child process has its own unique process ID.
-  - the child process parent's ID is the same as the parent process' process ID.
+Child process is an exact duplicate of the process except the child process has its own unique process ID.
 
-and the child does not inherit
+Also, child process does not inherit
   - it's parent's memory locks
   - it's parent's timers
   - ...
+
+And child process parent's ID is the same as the parent process' process ID.
  
-When kernel is initialized, it manually creates one process. This can be called as **boot process** as well and its process ID is 0.
+When kernel is initialized, it manually creates one process. This can be called as **boot process** as well and its **process ID** is set to **0**.
 
-And by using **boot process**, another process is created. This new process is called **init process** and its process ID is 1.
+And by using **boot process**, another process is created. This new process is called **init process** and its **process ID** is set to **1**.
 
-And from this **init process**, all the other processes are created by using **fork()**.
+From this **init process**, all the other processes are created by using **fork()**.
 
 In below, we can see the implementation of the fork(): 
 
@@ -233,15 +237,15 @@ int main() {
 forkbomb(): Recursively creating processes until system runs out of available resources.
 ```
 
-Because we don't make a full copy of the parent process' address space, fork() is quite fast.
+Note that because we **don't make a full copy of the parent process' address space**, **fork()** is **quite fast**.
 
-After a new process is created with fork(), the next step is executing the new process. But how to do that ? 
+After a new process is created with fork(), the next step is executing that new process, right ? But how to do that ? 
 
 #### execv()
 
-execv() is a system call that is used to execute a process.
+execv() is a system call that is used to **execute a process.**
 
-When we call execv() we provide the path for the executable file as well as arguments. 
+When we call execv() we provide the path for the executable file as well as arguments just like below. 
 
 ```
 #include <unistd.h>
@@ -253,7 +257,7 @@ int main() {
 }
 ```
 
-When we run execv(), new process is not created because execv() transforms the existing process into a new program.
+**Current:** When we run execv(), **new process is not created** because execv() **transforms the existing program into a new program**.
 
 For example, after we create a child process with fork(), execv() system call is made to execute a program in that child process.
 
