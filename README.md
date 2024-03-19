@@ -1,3 +1,7 @@
+# Note
+
+These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Claude, and Andrew Tanenbaum's Modern Operating Systems book when I prepare these notes.  
+
 # Processes and Threads 
 
 ## Process
