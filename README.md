@@ -137,9 +137,50 @@ Processes -------------------> Process Table
 
 **!Slides between 17 and 28 are skipped!**
 
-Okay after these definitions, now let's take a look at how processes are implemented and how process looks like in Linux. 
+Okay after these definitions, now let's finally take a look at how processes are implemented and how process looks like in the operating systems. 
 
 #### Linux Process Object 
+
+In Linux, there is a data structure called **struct task**. It is used to **represent both processes and threads** and it contains **all the information about the process/thread (e.g., state, program counter, open files, etc.)**.  
+
+The size of this data structure is approximately 1.5KB. 
+
+Along with the struct task, each process in the Linux requires two stacks (one for the user space and the other is for the kernel space). As we might guess, the user stack is used to execute the code (e.g., function calls, local variables, function parameters, etc.) in the user space. 
+
+When we switch from the user mode to the kernel mode, kernel stack is used. It handles interrupts, system calls, and other kernel operations that are related to the process. Using two separate stacks for user space and kernel space helps us to maintain isolation between user space and kernel space. When a process executes a system call or when it encounters an exception, we need switch to the kernel mode, and handle the tasks in the kernel by using the kernel stack.
+
+The size of the kernel stack is somewhere between 4KB and 8KB and the user stack can grow dynamically until the stack ran out of space. 
+
+And when we want to **create a new process**, we can use a system call named **fork()**.
+
+```
+Before fork()
+------------
+|          |
+| O parent |
+|          |
+------------
+
+After fork()
+------------
+|          |
+| O parent |
+| |        |
+| O child  |
+|          |    
+------------
+```
+
+When fork() is called, it creates the copy of the process that called fork(). The process that was used to create a new process is called parent and the newly created process is called as child. The child process is an exact duplicate of the process except for: 
+
+- the child process has its own unique process ID.
+- the child process parent's ID is the same as the parent process' process ID.
+- the child does not inherit
+  - it's parent's memory locks
+  - it's parent's timers
+  - ...
+
+
 
 
 
