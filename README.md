@@ -243,7 +243,9 @@ After a new process is created with fork(), the next step is executing the new p
 
 #### execv()
 
+#### clone()
 
+#### signal()
 
 So, until now we have mentioned about the state of the process but what do we mean exactly by a "state" ? 
 
