@@ -553,6 +553,8 @@ But the issue in here is that, if we create multiple processes, each of them wil
 
 Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space and that shares the resources. And this execution unit is called **threads**.
 
+### Multiprogramming/Multiprocessing vs Multithreading
+
 ## Thread
 
 Threads are multiple unit of executions inside the processes. If there are multiple threads within a process, they work together and share the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
