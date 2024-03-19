@@ -336,13 +336,13 @@ A process can have many different states depending on its current activity:
 
 A process can transition from one process to another depending on its activity. The representation of the all the possible states and all the possible transitions between these states is called **process state model**. 
 
-### Process State Model 
+#### Process State Model 
 
 There can be several possible state models depending on our needs.
 
 Sometimes, it may be convenient for us to assign only two states such as **Not Running** or **Running** to a process. In those cases, we can implement 2-State Model.
 
-### Two-State Model
+##### Two-State Model
 
 ```
                  Pause
@@ -364,7 +364,7 @@ Therefore, the dispatcher cannot simply select a process that is in **not runnin
 
 Therefore, the best way to solve this problem is to split the **not running** state into two new states: **ready** and **blocked**. Since we will have 3 states after this split, we call this new model as **three-state model**.
 
-### Three-State Model
+##### Three-State Model
 
 ```
          Timeout
@@ -406,7 +406,7 @@ Similarly, not having a state for the process termination specifically may cause
 
 Therefore, it may be better to develop another state model that can take these details into account. 
 
-### Five State Model 
+##### Five State Model 
 
 ```
                      Timeout
@@ -450,7 +450,7 @@ Through this way, CPU can now bring other processes to the main memory and start
 
 Therefore, we can add another state named **suspend**. After this update, we will have 6 states in total and we call this model **six state model**.
 
-### Six State Model 
+##### Six State Model 
 
 ```
                      Timeout
