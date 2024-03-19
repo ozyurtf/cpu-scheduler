@@ -1071,15 +1071,65 @@ Until now, we talked about distribution of CPU among **different processes**, an
 
 Now it is time to try to be fair to the **users**. Fair Share Scheduler is a mechanism which its goal is to distribute the CPU among **different users** or **different process groups** equally/fairly. In Fair Share Scheduler, the schedule is not only based on individual processes but also the process' owner/user.
 
-**Note**: Policy is deciding what should be done. 
-
 ## Scheduling in Real-Time
+
+As we mentioned earlier, in real-time systems, meeting deadlines is important. The importance level of it depends on whetehr the system is hard real-time or soft real-time. In hard real-time systems, responding to an event within a deadline is crucial. In soft real-time systems, meeting deadlines is very important as well but missing the deadlines once in a while is tolerable unlike hard real-time systems. 
+
+The events in the real-time system can be periodic or aperiodic. As we might guess, periodic events occur periodically (e.g., sensor readings every 10 seconds) and aperiodic events occur in unpredictable time frames (e.g. user input). 
+
+The scheduling algorithms that we use in real-time systems can be static or dynamic. 
+
+If the scheduling algorithm is static, this means that the order and timing of the processes that will be executed is predetermined and strict, and they don't change during the runtime. 
+
+In static scheduling algorithms, a scheduling table is created in advance and the order and timing of the processes execution is stored in this table.  This is generally preferred in hard real-time systems.
+
+If the scheduling algorithm is dynamic, this means that the order of the processes that will be executed is not prdetermined and it can change during the runtime based on current system state, durations and urgency of the tasks, etc. Dynamic scheduling algorithms is commonly used in soft real-time systems.
 
 ## Thread Scheduling
 
-## SMP Scheduling
+### Thread Scheduling vs Process Scheduling 
 
-## Load Balancing
+There are some advantages of threads scheduling over process scheduling. 
+
+Because threads are lightweight processes, and they share the same address space unlike processes, thread switching is faster and cheaper compared to the process switching. In addition, sharing the same address space makes the communication/synchronization between the threads easier compared to the processes. 
+
+Like we do in process scheduling, we can also execute multiple threads in parallel if there are multiple cores. 
+
+So in thread scheduling, we have two levels of parallelism: 
+- processes
+- threads within these processes
+
+If threads are implemented in the kernel, thread management is handled by the kernel. If the threads are implemented in the user-space, thread management is handled by thread libraries. 
+
+## SMP (Symmetric Multi Process) Scheduling
+
+Modern computers can have 100s of CPUs today. And SMP refers to a computer architecture in which multiple CPUs are connected to a shared main memory. In SMP systems, each process has equal level of access to the memory and IO devices. 
+
+And each scheduler has its own scheduler which is responsible for scheduling the threads in that CPU. That's why each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum). Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
+
+New processes, which are created with fork(), or threads, which are created with clone(), are generally assigned to the local CPU where the process/thread creation request is made. And if the process/thread load vary across different CPUs, the workload becomes imbalanced across different CPUs.
+
+And when imbalances occur in the workloads of different CPUs, the resources in the CPUs that have small amount of workloads might be idle for a long time while some other CPUs might be overloaded. This is not the situation we want because we don't want the resources to be idle. In addition to this, when imbalances happen some proceses/threads receive more CPU time compared to others and this decreases fairness, reduce overall responsiveness, and user experience. 
+
+Therefore, we should find a way to solve this problem.
+
+### Load Balancing
+
+One way to solve this problem is letting the CPUs to steal work from other CPUs occasionally. But how to decide when to steal ? 
+
+Each scheduler maintains an average workload history so that it can see how stable workload it had until now. This helps it to make informed decisions about load balancing.
+
+## Policy vs Mechanism
+
+Policy is deciding what should be done. And mechanism is an implementation that enforces the policy. 
+
+An example of policy might be a scheduling algorithm such as Round Robin.
+
+And the mechanisms that are used to implement the Round Robin scheduler might be data structures and algorithms such as ready queue, implementing a timer to ensure that processes are stopped being executed after the time limit is reached. 
+
+**!Slides 29-35 are skipped!**
+
+## Comparing Scheduling Algorithms Outcomes
 
 # Inter-Process Communication
 
