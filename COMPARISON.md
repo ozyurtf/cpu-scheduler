@@ -29,8 +29,6 @@ Process ID | Arrival Time | Total CPU Time | CPU Burst | IO Burst |  Finish Time
 SUM: x                     | x               | x              | x                       | x                 | x  
 ```
 
-```
-
 ### FCFS 
 ```
 0 0 0: CREATED -> READY
