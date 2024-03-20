@@ -551,17 +551,17 @@ Maybe what we need is execution units like process that can execute the instruct
 
 ## Thread
 
-Threads are multiple unit of executions inside the processes. If there are multiple threads within a process, they work together and share the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
+Threads are unit of executions like processes. But they are created within the processes so that they share the jobs of the process, and work together. And to be able to do this efficiently, they share/use the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
 
 A thread typically has: 
 - a state *(current activity of the thread such as running, ready, blocked, etc.)*
-- saved thread context *(when CPU stops running thread A and starts running the thread B, the context of the thread A is saved so that the next time thread A is executed, it can start from where it lefts off)*
-- stack
+- saved thread context when the thread is not running *(when CPU stops running thread A and starts running the thread B, the context of the thread A is saved so that the next time thread A is executed, it can start from where it lefts off)*
+- execution stack
 - storage for local variables
 - access to the memory and resources of the process that it is part of
 - ...
 
-Items that are shared by all threads in a process: 
+Items that are shared by all the threads in a process: 
 - address space
 - global variables
 - open files
@@ -575,28 +575,27 @@ Items that are private to each thread:
 - state
 - stack *(each thread's stack contains the procedure's local variables and the return address to use when the procedure call is finished. Each thread will generally execute different instructions. That's why they have a different execution history. And that's why each thread need its own stack)*
 
-If an application wants to perform multiple tasks concurrently, and if there are no threads, for example, each process can only execute one task at a time. Therefore, whenever we need to switch between different tasks, we would have to save and restore all the information of these processes (e.g., variables, register values, etc.) everytime we stop executing one task and start executing another. And this would require significant state management. 
+Imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require significant state management. Threads save us from this.
 
-In addition, threads prevent us to create new address spaces and to manage separate memory regions. They just need a **stack** and **execution unit** (hardware component that is responsible from executing instructions) and they share the same address space and resources of the process they are part of. 
+In addition, threads prevent us to create new address spaces and to manage separate memory regions. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
 
-That's why they are faster to create/restore and they lighter than processes. When the number of execution units that are needed changes dynamically and rapidly, this is a good feature to have. 
+That's why threads are faster to create/restore and they lighter than processes. When the number of execution units that are needed changes dynamically and rapidly, this is a good feature to have. 
 
-In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. which is why having multiple processes (that have their own separate address spaces) will not work in those cases. 
+In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. Tha's why having multiple processes (with their own separate address spaces that cannot be accessed by another process) will not work in those cases. 
 
 Consider an example in which we need mutliple execution units that should work on the same document. In this case, having multiple separate processes would not work because what we want is for execution units to share a common memory and to access to the same document. That's why we should use threads instead of processes in situations like these.
 
-Lastly, it is important to note that threads are especially useful when there is a substantial computing + substantial IO operations because in these cases while one thread is waiting for an IO event, other threads can continue their executions. But if none of the threads are waiting for an IO event, threads will not result in 
-a performance gain. 
+Lastly, it is important to note that **threads** are especially **useful** when there is a **substantial computing + substantial IO operations** because in these cases while one thread is waiting for an IO event, other threads can continue their executions. But if none of the threads are waiting for an IO event, threads will not result in a significant performance gain. 
 
-In summary, processes are essentially programs that encapsulate various resources that are required for executing the instructions. And these resoruces can be memory, files, etc. 
+In summary, **processes** are essentially programs that **encapsulate various resources** that are **required** for **executing the instructions**. And these resoruces can be memory, files, etc. 
 
-Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process cannot modify the address space of another process because they are independent. Because of this, we can say that address spaces are protected by being modified/destroyed by another process and that's why process can also be seen as **unit of protection**. 
+Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process **cannot modify** the address space of another process because these address spaces are **independent**. Because of this, we can say that **address spaces** are **protected** by being modified/destroyed by another process and that's why **process** can also be seen as **unit of protection**. 
 
-**Threads** or **lightweight procss**, on the other hand, can be seen as **the unit of dispatching**. These are basically the entities within processes. 
+**Threads** or **lightweight procss**, on the other hand, are the entitis within processes. They can be seen as **the unit of dispatching**. 
 
 Because threads are scheduled for execution on CPUs, they can be in any of several states such as **Running, Blocked, Ready, Terminated** etc like processes. 
 
-And when there are multiple threads in a process, this means that the operating system can support multiple concurrent paths of execution within a single process. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
+And when there are **multiple threads** in a process, this means that the **operating system can support multiple concurrent paths of execution within a single process**. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
 
 ```
 Single-Threaded Process
@@ -638,11 +637,15 @@ Because threads within the same process share the same address space, one thread
 
 Even though the lack of protection may seem negative, the factor that causes this lack of protection (sharing address space and resources) is actually what allows efficient communication between different threads.
 
-But as we mentioned, sharing address space and resources also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
+But as we mentioned, sharing address space or resources also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
 
-What threads add to the process is the ability to allow multiple executions to take place in the same process environment. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
+What threads add to the process is the ability to allow multiple executions to take place in the same process environment to achieve a common goal. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
+
+So, we talked about the difference between single-threading and multiple-threading but we didn't compare multiprocessing and multithreading. 
 
 ### Multiprogramming/Multiprocessing vs Multithreading
+
+
 
 Where do we implement these threads though ? 
 
@@ -654,7 +657,7 @@ There are two places to implement threads:
 - user space
 - kernel space
 
-We can put the threads entirely in the user space. But when we do this, the kernel won't know anything about these threads. It will see the processes as single threaded and just try to manage the processes directly.
+We can put the threads entirely in the user space. But when we do this, the kernel won't know anything about these threads. The only execution unit it will see will be processes and it will see the them as single threaded and try to manage the processes directly.
 
 The advantage of putting threads to the user space entirely is that through this way, we can implement threads in an operating system that does not support multithreading. With this approach, threads are implemented in the library/application and all the thread management is handled in there (user space). 
 
@@ -668,7 +671,7 @@ Like in all the other methods, there are both advantages and disadvantages of th
 
 Advantages: 
 - When threads are switched, we don't need to enter into the kernel mode because threads are not located in kernel.
-- Because threads are implemented by the user-level library, the scheduling system is handled in the user space as well. Therefore, we can implement application specific scheduling systems rather than relying on the general purpose scheduler of the kernel.
+- Because threads are implemented by the user-level library, the scheduling system is handled in the user space as well. Therefore, we can implement application specific scheduling systems rather than relying on the general purpose scheduling system of the kernel.
 - Because threads are implemented in the user space, we can run them in any operating system.
 - User-level threads also scale better. Because when we implement threads in the user-level space using a library, the library only needs to allocate memory from the process' heap, set up stack in the user space, and add the thread to a queue in the user-space. Because all of these happen in the user space without switching to the kernel mode, we can say that user-level threads scale better. In addition, the procedure of saving the thread's state and scheduling the next thread are just local procedures when we implement the threads in the user space. So invoking them is much more efficient because we don't need a kernel call, trap or context switch. These make thread scheduling very fast when we use user-level threads.
 
@@ -676,7 +679,7 @@ Disadvantages:
 - We have mentioned that the user level threads are located in the user space and kernel is not aware of their existence. The only thing kernel access is processes. That's why kernels are unaware of the activities of the threads in the user space. So, if a thread starts waiting for an external event, the whole process and as a result, all the threads in that process are blocked as well. Similarly when page fault happens, the entire process and all the threads are blocked as a result.
 - Also, if threads are managed at the user-level, they are not aware of the underlying hardware architecture and therefore cannot be efficiently scheduled across multiple processors by the operating system. As a result, they may end up running on the same processor instead of being distributed across multiple processors for parallel execution.
 
-So what if we implement the threads in the kernel space ? 
+What if we implement the threads in the kernel space ? 
 
 ### Implementing Threads in Kernel-Space
 
@@ -686,7 +689,7 @@ Also because they are implemented in the kernel, kernel is aware of these thread
 
 In addition, when threads are implemented in the kernel, which has already the right infrastructure (e.g., built-in data structures such as process & thread control blocks, algorithms for process & thread scheduling, synchronization systems, etc.), for managing threads, no runtime system is needed in each process. Because programs can directly interface with the services provided by the kernel without needing an additional runtime system. 
 
-If the threads are implemented in the user-space using a library, however, all these services that could be provided by the kernel have to be implemented in the user-space. In that case, a runtime system will be needed.
+If the threads would be implemented in the user-space using a library, however, all these services that could normally be provided by the kernel would have to be implemented in the user-space. In that case, a runtime system would be be needed.
 
 And the advantages of implementing threads in the kernel are: 
 
@@ -698,7 +701,7 @@ Disadvantages:
 
 ### Hybrid Approach
 
-In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. Then these threads that are implemented in user space are mapped onto smaller or equal number of threads in the kernel.
+In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. After these threads are implemented in user space, however, they are associated with smaller or equal number of threads in the kernel.
 
 The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to switch from user mode to kernel mode when 
 
@@ -710,18 +713,22 @@ And switching from user mode to kernel mode frequently is expensive. Because eve
 
 That's why creating threads in the user space involves less overhead. 
 
-It is good to create the threads in the user space but one problem we need to solve is letting know the kernel about the existence of these threads since they are not located in the kernel. And we do this by first creating equal or smaller number of threads in the kernel and then associating the the threads that are implemented in the user space with these kernel level threads. By this way, kernel can use these kernel level threads to manage the user level threads. And associating the user level threads with the equal or smaller number of kernel level threads can be done with load balancing, round robin, etc. 
+It is good to create the threads in the user space but one problem we need to solve is letting know the kernel about the existence of these threads since they are not located in the kernel. And we do this by first creating equal or smaller number of threads in the kernel and then associating the the threads that are implemented in the user space with these kernel level threads. By this way, kernel can use these kernel level threads to manage the user level threads. 
 
-Also, we can use the ratio of the user-level threads and kernel level threads to refer different thread models. 
+Also, one note is that when we want to refer different thread models, we can use the ratio of the user-level threads and kernel level threads.
 
 - 1:1 *(1 user level thread, 1 kernel level thread -> each user thread = kernel thread)*
 - M:1 *(M user level thread, 1 kernel level thread -> user level thread model)*
 - 1:N *(1 user level thread, N kernel level thread -> kernel level thread model)*
 - M:N *(hybrid model)*
 
+So we explained the processes and threads, their similarities and differences but we didn't talk much about the differences between the storage of the execution contents of these two execution units.
+
 ### PCB vs TCB
 
-We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads to the process control block. And because of that we can say that process control block handles resources that are global to the process. 
+We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads within the process control block. And because of that we can say that **process control block handles resources that are global to the process.**
+
+**Thread control block**, on the other hand, are primarly focusing on **managing resources that are needed for execution.**
 
 Here is the information that is carried by each process:
 
@@ -732,8 +739,6 @@ Here is the information that is carried by each process:
 - process state
 - ...
 
-Threads, on the other hand, are primarly focusing on managing resources that are needed for execution. 
-
 Here is the information that is carried by each thread:
 
 - program counter
@@ -741,7 +746,7 @@ Here is the information that is carried by each thread:
 - stack/stack pointer *(points to the thread's stack in the process)*
 - thread state
 
-Until now, we talked about different features of the threads, their benefits, where they are created etc. But we didn't mention about how they are created. 
+At this point, we already talked about different features of the threads, their benefits, where they are created, etc. But we didn't mention about how these threads created. 
 
 ### How Threads Are Created ? 
 
