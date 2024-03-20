@@ -6,24 +6,25 @@
 
 In computer, there are programs that basically consist a set of instructions that are written to handle specific tasks. 
 
-These **instructions/codes** are **stored** in the **disk or memory passively**. They need to be executed by the processor/CPU to do the tasks they are expected. 
+These **instructions/codes** are **stored** in the **disk or memory passively**. They need to be executed by the processor/CPU to do the tasks they are expected.
 
-When these sets of instructions are executed, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
+But what is processor/CPU ? 
 
-And sometimes a process may create new process(es) to be able to finish its executions. In those cases, we can represent the processes in a process tree:
+CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is to execute the instructions and perform operations on the data. 
 
-```
-      A
-     / \
-    /   \
-   B     C
-  / \
- D   F
-```
+Imagine that you ran a program in your computer. This program includes some set of instructions. And these instructions are sent to the CPU. Then CPU follows these instructions step by step to do the required tasks specified in the program. And while doing that, it can retrieve the data from the memory, manipulate that data according to the instructions, and then store the results back in the memory or maybe send them to monitor, or printer for instance. 
 
-In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
+CPU generally has one or more cores. These **cores** are **physical processing units** that are **responsible from executing instructions** and performing computations in general. 
 
-In addition, a **process** typically **includes** information like:
+And we can divide the core into three groups: 
+
+- Memory: In core, a **memory unit** is built to store & transfer information fastly/efficiently. This memory unit consists of **registers** and **cache**.
+- Control Unit: These units **fetches** the **instructions** that are represented as bits from the memory unit, and **translates** those **instructions** into **electricity** or maybe light so that they can be **sent** to **other parts of the computer as signal**. 
+- Arithmetic Logic Unit: This unit includes **electronic circuits**. And these circuits are responsible from **arithmetic and logic operations**. 
+
+So, When these sets of instructions are executed by the CPU, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
+
+A **process** typically **includes** information like:
 
 - **variables** *(global variables, local variables, and any other data structures required by the program)*
 - **code** *(instructions or machine code that make up the program being executed by the process)*
@@ -32,17 +33,15 @@ In addition, a **process** typically **includes** information like:
 - **process state** *(current activity of the process)*
 - ...
 
-Okay these are good to know but where are these information stored and how a process can access to these information ?
+And these information are basically stored in physical memory. Each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
 
-These information are basically stored in physical memory. And each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
-
-Hardware components such as CPU, for example, use these physical addresses directly when they store/fetch data in physical memory. But processes cannot use a physical address and access to the information located in that address in physical memory. 
+Hardware components such as CPU, for example, use these physical addresses directly when they store/fetch data in physical memory. But processes cannot access to the information located physical memory by using the information's physical address.
 
 For processes, we virtualize the addresses in the memory. In other words, we translate the physical addresses into virtual addresses. These virtual addresses are typically represented as strings. And they point to the physical addresses in the memory. When a process wants to access to a specific information in the memory, it can use the virtual address of that information. And the information in the memory that is pointed by the virtual address is retrieved to the process. 
 
 ### Address Space 
 
-Imagine a bunch of virtual addresses together. And that's what we call that **address space**. 
+Now, imagine a bunch of virtual addresses together. And that's what we call that **address space**. 
 
 Address spaces typically can either be **flat** or **segmented**. In the flat address space, we store the virtual addresses consecutively, just like how we store data in array. Therefore, the entire virtual address space is treated as a **single, continuous region**.
 
@@ -52,17 +51,26 @@ A good thing about the **segmented address** space is that we can **assign diffe
 
 *Also one note is that if we have two same applications, their address space will be exactly the same.*
 
-Okay we talked about the processes, how do they look like, how they access to the information in the memory, etc. But when these processes are actually created, implemented and lastly terminated ? Let's talk a little bit about these.
+Okay we talked about the processes, how do they look like, how they access to the information in the memory, etc. But when these processes are actually created, implemented and terminated ? Let's talk a little bit about these.
 
 ### Process Creation 
 
-Processes are created in many different time frames. In below, we can see some of the time frames when the processes are created:
+Processes are created in many different time frames/conditions. In below, we can see some of the time frames/conditions when the processes are created:
 
-- When the system is initialized.
-   - When a computer initializes hardware devices & operationg system and when it loads the operating system into the memory, new processes are created.
-   - During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with the computer. 
-   - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. an eaxmple of these tasks might be managing resources) without interacting with the user. 
-- When processes are running, these processes typically create new processes as well.
+- When a computer initializes hardware devices & operationg system and when it loads the operating system into the memory, new processes are created.
+- During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with the computer. 
+- And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. an eaxmple of these tasks might be managing resources) without interacting with the user. 
+- When processes are running, these processes typically create new processes as well. In those cases, we can represent the processes in a process tree:
+```
+      A
+     / \
+    /   \
+   B     C
+  / \
+ D   F
+
+In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
+```
 - The user can execute some codes or open applications and these actions create processes.
 - The operationg system can create processes to provide services *(e.g., network services, file system service, printing services, etc.)*
 - When the user enters into a system interactively *(e.g through terminal, remote shell, graphical login screen, etc.)*, a new process is created to be able to handle the user's interactive session and to allow the user to interact with the system.
@@ -85,7 +93,7 @@ Okay new we can discuss about how processes are implemented.
 
 In any given time, there might be many different processes that are in different states. 
 
-State in here basically means the current activity of the process. It is generally expressed with strings.
+State in here basically represents the current activity of the process. It is generally expressed with strings.
 
 A process can have many different states depending on its current activity:
 
@@ -95,23 +103,25 @@ A process can have many different states depending on its current activity:
 - And when the process is ready to be executed by the CPU, its state becomes **Ready**.
 - Lastly, when the process is terminated, the state becomes **Terminated**.
 
-In each one of these processes, there are too many information (e.g. process state, the priority of the process, program counter, pointers to memory, IO status information, etc.) that we have to deal with. 
+In addition to these states, processes deal with many other information (e.g. the priority of the process, program counter, pointers to memory, IO status information, etc.).  
 
-Therefore, to be able to manage all the processes more easily, we can try to store all these information in a data structure. And then by using this data structure, we can manage the processes more easily. 
+Therefore, to be able to manage all the processes more easily, we can try to store all these information in a data structure. And then by using this data structure, we can manage processes more easily. 
 
-So we call this data structure **Process Control Block (PCB)** and it is **created and managed by the operating system**.
+So we call this data structure **process control block (PCB)** and it is **created and managed by the operating system**.
 
-Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A. Because through this way, process A can continue its execution from where it lefts off without losing any important data and its progress. **Process control blocks** are also very useful for this purpose. They help us to **save the execution context of the processes** during the **context switch**. And through this way the **operating system** can **support/manage multiple processes**.
+Let's say that there are two processes: process A and process B. And assume that CPU is currently executing the procss A. 
 
-Because **each process** has a **distinct process control block**, we can assign a unique ID to these processes, which we call **Process ID (PID)**. 
+When the CPU switches from executing process A to executing process B, it would be very convenient to store all the information of the process A to somewhere. Because through this way, process A can continue its execution from where it lefts off without losing any important data and its progress. This is another place where **process control blocks** becomes very useful. Because they help us to **save the execution context of the processes** during the **context switch**. And through this way the **operating system** can **support/manage/deal with multiple processes**.
+
+Because **each process** has a **distinct process control block**, we can assign a unique ID to these processes, which we call **process ID (PID)**. 
 
 Process IDs are **handles** that are used to identify the processes. They help us to access the execution context of different processes. 
 
-Handle in here means a reference to the resource and it is abstracted which means that it represents the resource in a way that it is not tied to the physical resource directly. And resources can be represented in an abstract way by using an integer, pointer, pointer to pointer, pointer to integer, string, etc. 
+Handle in here means a reference to the resource and it is abstracted which means that it represents the resource in a way that it is not tied to the physical resource directly. And the reference to the resource can be represented in an abstract way by using an integer, pointer, pointer to pointer, pointer to integer, string, etc. 
 
-And we can **store** the **process ID** along with the **process control block** in a new data structure. We call this data structure **Process Table**. 
+To bea able to access to the process control block of a process more easily, we can **store** the **process ID** along with the **process control block** in a new data structure. And we call this data structure **process table**. 
 
-When we pass the process ID, the kernel will basically look at that process ID in the process table and verify whether you have the right to access the process control block or not. If you do, you will be able to access to the process control block. 
+When we pass the process ID, the kernel will basically look at that process ID in the process table and verify whether we have the right to access to the process control block or not. If we do, we will be able to access to the process control block. 
 
 In addition to the process table, the **operating system maintains some other tables** **(e.g., memory table, IO table, file table)** to be able to **manage** the **resources** properly **when** the **processes** are **being executed**. 
 
@@ -151,7 +161,7 @@ Processes -------------------> Process Table
 
 ```
 
-Okay after these definitions, now let's take a look at process creation/implementation/termination in a real operating system. 
+Okay after these definitions, now let's take a look at **process creation/implementation/termination steps in a real operating system.**
 
 #### Linux Process Object 
 
@@ -159,15 +169,15 @@ In Linux, there is a data structure called **struct task**. This data structure 
 
 The size of this data structure is approximately 1.5KB. 
 
-Along with the struct task, **each process** in the Linux **requires** **two stacks** (one for the **user space** and the other is for the **kernel space**). 
+Along with the struct task, **each process** in the Linux **requires two stacks** (one for the **user space** and the other is for the **kernel space**). 
 
-As we might guess, the **user stack** is used to **execute the code** (e.g., function calls, local variables, function parameters, etc.) in the user space. 
+**User stack** is a region of memory allocated for user-level tasks. It is used to store information that will be used during the **execution of the code (e.g., function calls, local variables, function parameters, etc.) in the user space.** 
 
-And **kernel stack** handles interrupts, system calls, and other kernel operations that are related to the process. When we switch from the user mode to the kernel mode, kernel stack is used. 
+**Kernel stack** is another region of memory allocated for kernel-level tasks **(e.g., interrupts, system calls, and other kernel operations**. When we switch from the user mode to the kernel mode, kernel stack is used. 
 
-Using **two separate stacks** for user space and kernel space helps us to **maintain isolation between user space and kernel space**. When a process executes a system call or when it encounters an exception, we need switch to the kernel mode, and handle the tasks in the kernel by using the kernel stack.
+Using **two separate stacks** for user space and kernel space helps us to **maintain isolation between user space and kernel space**. When system call is made or when we encounter an exception during the execution of a process, the operating system switches to the kernel mode, and handles the tasks in the kernel by using the kernel stack.
 
-The size of the kernel stack is somewhere between 4KB and 8KB and the user stack can grow dynamically until the stack ran out of space. 
+The size of the kernel stack is somewhere between 4KB and 8KB while the user stack can grow dynamically until the stack ran out of space. 
 
 And when we want to **create a new process**, we can make a system call named **fork()**.
 
@@ -191,24 +201,15 @@ After fork()
 ------------
 ```
 
-When fork() is called, it creates the **copy of the process** that was used during the fork() system call. The process that was used to create a new process is called **parent process** and the newly created process is called **child process**. 
+When we want to create a new process, we use an existing process along with the fork() system call. After this, the **copy of the existing process** is created. We call the copy of the existing process **child process** and the existing process that we used to create a new process is called **parent process**. Therefore, child process' parent's process ID is the same as the parent process' process ID.
 
-fork() is called **once** but it returns **twice**: once in the parent and once in the child. 
-
-Child process is an exact duplicate of the process except the child process has its own unique process ID.
-
-Also, child process does not inherit
-  - it's parent's memory locks
-  - it's parent's timers
-  - ...
-
-And child process parent's ID is the same as the parent process' process ID.
- 
+Note that child process is an exact duplicate of the process except the child process has its own unique process ID. In addition, child process does not inherit it's parent's memory locks, timers, IO operations etc.
+  
 When kernel is initialized, it manually creates one process. This can be called as **boot process** as well and its **process ID** is set to **0**.
 
 And by using **boot process**, another process is created. This new process is called **init process** and its **process ID** is set to **1**.
 
-From this **init process**, all the other processes are created by using **fork()**.
+All the other processes are created from this **init process** by using **fork()** system call.
 
 In below, we can see the implementation of the fork(): 
 
@@ -229,6 +230,8 @@ intmain(intargc, char**argv) {
             return1;
       }
 }
+
+fork() is called once but it returns twice: once in the parent and once in the child. 
 ```
 
 ```                                                 
@@ -257,9 +260,9 @@ After a new process is created with fork(), the next step is executing that new 
 
 #### execv()
 
-execv() is a system call that is used to **execute a process.**
+execv() is a system call that is used to **execute a process**.
 
-When we call execv() we provide the path for the executable file as well as arguments just like below. 
+When we call execv() we provide the path for the executable file as well as some arguments just like below. 
 
 ```
 #include <unistd.h>
@@ -273,7 +276,7 @@ int main() {
 
 When we run execv(), **new process is not created** because execv() **transforms the existing process into a new process**. And after we create a child process with fork(), execv() system call is made to execute a program in that child process.
 
-In below, we can be able to see the implementation of execv()
+In below, we can be able to see another use case of execv():
 
 ```
 #include <stdio.h>
@@ -283,9 +286,9 @@ int main(intargc, char**argv) {
             // Creates new process control block and address space                   
       if (pid == 0) {
             // Checks if current process is child process 
-            execv(path,executablename);
+            execv(path, executablename);
                   // Replaces the current process image with new process image.
-                  // Image means all the code, data and resources that are necessary to run a program
+                  // Image means all the code, data and resources that are necessary to run the process
       }
       elseif (pid > 0) {
             // Checks if current process is parent process
@@ -310,29 +313,29 @@ int main(intargc, char**argv) {
 
 We can see clone() as more flexible version of fork(). It allows more control when we create new process. For example, we can specify which resources (e.g., virtual address space, file descriptors, etc.) should be shared between the parent and child processes. 
 
-That's why it is an ideal way to create threads. 
+That's why it is an ideal way to create threads within the processes after we create processes with fork(). 
 
 #### signal()
 
-Signals are interrupts that are generated by the CPU after executing specific instructions/conditions within the software or program code. They are used for **inter-process communication**. In other words, they are sent from one process to another, or from kernel to process to notify the process about an event. 
+Signals are events that are generated by the software after the execution of specific instructions/conditions. They are used for **inter-process communication**. In other words, they are **sent by the kernel** from one process to another to notify the process about a specific event. 
 
 Signals can be **represented** in various ways **(e.g. constants, enumerated values, signal numbers that are basically integer values associated with specific signal types, etc.)**
 
-CPU generates an interrupt after encountering specific conditions during the execution of the program, and then a signal is sent to the process to notify the process about the specific condition/event encountered with during the execution of the program.
+When a program is being executed, if exceptions happen (e.g., division by zero, illegal memory access, segmentation faults, etc.) or if user enters an input, or if process is terminated, or if timer set by the process expires, etc., signals are sent to notify processes about these events. 
 
-For example, when a program is being executed, if exceptions happen (e.g., division by zero, illegal memory access, segmentation faults, etc.) or if user enters an input, or if process is terminated, or if timer set by the process expires, etc., signals are sent to notify processes about these events. 
+For example, let's say that the user presses CTRL + C. In that case, an **interrupt** is **created** by the **keyboard hardware** and this interrupt is handled by the interrupt handler. Then the interrupt handler **sends** a **signal** that is **created by the kernel** to the **right process** and notify that process about the user's action that will interrupt the process.
 
 **!Slide 27 is skipped!**
 
-**Summary**: fork(), exec(), wait() and its variants are the operating system's system calls that are used to create and manipulate processes. 
+**Summary**: **fork(), exec(), wait()** and its variants are the operating system's system calls that are used to **create** and **manipulate processes**. 
 
 So, after seeing that how processes are created, implemented, and terminated in Linux, we can turn back where we left off. 
 
 During the process implementation step, we have talked about states (e.g. Running, Waiting, Terminated, etc.) 
 
-And a process can transition from one process to another depending on its activity during its runtime. 
+And a process can transition from one state to another during its runtime. 
 
-We can actually visualize the list of possible states that we can assign to a process and the possible transitions between these states by using some kind of like flow diagram. 
+We can actually visualize the list of all possible states that we can assign to a process and all the possible transitions between these states by using some kind of flow diagram.
 
 And this diagram, in other words, the representation of the all the possible states and all the possible transitions between these states is called **process state model**. 
 
@@ -493,13 +496,19 @@ When we introduce these two states and remove the **Suspend** state, the new mod
 
 **!Slides 32-33 are skipped!**
 
-So, in many of these state models, we introduced the idea of moving the process away from **running** (in other words stopping the process to run), and giving the CPU to another process. This is called **multiprocessing** or **multiprogramming** because it helps us to run multiple processes simultaneously on a single CPU. Let's now talk about multiprogramming more.  
+So, in many of these state models, we introduced the idea of moving the CPU away from the currently running process (in other words stopping the currently running process), and giving it to another process. 
 
-### Multiprogramming/Multiprocessing
+This is called **multiprogramming** because it helps us to run multiple processes simultaneously on a single CPU. Let's now talk about multiprogramming more.  
 
-Like we mentioned previously, multiprogramming is the ability of executing running multiple programs/processes simultaneously on a single CPU. In the operating system that is capable of multiprogramming, there are multiple processes that are residing in the main memory and sharing the resources. And CPU can switch from executing one process to another quickly. Multiprogramming is beneficial because it lets processes to use the CPU when the CPU would otherwise become idle. Through this way, we can increase the CPU utilization, resource utilization, ensure fairness among the processes and obtain higher throughput. 
+### Multiprogramming
 
-In a multiprogramming environment, because there are multiple processes that are executed, a scheduler manages the execution of all of these processes based on the system load and resources at that moment. And these might change from time to time. Therefore when we run the same program/application multiple times, we will get different execution times. 
+Like we mentioned previously, **multiprogramming** is the ability of **executing multiple processes simultaneously on a single CPU**. The goal is organizing the jobs in such a way that the CPU has always something to execute. 
+
+In an operating system that is capable of **multiprogramming**, there are **multiple processes that are residing in the main memory** and **sharing the resources**. And **CPU can switch from executing one process to another quickly**. 
+
+Multiprogramming is beneficial because it **lets processes to use the CPU when the CPU would otherwise become idle**. Through this way, we can **increase the CPU utilization**, **resource utilization**, **ensure fairness** among the processes and obtain **higher throughput**. 
+
+In a multiprogramming environment, because there are multiple processes that are executed, the execution order of all of these processes are determined based on the system load and resources at that moment. And since the system load and resources might change from time to time, when we run the same program/application multiple times, we will get different execution times. 
 
 One another reason why we get different execution times when we run the same program/application multiple times is **interrupts**.
 
@@ -539,7 +548,7 @@ Note that concurrency is not the same as **parallelism** in which the **processe
 
 And in **parallelism**, the **processes** are **run at the same time**.
 
-Therefore, the question of how to do multiprogramming is actually a question of **how to increase concurrency**, in other words, **how to manage execution of multiple processes at the same time** and **how to switch from process A to process B** if process A is waiting for an external event. 
+Therefore, the question of **how to do multiprogramming** is actually a **question of how to increase concurrency**, in other words, **how to manage execution of multiple processes at the same time** and **how to switch from process A to process B** if process A is waiting for an external event. 
 
 Imagine that there is a web server that is handled by only one process. In this kind of system, whenever the process is blocked and starts waiting for an external event (e.g. reading from a socket, writing to disk, etc.), the entire web server is blocked as well because everything is handled with only one process. That's why the entire web server would wait for the external event to be done. This will obviously result in delays and reduced throughput. 
 
@@ -547,39 +556,36 @@ A solution to this problem might be using multiple processes instead of one proc
 
 But the issue in here is that, if we create multiple processes, each of them will have its own address space (e.g. stack, heap, files, etc.) and this means that these multiple address spacess will consume memory and other resources more. This is resource-intensive.
 
-Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space and that shares the resources. And this execution unit is called **threads**.
+Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space and that shares the resources. And this execution unit is called **thread**.
 
 ## Thread
 
-Threads are unit of executions like processes. But they are created within the processes so that they share the jobs of the process, and work together. And to be able to do this efficiently, they share/use the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
+Threads are unit of executions like processes. But they are created within the processes so that they share the jobs of the process, and work together with all the other threads to reach the goal/task that is expected from the process they are part of. And to be able to work and communicate together efficiently, they share/use the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
 
-A thread typically has: 
+A **thread** typically **has**: 
 - a state *(current activity of the thread such as running, ready, blocked, etc.)*
 - saved thread context when the thread is not running *(when CPU stops running thread A and starts running the thread B, the context of the thread A is saved so that the next time thread A is executed, it can start from where it lefts off)*
 - execution stack
 - storage for local variables
 - access to the memory and resources of the process that it is part of
-- ...
 
-Items that are shared by all the threads in a process: 
+Items that are **shared by all the threads** in a process: 
 - address space
 - global variables
 - open files
 - child processes
-- signals
-- signal handlers, etc.
 
-Items that are private to each thread: 
+Items that are **private to each thread**: 
 - program counter
-- register
+- register *(stores memory addresses for data retrieval, current instruction being executed by the CPU, data values that are used in arithmetic, logical and other operations performed by the CPU)*
 - state
-- stack *(each thread's stack contains the procedure's local variables and the return address to use when the procedure call is finished. Each thread will generally execute different instructions. That's why they have a different execution history. And that's why each thread need its own stack)*
+- stack *(stores return addresses, the values of the arguments that are passed to a function, local variables, etc.)*
 
 Imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require significant state management. Threads save us from this.
 
-In addition, threads prevent us to create new address spaces and to manage separate memory regions. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
+In addition, threads prevent us from creating new address spaces and managing separate memory regions. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
 
-That's why threads are faster to create/restore and they lighter than processes. When the number of execution units that are needed changes dynamically and rapidly, this is a good feature to have. 
+That's why **threads** are **faster to create/restore** and they **lighter than processes**. When the **number of execution units** that are **needed** **changes dynamically** and rapidly, **threads becomes useful**. 
 
 In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. Tha's why having multiple processes (with their own separate address spaces that cannot be accessed by another process) will not work in those cases. 
 
@@ -593,7 +599,7 @@ Therefore, **the resource ownership**, **the unit of resource allocation** can a
 
 **Threads** or **lightweight procss**, on the other hand, are the entitis within processes. They can be seen as **the unit of dispatching**. 
 
-Because threads are scheduled for execution on CPUs, they can be in any of several states such as **Running, Blocked, Ready, Terminated** etc like processes. 
+Because threads are scheduled for execution on CPUs, they can be in any of several states such as **Running, Blocked, Ready, Terminated** etc. like processes. 
 
 And when there are **multiple threads** in a process, this means that the **operating system can support multiple concurrent paths of execution within a single process**. This is called **multithreading**. In below, we can see the difference between a single-thread process and multi-thread process better: 
 
@@ -633,21 +639,21 @@ Multi-Threaded Process
               Thread-1     Thread-2
 ```
 
-Because threads within the same process share the same address space, one thread can completely modify or even destroy another thread's stack. In other words, there is no protection among threads. 
+So, we talked about the difference between single-threading and multiple-threading but we didn't compare multiprograming and multithreading. 
 
-Even though the lack of protection may seem negative, the factor that causes this lack of protection (sharing address space and resources) is actually what allows efficient communication between different threads.
+Multiprogramming provides concurrency at the process level. It allows multiple processes to run concurrently within the CPU. 
 
-But as we mentioned, sharing address space or resources also introduces the risk of data corruption and race conditions **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
+Multithreading provides concurrecny at the thread level. It allows multiple threads to run concurrently within a single process.
 
-What threads add to the process is the ability to allow multiple executions to take place in the same process environment to achieve a common goal. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
+Also note that because **threads** within the same process **share** the **same address space**, one **thread** **can completely modify** or even destroy **another thread's stack**. In other words, there is **no protection among threads**. 
 
-So, we talked about the difference between single-threading and multiple-threading but we didn't compare multiprocessing and multithreading. 
+Even though the lack of protection may seem negative, the factor that causes this lack of protection (**sharing address space and resources**) is actually what **allows efficient communication** between different threads.
 
-### Multiprogramming/Multiprocessing vs Multithreading
+But as we mentioned, sharing address space or resources also **introduces** the **risk of data corruption and race conditions** **if proper synchronization mechanisms** are not applied. Therefore, it is important to apply synchronization techniques such as **semaphores, lock variables, busy waiting** etc. to ensure data integrity. 
 
+What **threads** **add** to the process is the **ability occupy multiple executions in the same (process) environment** to achieve a common goal. Having threads running in one process is analogue to the having processes running in one computer. In the former case, the threads share an address space and other resources in the process. In the latter case processes share physical memory, disks, printers, and other resources in the computer. 
 
-
-Where do we implement these threads though ? 
+Okay it is great to know all these but where do we implement these threads though ? 
 
 ### Where to Put Thread ? 
 
@@ -657,23 +663,23 @@ There are two places to implement threads:
 - user space
 - kernel space
 
-We can put the threads entirely in the user space. But when we do this, the kernel won't know anything about these threads. The only execution unit it will see will be processes and it will see the them as single threaded and try to manage the processes directly.
+We can put the threads entirely in the user space. But when we do this, the kernel won't know anything about these threads. The only execution unit it will see will be processes and it will see them kind of like single threaded and try to manage the processes directly since they will be the only execution units it is aware of.
 
 The advantage of putting threads to the user space entirely is that through this way, we can implement threads in an operating system that does not support multithreading. With this approach, threads are implemented in the library/application and all the thread management is handled in there (user space). 
 
 In addition, because kernel is not aware of the existence of threads, and it only recognizes the processes, only one thread of the process can be executed at a given time. 
 
-When we implement the threads in the user space, each process needs its own private thread table in the userspace. This thread table basically contains thread ID, and thread control block pairs for each thread. Thread tables are analogous to the kernel's process table that we have mentioned previously. The difference is that thread tables keep track of the properties of each thread (e.g. thread ID, thread stack, thread state, register values, priority, etc.). 
+When we implement the threads in the user space, each process needs its own private thread table in the userspace. This thread table basically contains thread ID, and thread control block pairs for each thread. Thread tables are analogous to the kernel's process table that we have mentioned previously. The difference is that thread tables keep track of the properties of each thread (e.g. thread ID, thread stack, thread state, register values, priority, etc.) rather than process. 
 
 Also when threads are implemented in the user space, thread tables are managed by the runtime system that is provided by the programming language. Runtime means the instructions that are executed when your program is running. And runtime system provides the environment, necessary services and infrastructure for executing these instructions. It acts as a layer between the program code and the underlying operating system and hardware.
 
-Like in all the other methods, there are both advantages and disadvantages of this method (implementing threads in the user space) as well: 
+Like in all the other methods, there are both advantages and disadvantages of this method (implementing threads in the user space): 
 
 Advantages: 
 - When threads are switched, we don't need to enter into the kernel mode because threads are not located in kernel.
 - Because threads are implemented by the user-level library, the scheduling system is handled in the user space as well. Therefore, we can implement application specific scheduling systems rather than relying on the general purpose scheduling system of the kernel.
 - Because threads are implemented in the user space, we can run them in any operating system.
-- User-level threads also scale better. Because when we implement threads in the user-level space using a library, the library only needs to allocate memory from the process' heap, set up stack in the user space, and add the thread to a queue in the user-space. Because all of these happen in the user space without switching to the kernel mode, we can say that user-level threads scale better. In addition, the procedure of saving the thread's state and scheduling the next thread are just local procedures when we implement the threads in the user space. So invoking them is much more efficient because we don't need a kernel call, trap or context switch. These make thread scheduling very fast when we use user-level threads.
+- User-level threads also scale better in terms of the number of thread creation. Because when we implement threads in the user-level space using a library, the library only needs to allocate memory from the process' heap, set up stack in the user space, and add the thread to a queue in the user-space. Because all of these happen in the user space without switching to the kernel mode, we can say that user-level threads scale better. In addition, the procedure of saving the thread's state and scheduling the next thread are just local procedures in user space when we implement the threads in the user space. So saving the thread's state nad scheduling the next thread in the user space is much more efficient because we don't need a kernel call, trap or context switch. These make thread scheduling very fast when we use user-level threads.
 
 Disadvantages: 
 - We have mentioned that the user level threads are located in the user space and kernel is not aware of their existence. The only thing kernel access is processes. That's why kernels are unaware of the activities of the threads in the user space. So, if a thread starts waiting for an external event, the whole process and as a result, all the threads in that process are blocked as well. Similarly when page fault happens, the entire process and all the threads are blocked as a result.
@@ -693,7 +699,7 @@ If the threads would be implemented in the user-space using a library, however, 
 
 And the advantages of implementing threads in the kernel are: 
 
-- Because the kernel is aware of the individual threads in the processes, and threads can access to the resources, kernel can simultaneously schedule multiple threads from the same process.
+- Because the kernel is aware of the individual threads in the processes, and threads can access to the resources, kernel can simultaneously schedule/run multiple threads from the same process on multiple CPUs/cores/hardware threads.
 - If one thread is blocked, the other threads can continue their execution.
 
 Disadvantages: 
@@ -703,11 +709,11 @@ Disadvantages:
 
 In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. After these threads are implemented in user space, however, they are associated with smaller or equal number of threads in the kernel.
 
-The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to switch from user mode to kernel mode when 
+The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to **switch from user mode to kernel mode when **
 
 - the user requests services from the operating system *(e.g. IO operations)*
-- interrupts *(e.g, timer interrupts, device interrupts)* occur
-- exceptions *(e.g., page faults, division by zero)* occur.
+- **interrupts** *(e.g, timer interrupts, device interrupts)* occur
+- **exceptions** *(e.g., page faults, division by zero)* occur.
 
 And switching from user mode to kernel mode frequently is expensive. Because every time we switch from user mode to kernel mode, for example, the CPU has to save the current execution context (e.g., program counter, register values, etc.) of the currently running mode (either user or kernel) and then load the context of the mode it is switching to.
 
@@ -722,31 +728,33 @@ Also, one note is that when we want to refer different thread models, we can use
 - 1:N *(1 user level thread, N kernel level thread -> kernel level thread model)*
 - M:N *(hybrid model)*
 
-So we explained the processes and threads, their similarities and differences but we didn't talk much about the differences between the storage of the execution contents of these two execution units.
+So we explained the processes and threads, their similarities and differences but we didn't talk much about the differences between the storage of the execution contents of these two execution units: PCBs and TCBs
 
 ### PCB vs TCB
 
-We have mentioned that all threads in a process use the same address space and resources of the process. That's why we include the resources that are shared among all threads within the process control block. And because of that we can say that **process control block handles resources that are global to the process.**
+Process control block is responsible from managing resources that are shared among all threads within a process. This also means that **PCB handles global process resources.**
 
 **Thread control block**, on the other hand, are primarly focusing on **managing resources that are needed for execution.**
 
-Here is the information that is carried by each process:
+Here is the information that is **carried by each process**:
 
 - address space 
 - global variables
 - open files
 - child processes
+- pending alarms *(e.g., these alarms are created with system calls like setitimer() and allows the process to perform specific actions when the timer expires)*
 - process state
-- ...
+- signals and signal handlers
+- accounting information *(e.g., CPU usage, memory usage, IO operations that are performed, number of context switches, etc.)*
 
-Here is the information that is carried by each thread:
+Here is the information that is **carried by each thread**:
 
 - program counter
 - registers
 - stack/stack pointer *(points to the thread's stack in the process)*
 - thread state
 
-At this point, we already talked about different features of the threads, their benefits, where they are created, etc. But we didn't mention about how these threads created. 
+At this point, we already talked about different features of the threads, their benefits, where they are created, etc. But we didn't mention about how these threads are created. 
 
 ### How Threads Are Created ? 
 
@@ -765,44 +773,27 @@ And we can create a thread state model just like how we created the process stat
 
 **!Slides 64 and 65 are skipped!**
 
-Okay we have defined the processes and threads but we didn't talk much about the processor/CPU.
+Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. And CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
 
-CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is execute the instructions and perform operations on the data. 
-
-Imagine that you ran a program in your computer. This program includes some set of instructions. And these instructions are sent to the CPU. Then CPU follows these instructions step by step to do the required tasks specified in the program. And while doing that, it can retrieve data from the memory, manipulate that data according to the instructions, and then store the results back in the memory or maybe send them to monitor, or printer for instance. 
-
-A CPU generally has one or more cores. These cores are physical processing units that are responsible from executing instructions and performing computations in general. 
-
-And we can divide the core into three groups: 
-
-- Memory: In core, a memory unit is built to store & transfer information fastly/efficiently. This memory unit consists of registers and cache.
-- Control Unit: These units fetches the instructions that are represented as bits from the memory unit, and translates those instructions into electricity or maybe light so that they can be sent to other parts of the computer as signal. 
-- Arithmetic Logic Unit: This unit includes electronic circuits. And these circuits are responsible from arithmetic and logic operations. 
-
-The operating system can schedule a process or thread onto each hardware thread. And a hardware thread consists of 
-
-- Program Counter: Keeps track of the next instruction to be executed
-- Registers: These are used to store information about the thread (e.g. status information, and addresses of the thread)
-- Cache Resources: Each hardware thread owns some part of core's cache to store its own data and instructions.
-- Execution Resources: These are the resources it needs for executing the instructions.
-
-Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
-
-And because processor can only run one process/thread at a time, it is switched among multiple processors/threads to improve efficiency. This is called **context switching**. As a result of this switching, the units of executon will all look like progressing but at a slower speed. 
+And because processor can only run one process/thread at a time, it would be more efficient if we could be able to switch among multiple processes/threads even if these execution units will all look like progressing but at a slower speed. And this among the execution units is called **context switching**. 
 
 ### Context Switching
 
-Context switching happens when
-- current process (thread) blocks OR 
-- preemption occurs via interrupt
+Context switching **happens** **when**
+- current process/thread **blocks** OR 
+- **preemption** occurs via interrupt
 
-When context switch occurs: 
-- the CPU resources must be released so that they can be used by other execution unit.
-- all registers should be stored in the PCB or TCB. 
+When **context switching occurs**: 
+- the **CPU resources** must be **released** so that they can be used by other execution unit.
+- all **registers** should be **stored** in the **PCB** or **TCB**.
 
-All these procedures are written in assembler.
+All these procedures are written in **assembler**.
+
+But why do we need to save registers to the PCB or TCB ? What kind of information registers contain ?: Registers are storage locations within the CPU. **They hold data and addresses for the instructions that are being executed currently**. That's why storing/saving the registers in a data structure like PCB or TCB is crucial because it helps us to preserve the execution context of a process or thread during the context switching. Through this way the process or thread can resume its execuiton from where it lefts off properly the next time it will be executed. So, let's turn back to context switching.
 
 The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks.
+
+So, if context switching is switching from executing one process/thread to executing another process/thread, what is the mechanism that decides when and which process should be executed at the moment. The answer to that question is **scheduler** and we will cover that now.
 
 **!Slides 67-68 are skipped!**
 
@@ -811,54 +802,62 @@ The benefit of context switching is that when a process performs IO operation, i
 Scheduling is a mechanism that decides which process/thread should be executed by the CPU within a group of ready processes/threads. During this decision, multiple factors are taken into account: 
 
 - When these processes/threads should be scheduled ?
-- What kind of scheduling algorithm do we want to use ? (e.g., interactive, real-time, batch, etc.)
-- Whether the scheduling algorithm is preemptive or nonpreemptive.
-- The goals of the scheduling algorithms.
+- Do we want the ability to stop executing the currently running process in the middle (preemptive) and start executing another process or not (nonpreemptive) ?
+- The operating system we are currently in *(e.g., batch, interactive, real-time, etc.)*
+- The goals we want achieve and the metrics we use to achieve that goal. These metrics can be
+  - The time between the process/thread arrival/creation and process/thread termination
+  - The number of completed processes/threads in a time unit
+  - The time between user's request and system's response to this request.
+  - How long the processes/threads wait to be executed on average ? 
 
-Whether scheduling is made based on processes or threads depend on whether the operating system is capable of multithreading or not. Because in a single-threaded operating system, the unit of execution is basically process. Therefore, the operating system schedules and switches between **processes**. In an operating system that is capable of multithreading, the operating system can manage individual threads within the processes. Because the execution unit is thread, the operating system can schedule threads. 
+**Whether scheduling is made based on processes or threads** **depend on** whether the **operating system** is **capable** of **multithreading** or not. Because in a single-threaded operating system, the unit of execution is basically process. Therefore, the operating system schedules and switches between **processes**. In an operating system that is capable of **multithreading**, the **operating system can manage individual threads** within the processes. Because the execution unit is thread, the **operating system can schedule threads.**
+
+So, let's take a look at when processes/threads should be scheduled. 
 
 ## When Processes/Threads Should be Scheduled ? 
 
-- Whenever a process is created.
-- Whenever a process is terminated.
-- Whenever a process blocks.
-- Whenever an IO event occurs.
+- Whenever a process is created and ready to be executed. 
+- Whenever a process is terminated. Because whenever the execution of a process is finished, CPU becomes idle. So we should pick another process to execute.
+- Whenever a process blocks. This means the process cannot be able to proceed its execution because of the reasons like waiting for a lock or semaphore, or for a timer to expire, etc. When that happens, we should pick another process to execute.
+- Whenever an IO event occurs. This is another time the process cannot be able to proceed its execution. But now the reason is because it is doing some IO operation. Nevertheless, the CPU becomes idle when this happens and therefore we should pick another process to execute.
+
+In summary, we should schedule process or thread in the cases above but there are many decisions we should make when we schedule processes or threads. For example, how long we should let processes to run without stopping them ? Should we just execute them until they are finished ? If so, what if they enter a very long IO operation ? Should we wait for that process to finish its IO operation or should we just start executing another process or thread during this time period ? The answers to these questions depend on that kind of operating system we are currently in.
 
 ## What Kind of Scheduling Algorithm Do We Want to Use ?
 
-### Interactive 
+Well, like we mentioned, it depends on the operating system and our needs.
 
-In interactive systems, the ability of taking away the CPU from the process and giving it to another process is essential. This is called **preemption**. Because in the interactive systems, there are users whose jobs need to be done more urgently. Whenever a task comes from the user, we should prioritize the user request over many of the processes that are currently running. That's why we should have the ability to take the CPU away from a process and give it to another one.
+### Interactive System
 
-### Batch 
+In interactive systems, the ability of taking away the CPU from the process and giving it to another process **(preemption)** is essential. Because in the interactive systems, there are users whose jobs need to be done urgently. Whenever a task comes from the user, we should prioritize the user request over many of the processes that are currently running. That's why we should have the ability to take the CPU away from a process and give it to another one.
 
-In batch systems, there is no user who is waiting impatiently. In these systems, the jobs are grouped together and executed in batches in a predetermined order rather than being executed individually, immediately or interactively. And human intervention does not occur when processes are executed. That's why when we use a scheduling algorithm in these systems, it doesn't have to be preemptive most of the times. Even if preemption feature is used, it has preemption period for each process so switching from one process to another is not the case in these systems. 
+### Batch System
 
-### Real-Time 
+In batch systems, there is no user who is waiting impatiently. In these systems, the jobs are grouped together and executed in batches in a predetermined order rather than being executed individually, immediately or interactively. Because human intervention does not occur when processes are executed, when we use a scheduling algorithm in these systems, it doesn't have to be preemptive most of the times. Even if preemption feature is used, it has preemption period for each process so switching from one process to another is not the case in these systems. 
 
-Real time systems are used when we want to provide predictable and timely responses with strict timing constraints. That's why the deadlines are important to take into account when we use a scheduling algorithm. 
+### Real-Time System
 
-It doesn't mean that it has to be fast. It just means there has to be deadlines. In chemcial operations, for example, the real time could mean minutes,hours,days,etc. to initiate something. 
+Real time systems are used when we want to provide predictable and timely responses with **strict timing constraints**. That's why the deadlines are important to take into account when we use a scheduling algorithm. This doesn't mean that it has to be fast though. It just means there has to be deadlines. 
+
+In chemcial operations, for example, the real time could mean minutes,hours,days,etc. to initiate something. 
 
 ## Measures of the Scheduling Algorithms
 
-**Turnaround Time**: The length of time from the process creation to process termination. In other words, this measures how long it took for the process to be completed.
+**Turnaround Time**: The length of time from the process creation to process termination. In other words, this measures **how long it took for the process to be completed**.
 
-It is a good metric to use in batch systems because the goal of the batch systems is to minimize the average turnaround time for all processes/threads. The lower turnaround time means that the less time it took for the processes to be completed on average. 
+It is a **good metric to use in batch systems** because the goal of the batch systems is to **minimize the average turnaround time for all processes/threads**. The **lower turnaround time** means that the **less time it took for the processes to be completed on average**. 
 
-**Throughput**: The rate of processes/threads that are completed per unit of time. The higher throughput means the higer number of processes/threads are completed in a specified time frame. A scheduling algorithm that tries to macimize throughput may not necessarily minimize turnaround time. For example, given a mix of short jobs and long jobs, a scheduler that always ran short jobs and never ran long jobs might achieve great throughput but at the expense of bad turnaround time for the long jobs. If short jobs keep arriving at a steady rate, the long jobs might never run. And this makes the average turnaround time infinite while achieving high throughput. 
+**Throughput**: **The rate of processes/threads that are completed per unit of time.** The **higher throughput** means the **higer number of processes/threads are completed in a specified time unit**. A scheduling algorithm that tries to maximize throughput may not necessarily minimize turnaround time. For example, given a mix of short jobs and long jobs, a **scheduler** that **always ran short jobs** and **never ran long jobs** might achieve **great throughput** but at the expense of **bad turnaround time** for the long jobs. If short jobs keep arriving at a steady rate, the **long jobs might never run**. And this makes the **average turnaround time infinite** while achieving **high throughput**. 
 
-**Response Time**: The time between the user's request and the system's response to the user's request. As we might guess, the goal of the interactive systems is to reduce the average response time to minimize the response time experienced by the users. 
+**Response Time**: The **time between** the **user's request** and the **system's response to the user's request**. As we might guess, the goal of the **interactive systems** is to **reduce the average response time** to **minimize the response time experienced by the users**. It is a good metric to use in interactive systems.
 
-It is a good metric to use in interactive systems.
-
-**Average Wait Times**: Average time the processes/threads spend waiting to be executed by the CPU. And the less average wait times is better for us. 
+**Average Wait Times**: **Average time the processes/threads spend waiting to be executed by the CPU**. And the less average wait times is better for us. 
 
 **CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly dependent on the process' behavior. 
 
-**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly dependent on the system's behavior. For example, the number of other IO events, the speed of device, etc.) can change the IO Burst. 
+**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly dependent on the system's behavior. For example, **the number of other IO events, the speed of device, etc. can change the IO Burst.** 
 
-CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change. 
+**CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change.**
 
 ## Goals of the Scheduling Algorithms 
 
