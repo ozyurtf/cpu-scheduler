@@ -1140,6 +1140,10 @@ One way to solve this problem is **letting the CPUs to steal work from other CPU
 
 **!Slides 29-35 are skipped!**
 
+## Comparing Different Scheduling Algorithms 
+
+Comparison of the outputs of different scheduling algorithms can be seen in [here]([url](https://github.com/ozyurtf/scheduler/blob/main/COMPARISON.md))
+
 # Inter-Process Communication
 
 In computer, there are programs that basically consists a set of instructions that are written to handle specific tasks. 
