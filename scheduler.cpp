@@ -876,19 +876,16 @@ int main(int argc, char* argv[]) {
         
         if (userOption[0] == 'F') { 
             schedulerType = "FCFS";
-            timeQuantum = 10000;
             continue;
         }
 
         else if (userOption[0] == 'L') { 
             schedulerType = "LCFS";
-            timeQuantum = 10000;
             continue;
         }
 
         else if (userOption[0]  == 'S') { 
             schedulerType = "SRTF";
-            timeQuantum = 10000;
             continue;
         }
 
@@ -933,19 +930,14 @@ int main(int argc, char* argv[]) {
             continue;
         }  
 
-        size_t inputPos = userOption.find("input");
-
-        if (inputPos != string::npos) { 
+        if (i+2 == argc) { 
             inputFilePath = userOption;
             continue;
         }
 
-        size_t rfilePos = userOption.find("rfile");
-
-        if (rfilePos != string::npos) { 
+        if (i+1 == argc) { 
             rfilePath = userOption;
-            
-            continue;
+            break;
         }
     }
 
@@ -957,12 +949,15 @@ int main(int argc, char* argv[]) {
 
     if (schedulerType == "FCFS") { 
         scheduler = new FCFS();
+        timeQuantum = 10000;
     }
     else if (schedulerType == "LCFS") { 
         scheduler = new LCFS(); 
+        timeQuantum = 10000;
     }
     else if (schedulerType == "SRTF") { 
         scheduler = new SRTF();
+        timeQuantum = 10000;
     }
     else if (schedulerType == "RR") { 
         scheduler = new RR(); 
@@ -973,7 +968,6 @@ int main(int argc, char* argv[]) {
     else if (schedulerType == "PREPRIO") { 
         scheduler = new PREPRIO();
     }
-
 
     list<Event*> eventQ;
     DESLayer DES(eventQ);
