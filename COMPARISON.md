@@ -19,10 +19,10 @@ x y z: RUNNG -> BLOCK ib = k, rem = j *(At timestep x, the yth process transitio
 
 
 Process ID | Arrival Time | Total CPU Time | CPU Burst | IO Burst |  Finish Time | Turnaround Time | IO Time | CPU Wait Time
-0000:      | 0            | 400            | 50        | 50       | 2               |  x           | x               | x       | x
-0001:      | 101          | 300            | 41        | 40       | 4               |  x           | x               | x       | x
-0002:      | 202          | 200            | 32        | 50       | 2               |  x           | x               | x       | x 
-0003:      | 303          | 100            | 23        | 10       | 4               |  x           | x               | x       | x
+0000:      | 0            | 400            | 50        | 50       | 2               |  x           | x       | x     
+0001:      | 101          | 300            | 41        | 40       | 4               |  x           | x       | x 
+0002:      | 202          | 200            | 32        | 50       | 2               |  x           | x       | x 
+0003:      | 303          | 100            | 23        | 10       | 4               |  x           | x       | x 
 
 
      Total Simulation Time | CPU Utilization | IO Utilization | Average Turnaround Time | Average Wait Time | Throughout
