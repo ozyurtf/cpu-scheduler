@@ -1,10 +1,12 @@
 ## Input
 
+```
 Arrival Time | CPU Burst | IO Burst | Static Priority
 000          | 400       | 50       | 50
 101          | 300       | 41       | 40
 202          | 200       | 32       | 50
 303          | 100       | 23       | 10
+```
 
 ## Output
 
