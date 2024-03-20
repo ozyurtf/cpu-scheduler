@@ -15,9 +15,9 @@ Arrival Time | Total CPU Time | CPU Burst | IO Burst
 ```
 x y z: A -> B (At timestep x, the yth process transitioned from state A to state B.
 
-x y z: READY -> RUNNG cb = k, rem = j, prio = n *(At timestep x, the yth process transitioned from READY to RUNNING. At that time, it should run k units before its next IO operation and its remaining time to be executed by the CPU is j in total. And the dynamic priority is n at that moment)*
+x y z: READY -> RUNNG cb = k, rem = j, prio = n (At timestep x, the yth process transitioned from READY to RUNNING. At that time, it should run k units before its next IO operation and its remaining time to be executed by the CPU is j in total. And the dynamic priority is n at that moment)
 
-x y z: RUNNG -> BLOCK ib = k, rem = j *(At timestep x, the yth process transitioned from RUNNING to BLOCK. At that time, it should run k units to finish its IO operation and its remaining total time to be executed by the CPU is j)*
+x y z: RUNNG -> BLOCK ib = k, rem = j (At timestep x, the yth process transitioned from RUNNING to BLOCK. At that time, it should run k units to finish its IO operation and its remaining total time to be executed by the CPU is j)
 
 
 Process ID | Arrival Time | Total CPU Time | CPU Burst | IO Burst |  Finish Time | Turnaround Time | IO Time | CPU Wait Time
