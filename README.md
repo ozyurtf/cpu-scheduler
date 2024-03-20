@@ -1142,6 +1142,8 @@ One way to solve this problem is **letting the CPUs to steal work from other CPU
 
 ## Comparing Scheduling Algorithms Outcomes
 
+Let's say that our input is like the one below:
+
 # Inter-Process Communication
 
 In computer, there are programs that basically consists a set of instructions that are written to handle specific tasks. 
