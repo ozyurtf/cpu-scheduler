@@ -918,29 +918,33 @@ But now the question is what are the different types of scheduling algorithms ? 
 
 ### First-Come First-Served (FCFS/FIFO) 
 
-When a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. And the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
+In FCFS scheduling, when a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready for execution, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. Then the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
 
 FCFS scheduler can be seen fair only if we look at from arrival time perspective.
 
-If long processes come first, they are executed first based on their arrival time. And if short processes come later, they will have to wait for the long processes to be executed. This means that the time between the arrival time and completion time might be relatively large for especially short processes in this kind of scenario. 
+**If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
 
-In addition, imagine that there are 3 processes: process A, process B, and process C. And process A arrived first, and process B arrived second and process C arrived last. If process A has a lot of IO operations and it takes long time for the process A to be finished, it will take a long time to start executing other processes. Because when process A is being executed by the CPU, whenever it starts an IO operation, we will have to wait for process A to come back from IO operation and continue its execution until it is completely finished because there is no preemption. 
+In addition, imagine that there are 3 processes: process A, process B, and process C. And assume that process A arrived first, and process B arrived second and process C arrived last. 
+
+If process A has a lot of IO operations and it takes a long time for the process A to be finished, it will take a long time for process B and C to start being executed by the CPU. Because when process A is being executed by the CPU, whenever it starts an IO operation, process B and C will have to wait for process A to come back from IO operation and finish its execution. 
 
 That's why we might encounter
-- high wait time
-- high turnaround time 
-- low throughput
-- poor response time 
+**- high wait time**
+**- high turnaround time**
+**- low throughput**
+**- poor response time** 
 
-in some cases (e.g. frequent and/or long IO operations) when we use FCFS. 
+in some cases (e.g. frequent and/or long IO operations, long processes coming first frequently) when we use FCFS. 
 
 ### Shortest Job First 
 
-When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know or we can estimate the burst time of each process in advance. The estimation can be done based on the execution histories of the processes or other methods. 
+In SJF, When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
 
-Once the processes are in the ready queue, we sort these processes based on their burst time and pick the process with shortest burst time. Then the selected process is executed by the CPU. Like FCFS, this scheduler is not preemptive as well, in other words, once we start running a process, we cannot take the CPU away from that process even if it starts an IO operation and the process is executed until it is finished. 
+Once the processes are in the ready queue, we **pick the process with shortest burst time (the time that is required by the process to finish its execution)**. Then the selected process is executed by the CPU. Like FCFS, this scheduler is **not preemptive** as well, in other words, once we start running a process, we cannot take the CPU away from that process even if it starts an IO operation. So the process is executed until it is finished. 
 
-This scheduler is only optimal when all the jobs are available simultaneously and we have a good idea about their burst times in advance. When all the processes are available simultaneously, in other words when they all arrive to the ready queue at the same time, the scheduler can schedule these processes optimally by executing the shortest job first and executing the next shortest job etc.
+This scheduler is **only optimal when all the processes are available simultaneously** and **we have a good idea about their burst times in advance**. Because through this way, it can arrange the processes ensuring that no process that has shorter burst time arrives later and disrupts the scheduling order.
+
+When all the processes are available simultaneously, in other words when they all arrive to the ready queue at the same time, **the scheduler can schedule these processes optimally by picking the shortest job first and then picking the next shortest job etc.**
 
 ```
      8      4    4    4
@@ -964,61 +968,59 @@ Ready queue in shortest job first
 Average Wait Time = (0 + 4 + 8 + 12) / 4 = 6
 ```
 
-That's why the average turnaround time and the average waiting time is smaller, and overall throughput is higher in comparison with the FCFS scheduler. 
+That's why the **average turnaround time and the average waiting time is smaller, and overall throughput is higher in comparison with the FCFS scheduler.**
 
-But when we use shortest job first scheduler, long processes may experience starvation if short prcoesses keep coming. In addition, being have to know the CPU burst times can be seen as negative as well. Also, we can say that response time is poor for interactive processes because of the lack of preemption. 
+But when we use shortest job first scheduler, long processes may experience starvation if short prcoesses keep coming. In addition, the requirement of knowing burst times in advance can be seen as negative as well. Also, we can say that **response time is poor for interactive processes because of the lack of preemption**. 
 
 ### Shortest Remaining Time Next 
 
-Scheduler always chooses the process whose remaining time is the shortest. 
+In here, scheduler always **chooses the process whose remaining time is the shortest**. 
 
-In the first step, processes are added to the ready queue after they become ready to be executed. The burst time required for each process is assumed to be known in advance. Then the processes in the ready queue are sorted based on their remaining time and the process with the shortest remaining time is selected by the scheduler and executed by the CPU. We can set this scheduler either preemptive or nonpreemptive. 
+In the first step, processes are added to the ready queue after they become ready to be executed. The **burst time required for each process is assumed to be known in advance**. Then the **process with the shortest remaining time is selected by the scheduler** and executed by the CPU. We can set this scheduler **either preemptive or nonpreemptive**. 
 
-When a process that has remaining time shorter than the remaining time of the currently running process arrives, if our scheduler is preemptive, the currently running process is stopped being executed, and the CPU is given to the newly arrived process that has shorter remaining time. 
+When a process that has remaining time shorter than the remaining time of the currently running process arrives, **if** our scheduler is **preemptive**, the **currently running process stops its execution**, and the **CPU is given to the newly arrived process that has shorter remaining time**. 
 
-If our scheduler is not preemptive, this preemption does not happen and the selected processes are run until their executions are finished. 
+**If** our scheduler is **not preemptive**, this **preemption does not happen** and the **selected processes are run until their executions are finished**. 
 
-And because we are always prioritizing the processes that are closest to their completion, we minimize the amount of time processes spend waiting to be executed in the ready queue. Because as we choose the processes that has the shortest remaining time, processes are completed more quickly and this allows choosing a new process from the ready more quickly. And that makes the overall waiting time smaller. And we can say that processes are completed faster on average and the average turnaround time is shorter with this scheduler.
+And since **we are always prioritizing the processes that are closest to their completion**, **we minimize the amount of time processes spend waiting to be executed in the ready queue**. As we **choose the processes that has the shortest remaining time**, **processes are completed more quickly** and **this allows choosing a new process from the ready queue more quickly**. And that makes the **overall waiting time smaller**. And we can say that **processes are completed faster on average and the average turnaround time is shorter with this scheduler**.
 
-But if a stream of processes that are very close to be finished keep arriving continuously, processes that have long remaining time may not be given a chance to be executed with this scheduler and this would cause starvation for these processes. 
+But **if** a stream of **processes that are very close to be finished keep arriving continuously**, **processes that have long remaining time may not be given a chance** to be executed with this scheduler and this would cause **starvation for these processes**. 
 
-Also, assuming that the CPU burst time of the processes are known is another negative side of this scheduler because in real life it is very hard to estimate the CPU burst time in advance.
+Also, assuming that the **burst time of the processes are known is another negative side** of this scheduler because in real life it is very hard to estimate the CPU burst time in advance.
 
-In addition, this scheduler does not consider the priorities of the processes. Sometimes when a process is running, another process with higher priority might arrive. But when we use this scheduler, the newly arrived process with higher priority is not executed directly unless its remaining time is shorter than the currently running process. This might be okay for some systems but not an ideal solution in interactive systems.  
+In addition, this scheduler does **not consider the priorities of the processes**. Sometimes when a process is running, another process with higher priority might arrive. But when we use this scheduler, the newly arrived process with higher priority is not executed directly unless its remaining time is shorter than the currently running process. This might be okay for some systems but not an ideal solution in interactive systems.  
 
 ## Scheduling in Interactive Systems 
 
 ### Round Robin
 
-In Round Robin, each process is assigned a time limit. After the process starts being executed, if it reaches this time limit, the CPU simply stops executing this process and starts executing another one (**preemption**) in the queue (The processes can be picked based on their arrival times). This time limit is also known as **time quantum**.
+In Round Robin, each process is assigned a **time limit**. After the process starts being executed, if it reaches this time limit, the CPU simply stops executing this process and starts executing another one (**preemption**) in the queue (The processes can be picked based on their arrival times). This time limit is also known as **time quantum**.
 
-When the time quantum is too short, this means that processes are given very short time frame to be executed. And once they reach these short time limits, they are preempted. That's why if the time quantum is too short, preemption occurs more frequently and this means too many context switches and that means lower CPU efficiency. 
+When the **time quantum** is **too short**, this means that **processes are given very short time frame to be executed**. And once they reach these short time limits, they are preempted. That's why if the time quantum is too short, **preemption occurs more frequently** and this means **too many context switches** and that means **lower CPU efficiency**. 
 
-When the time quantum is too large, this means that processes are given a very long time frame to be executed. In that case, long processes are given a chance to be executed for an extended period of time. As a result, short processes may have to wait to be executed for a long time. 
+When the **time quantum is too large**, this means that **processes are given a very long time frame** to be executed. In that case, **long processes are given a chance to be executed for an extended period of time**. As a result, **short processes may have to wait to be executed for a long time**. 
 
-That's why if we choose a time quantum that is larger than the typical CPU burst, preemption and context switch does not occur very frequently. In addition, short processes does not have to be wait too much. That's why choosing a time quantum larger then the typical CPU burst is ideal.
+That's why if we choose a time quantum that is larger than the typical CPU burst, preemption and context switch does not occur very frequently. In addition, short processes does not have to be wait too much. That's why **choosing a time quantum larger then the typical CPU burst is ideal**.
 
-Round Robin can be seen as First Come First Served scheduler with preemption. Or we can also say that First Come First Served can be seen as Round Robin with a very large time quantum. 
+**Round Robin** can be seen as **First Come First Served scheduler with preemption**. Or we can also say that **First Come First Served** can be seen as **Round Robin with a very large time quantum**. 
 
-Because there is a time limit for each process and the scheduler is used with preemption, we can say that CPU time is allocated among processes/threads fairly and this prevents starvation. Also because each process gets a turn to be executed, we can say that it has a good response time and no process/thread experience starvation and waits indefinitely to be executed.  
+Because there is a **time limit** for each process and the scheduler is used **with preemption**, we can say that **CPU time is allocated among processes/threads fairly** and **this prevents starvation**. Also because each process gets a turn to be executed, we can say that it has a **good response time** and **processes/threads don't experience starvation wait indefinitely to be executed**.  
 
-But there are many processes that have high CPU burst, these processes will likely be preempted frequently and this causes inefficiency because each time context switching happens, the operating system needs to save the the execution context and load the state of the next process. This context switching causes inefficiencies. 
+But **if there are many processes that have high CPU burst**, these processes will likely be **preempted frequently** and **this causes inefficiency** because each time context switching happens, the operating system needs to save the the context of the current process and load the context of the next process. This context switching causes inefficiencies. 
 
-In addition, Round Robin does not take the priority of the processes into account like previous schedulers. 
-
-[https://www.youtube.com/watch?v=7TpxxTNrcTg](Scheduler Exercises)
+In addition, **Round Robin** does **not take the priority of the processes into account like** previous schedulers. 
 
 ### Priority Scheduling 
 
-In priority scheduling, each process is assigned priority. And a process that is ready to be executed and that has the highest priority is selected by the scheduler and then CPU starts executing that process.
+In Priority Scheduling, **each process is assigned priority**. And a **process that is ready to be executed** and that **has the highest priority** is **selected** by the scheduler and then **CPU starts executing that process**.
 
-Priorities in here can be assigned either statically or dynamically. 
+**Priorities** in here **can be assigned either statically or dynamically**. 
 
 Static priorities are generally assigned based on the type of application, its importance, etc. 
 
 And dynamic priorities are assigned/updated based on the current state of the process, time quantum and how long the process ran, whether the process is preempted or not, whether the process returned back from the IO operation or not, etc.
 
-By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.
+**By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.**
 
 ### Multi Level Queue (MLQ) Scheduling
 
@@ -1042,21 +1044,21 @@ Priority Level     Runnable Processes
 
 ```
 
-In multi level queue scheduling, processes are basically divided into different groups based on their priorities. And these processes are stored in queues. And each of these queues that have different priority level can use a different scheduling algorithm. For instance, Priority Scheduling may be used for intearctive process while FCFS may be used for batch processes 
+In Multi Level Queue Scheduling, **processes are basically divided into different groups based on their priorities**. And these **processes** are **stored in queues**. And **each of these queues that have different priority level can use a different scheduling algorithm**. For instance, Priority Scheduling may be used for intearctive process while FCFS may be used for batch processes 
 
-The system processes (e.g. kernel processes that are responsible from memory management, task scheduling, interrupt handling, etc.) have the highest priority over the other processes. 
+The **system processes** (e.g. kernel processes that are responsible from memory management, task scheduling, interrupt handling, etc.) **have the highest priority** **over the other processes**. 
 
-The interactive processes (e.g. graphical user interface processes, processes that are used in interactive applications such as web browsers, text editors, etc.) have lower priority compared to system processes but higher priority over batch processes. 
+The **interactive processes** (e.g. graphical user interface processes, processes that are used in interactive applications such as web browsers, text editors, etc.) have **lower priority compared to system processes** but **higher priority over batch processes**. 
 
-And the batch processes (e.g. processes that are used for large scale data processing, automated system maintenance such as backups, system updates, virus scans, et.) have the lowest priorities.
+And the **batch processes** (e.g. processes that are used for large scale data processing, automated system maintenance such as backups, system updates, virus scans, et.) have the **lowest priorities**.
 
-But the issue with multi level queue scheduling is that starvation might happen if there is always a process to run in the highest priority queues. 
+But the issue with multi level queue scheduling is that **starvation might happen if there is always a process to run in the highest priority queues.** 
 
 ## Multi Level Feedback Queue (MLFQ) Scheduler / Priority Decay Scheduler
 
-Processes are divided into different groups based on their priorities and these processes are stored in different queues just like multi level queue scheduling. 
+**Processes** are **divided** into different **groups** based on their priorities and these processes are **stored** in **different queues** just like multi level queue scheduling. 
 
-The difference is that processes are assigned dynamic priorities as well and these dynamic priorities are updated depending on some circumstances. 
+**The difference is that processes are assigned dynamic priorities** as well and **these dynamic priorities are updated depending on some circumstances.**
 
 When the processes are created, their dynamic priorities are assigned within the range of static priority depending on their importances. 
 
@@ -1064,35 +1066,39 @@ If the process is preempted, in other words, if its execution stops to give the 
 
 When the IO operation of the process is finished and it becomes ready to be executed, its dynamic priority is reset to the static priority as well.
 
-It is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks. 
+**It is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks.** 
 
 ## Lottery Scheduling 
 
-Lottery Scheduler is a mechanism that assigns some kind of data structure (like integer variable) to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
+Lottery Scheduler is a mechanism that assigns some something like integer variable to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
 
 Imagine that there are two processes: process A and process B and let's assume that the integer value (the number of tickets) is 50 for both of them. If we pick process from the queue first time randomly, we will get process A with 50% probability and process B with 50% probability. 
 
-But if the integer value assigned to process A is 70 and the integer value assigned to process B is 0, this means that whenever we pick a process randomly from the queue randomly, we will always pick process A.  
+But if the integer value assigned to process A is 70 and the integer value assigned to process B is 0, this means that whenever we pick a process from the queue randomly, we will always pick process A.  
 
 ## Fair Share Scheduler
 
 Until now, we talked about distribution of CPU among **different processes**, and we were trying to be **fair** to **processes**. If user 1 starts up with 9 processes, and user 2 starts up with 1 process, user 1 would get 90% of the CPU and user 2 would get only 10% of it if we would use round robin, for example.
 
-Now it is time to try to be fair to the **users**. Fair Share Scheduler is a mechanism which its goal is to distribute the CPU among **different users** or **different process groups** equally/fairly. In Fair Share Scheduler, the schedule is not only based on individual processes but also the process' owner/user.
+But we can also try to be fair to the **users** instead of **processes**. 
+
+Fair Share Scheduler is a scheduling algorithm which its goal is to distribute the CPU among **different users** or **different process groups** equally/fairly. In Fair Share Scheduler, the schedule is not only based on individual processes but also the process' owner/user.
 
 ## Scheduling in Real-Time
 
-As we mentioned earlier, in real-time systems, meeting deadlines is important. The importance level of it depends on whetehr the system is hard real-time or soft real-time. In hard real-time systems, responding to an event within a deadline is crucial. In soft real-time systems, meeting deadlines is very important as well but missing the deadlines once in a while is tolerable unlike hard real-time systems. 
+As we mentioned earlier, in real-time systems, meeting deadlines is important. The importance level of it depends on whether the system is hard real-time or soft real-time. In **hard real-time systems, responding to an event within a deadline is crucial**. In **soft real-time systems, meeting deadlines is very important as well but missing the deadlines once in a while is tolerable** unlike hard real-time systems. 
 
-The events in the real-time system can be periodic or aperiodic. As we might guess, periodic events occur periodically (e.g., sensor readings every 10 seconds) and aperiodic events occur in unpredictable time frames (e.g. user input). 
+The **events** in the real-time system can be **periodic or aperiodic**. As we might guess, periodic events occur periodically (e.g., sensor readings every 10 seconds) and aperiodic events occur in unpredictable time frames (e.g. user input). 
 
-The scheduling algorithms that we use in real-time systems can be static or dynamic. 
+In addition, the scheduling algorithms that we use in real-time systems can be **static** or **dynamic**. 
 
-If the scheduling algorithm is static, this means that the order and timing of the processes that will be executed is predetermined and strict, and they don't change during the runtime. 
+If the scheduling algorithm is **static, this means that the order and timing of the processes that will be executed is predetermined and strict, and they don't change during the runtime.**
 
-In static scheduling algorithms, a scheduling table is created in advance and the order and timing of the processes execution is stored in this table.  This is generally preferred in hard real-time systems.
+In **static** scheduling algorithms, a **scheduling table** is created in advance and the **order and timing of the processes execution is stored in this table**.  The static scheduling algorithms are preferred in **hard real-time systems**.
 
-If the scheduling algorithm is dynamic, this means that the order of the processes that will be executed is not prdetermined and it can change during the runtime based on current system state, durations and urgency of the tasks, etc. Dynamic scheduling algorithms is commonly used in soft real-time systems.
+If the scheduling algorithm is **dynamic**, this means that **the order of the processes that will be executed is not prdetermined** and **it can change** during the runtime **based on current system state, durations and urgency of the tasks, etc**. **Dynamic scheduling algorithms is commonly used in soft real-time systems.**
+
+So we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
 
 ## Thread Scheduling
 
@@ -1100,33 +1106,37 @@ If the scheduling algorithm is dynamic, this means that the order of the process
 
 There are some advantages of threads scheduling over process scheduling. 
 
-Because threads are lightweight processes, and they share the same address space unlike processes, thread switching is faster and cheaper compared to the process switching. In addition, sharing the same address space makes the communication/synchronization between the threads easier compared to the processes. 
+Because threads are lightweight processes, and they share the same address space unlike processes, **thread switching is faster and cheaper** compared to the process switching. In addition, **sharing the same address space makes the communication/synchronization between the threads easier compared to the processes.**
 
-Like we do in process scheduling, we can also execute multiple threads in parallel if there are multiple cores. 
+Like we do in process scheduling, **we can also execute multiple threads in parallel if there are multiple cores.**
 
-So in thread scheduling, we have two levels of parallelism: 
-- processes
-- threads within these processes
+So in thread scheduling, we have **two levels of parallelism:**
+**- processes**
+**- threads within these processes**
 
-If threads are implemented in the kernel, thread management is handled by the kernel. If the threads are implemented in the user-space, thread management is handled by thread libraries. 
+If threads are **implemented** in the **kernel**, **thread management** is handled by the **kernel**. If the **threads are implemented** in the **user-space**, **thread management** is **handled by thread libraries**. 
+
+So until now, we talked about the scenarios in in which there is only one CPU. But what if there are multiple CPUs ? How we can handle scheduling in that case ? 
 
 ## SMP (Symmetric Multi Process) Scheduling
 
-Modern computers can have 100s of CPUs today. And SMP refers to a computer architecture in which multiple CPUs are connected to a shared main memory. In SMP systems, each process has equal level of access to the memory and IO devices. 
+Modern computers can have 100s of CPUs. And **SMP** refers to a **computer architecture in which multiple CPUs are connected to a shared main memory**. In SMP systems, **each process has equal level of access to the memory and IO devices.**
 
-And each scheduler has its own scheduler which is responsible for scheduling the threads in that CPU. That's why each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum). Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
+And **each scheduler has its own scheduler** which is responsible from **scheduling the threads in that CPU**. That's why **each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum).** Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
 
-New processes, which are created with fork(), or threads, which are created with clone(), are generally assigned to the local CPU where the process/thread creation request is made. And if the process/thread load vary across different CPUs, the workload becomes imbalanced across different CPUs.
+**New processes**, which are created with fork(), **or threads**, which are created with clone(), are **generally assigned to the local CPU where the process/thread creation request is made**. And **if the process/thread load vary across different CPUs, the workload becomes imbalanced across different CPUs**.
 
-And when imbalances occur in the workloads of different CPUs, the resources in the CPUs that have small amount of workloads might be idle for a long time while some other CPUs might be overloaded. This is not the situation we want because we don't want the resources to be idle. In addition to this, when imbalances happen some proceses/threads receive more CPU time compared to others and this decreases fairness, reduce overall responsiveness, and user experience. 
+And **when imbalances occur in the workloads of different CPUs**, **the resources in the CPUs that have small amount of workloads might be idle for a long time while some other CPUs might be overloaded**. 
+
+**This is not the situation we want because we don't want the resources to be idle**. In addition to this, **when imbalances happen** **some proceses/threads receive more CPU time compared to others and this decreases fairness**, **reduce overall responsiveness**, and **user experience**. 
 
 Therefore, we should find a way to solve this problem.
 
 ### Load Balancing
 
-One way to solve this problem is letting the CPUs to steal work from other CPUs occasionally. But how to decide when to steal ? 
+One way to solve this problem is **letting the CPUs to steal work from other CPUs occasionally**. 
 
-Each scheduler maintains an average workload history so that it can see how stable workload it had until now. This helps it to make informed decisions about load balancing.
+**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs.
 
 **!Slides 29-35 are skipped!**
 
