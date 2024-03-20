@@ -1142,7 +1142,7 @@ One way to solve this problem is **letting the CPUs to steal work from other CPU
 
 ## Comparing Different Scheduling Algorithms 
 
-Comparison of the outputs of different scheduling algorithms can be seen in [here]([url](https://github.com/ozyurtf/scheduler/blob/main/COMPARISON.md))
+Comparison of the outputs of different scheduling algorithms can be seen in [here](https://github.com/ozyurtf/scheduler/blob/main/COMPARISON.md)
 
 # Inter-Process Communication
 
