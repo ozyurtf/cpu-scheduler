@@ -859,29 +859,35 @@ It is a **good metric to use in batch systems** because the goal of the batch sy
 
 **CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change.**
 
-## Goals of the Scheduling Algorithms 
+## Goals of the Scheduling 
 
 The goals generally change from systems to systems. 
 
-In batch systems, for example, the goal might be 
-- maximizing the number of processes that are completed per hour (throughput) (all things considered, finishing 50 jobs per hour is better than finishing 40 jobs per hour. But this might not be the case in other systems that has other priorities other than the number of completed processes in a time unit)
-- minimizing the time between process creation/submission and process termination (turnaround time)
-- increasing CPU utilization (keeping CPU busy as much as possible)
+In **batch** systems, for example, the goal might be 
+- **maximizing the number of processes that are completed per hour** (throughput) (all things considered, finishing 50 jobs per hour is better than finishing 40 jobs per hour. But this might not be the case in other systems that has other priorities other than the number of completed processes in a time unit)
+- **minimizing the time between process creation/submission and process termination** (turnaround time)
+- **increasing CPU utilization** (keeping CPU busy as much as possible)
 
-In interactive systems, the goal might be 
-- minimizing response time so that the system can be able to respond to users quickly
-- meeting users' expectations as much as possible
+In **interactive systems**, the goal might be 
+- **minimizing response time** so that the system can be able to respond to users quickly
+- **meeting users' expectations** as much as possible
 
-In real-time systems, the goal might be 
-- meeting deadlines (avoid losing data)
-- predictability (the ability of the system to provide reliable and consistent performance)
+In **real-time systems**, the goal might be 
+- **meeting deadlines** (avoid losing data)
+- predictability **(the ability of the system to provide reliable and consistent performance)**
 
-And the goals that are important for all of the systems in general
-- fairness (giving each process a fair share of CPU execution)
-- balance (keeping all parts of the system busy)
-- policy enforcement (policy in here means a set of predefined rules that specify how processes should be scheduled and executed. These policies can be priority assignment, resource allocation, preemption rules, scheduling criteria, etc.)
+And the **goals** that are important for **all of the systems** in general
+- **fairness** (giving each process a fair share of CPU execution)
+- **balance** (keeping all parts of the system busy)
+- **policy enforcement** 
 
-## State Transitions and Scheduler Invocations
+But what do we mean by policy ?: **Policy** in here means a **set of predefined rules** that **specify how processes should be scheduled and executed**. These policies can be **priority assignment, resource allocation, preemption rules, scheduling criteria, etc.** 
+
+And an **implementation** that **enforces the policy** is called **mechanism**. 
+
+It is important to discriminate these two from each other: **Policy is deciding what should be done** while **mechanism is an implementation that enforces the policy.** 
+
+An example of policy might be a scheduling algorithm. And a mechanism, in this case, might be a data structure. If we have a state model like below, for example,
 
 ```
                  x
@@ -901,15 +907,18 @@ Completed \           /      x
 
 ```
 
-When the process becomes ready to be executed *(either because it was recently created or it completed its IO operation or it has run long enough and it was interrupted to give the CPU to another process or another process with higher priority arrives while it was running and it was interrupted because of this and the CPU was given to another process)*, when it starts waiting for an IO event, or when it stops running, scheduler is called to make a scheduling decision and to potentially switch the CPU from one process/thread to another. 
+when the process becomes ready to be executed *(either because this process is recently created or this process completed its IO operation or some other process has run long enough and the CPU was given to the this process or the priority of this process is higher than the currently running process and therefore the CPU is given to this process)*, when it starts waiting for an IO event, or when it stops running, scheduler is called to make a scheduling decision and to potentially switch the CPU from one process/thread to another. 
 
-The operating system maintains a data structure to store all the processes that are ready to be run. This data structure is called **ready queue** or **run queue** and the scheduler picks a process from this data structure and the selected process is executed by the CPU.
+And to enfore the policy (specified the predetermined scheduling algorithm), we can create a queue data structure to store all the processes that are ready to be run. This queue is called **ready queue** or **run queue** and the scheduler picks a process from this data structure and the selected process is executed by the CPU.
+This **ready queue** is called **mechanism** because it helps to **enforce the policy** (scheduling algorithm).
+
+But now the question is what are the different types of scheduling algorithms ? What kind of scheduling algorithm we should use ?: Well that depends on the system and your needs. The list of scheduling algorithms that are suitable for batch systems is quite different from the scheduling algorithms that are suitable for interactive systems for example. Because the priorities are different in those systems. 
 
 ## Scheduling in Batch Systems 
 
 ### First-Come First-Served (FCFS/FIFO) 
 
-When a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, time quantum) into account. And the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
+When a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. And the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
 
 FCFS scheduler can be seen fair only if we look at from arrival time perspective.
 
@@ -1118,14 +1127,6 @@ Therefore, we should find a way to solve this problem.
 One way to solve this problem is letting the CPUs to steal work from other CPUs occasionally. But how to decide when to steal ? 
 
 Each scheduler maintains an average workload history so that it can see how stable workload it had until now. This helps it to make informed decisions about load balancing.
-
-## Policy vs Mechanism
-
-Policy is deciding what should be done. And mechanism is an implementation that enforces the policy. 
-
-An example of policy might be a scheduling algorithm such as Round Robin.
-
-And the mechanisms that are used to implement the Round Robin scheduler might be data structures and algorithms such as ready queue, implementing a timer to ensure that processes are stopped being executed after the time limit is reached. 
 
 **!Slides 29-35 are skipped!**
 
