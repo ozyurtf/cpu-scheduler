@@ -8,7 +8,9 @@ Arrival Time | Total CPU Time | CPU Burst | IO Burst
 303          | 100            | 23        | 10
 ```
 
-## Output
+## Output 
+
+### Output Format
 
 ```
 x y z: A -> B (At timestep x, the yth process transitioned from state A to state B.
