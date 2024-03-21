@@ -934,9 +934,9 @@ in some cases (e.g. frequent and/or long IO operations, long processes coming fi
 
 ### Shortest Job First 
 
-In SJF, When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
+In SJF, when a new process enters the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
 
-Once the processes are in the ready queue, we **pick the process with shortest burst time (the time that is required by the process to finish its execution)**. Then the selected process is executed by the CPU. Like FCFS, this scheduler is **not preemptive** as well, in other words, once we start running a process, we cannot take the CPU away from that process even if it starts an IO operation. So the process is executed until it is finished. 
+Once the processes are in the ready queue, we **pick the process with shortest burst time (the time that is required by the process to finish its execution)**. Then the selected process is executed by the CPU. Like FCFS, this scheduler is **not preemptive** as well, in other words, once we start running a process, we cannot take the CPU away from that process. 
 
 This scheduler is **only optimal when all the processes are available simultaneously** and **we have a good idea about their burst times in advance**. Because through this way, it can arrange the processes ensuring that no process that has shorter burst time arrives later and disrupts the scheduling order.
 
