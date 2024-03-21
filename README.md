@@ -932,7 +932,7 @@ That's why we might encounter
 
 in some cases (e.g. frequent and/or long IO operations, long processes coming first frequently) when we use FCFS. 
 
-### Shortest Job First 
+### Shortest Job First (SJF)
 
 In SJF, when a new process enters the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
 
@@ -976,7 +976,7 @@ In the first step, processes are added to the ready queue after they become read
 
 When a process that has remaining time shorter than the remaining time of the currently running process arrives, **if** our scheduler is **preemptive**, the **currently running process stops its execution**, and the **CPU is given to the newly arrived process that has shorter remaining time**. 
 
-**If** our scheduler is **not preemptive**, this **preemption does not happen** and the **selected processes are run until their executions are finished**. 
+**If** our scheduler is **not preemptive**, this **preemption does not happen** and the **selected processes are run until their burst time are finsihed**. 
 
 And since **we are always prioritizing the processes that are closest to their completion**, **we minimize the amount of time processes spend waiting to be executed in the ready queue**. As we **choose the processes that has the shortest remaining time**, **processes are completed more quickly** and **this allows choosing a new process from the ready queue more quickly**. And that makes the **overall waiting time smaller**. And we can say that **processes are completed faster on average and the average turnaround time is shorter with this scheduler**.
 
