@@ -918,15 +918,11 @@ But now the question is what are the different types of scheduling algorithms ? 
 
 ### First-Come First-Served (FCFS/FIFO) 
 
-In FCFS scheduling, when a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready for execution, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. Then the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
+In FCFS scheduling, when a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready for execution, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. Then the selected process is executed on the CPU without any interruption. So there is no preemption in this scheduler.
 
 FCFS scheduler can be seen fair only if we look at from arrival time perspective.
 
-**If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
-
-In addition, imagine that there are 3 processes: process A, process B, and process C. And assume that process A arrived first, and process B arrived second and process C arrived last. 
-
-If process A has a lot of IO operations and it takes a long time for the process A to be finished, it will take a long time for process B and C to start being executed by the CPU. Because when process A is being executed by the CPU, whenever it starts an IO operation, process B and C will have to wait for process A to come back from IO operation and finish its execution. 
+**If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished their CPU execution. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
 
 That's why we might encounter
 **- high wait time**
