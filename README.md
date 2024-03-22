@@ -1152,9 +1152,9 @@ Comparison of the outputs of different scheduling algorithms can be seen in [her
 
 **Throughput**: Again, since the short processes/threads have to wait for the long processes/threads, the rate of the finished processes/threads in a time unit is lowwer than some other scheduling algorithms.
 
-**Response Time**: In FCFS, if a process/thread started to be executed, the CPU cannot be taken away from that process/thread until it finishes its CPU burst. This means if a high priority task comes from the user, it will have to wait for the currently running process/thread to be finished™. Similarly, if short processes/threads come after the long processes/threads, they have to wait as well. That's why we can say that the response time is not good when we use FCFS. 
+**Response Time**: In FCFS, if a process/thread started to be executed, the CPU cannot be taken away from that process/thread until it finishes its CPU burst. This means if a high priority task comes from the user, it will have to wait for the currently running process/thread to be finished™. Similarly, if short processes/threads come after the long processes/threads, they have to wait as well. That's why we can say that the response time is not good in general when we use FCFS. 
 
-**CPU Utilization**: High CPU utilization means that the overall length of time CPU stayed idle is low. So if the length of processes are long, we can say that FCFS can achieve good  CPU utilization since CPU will be able to execute these processes without being interrupted. If short processes come frequently, CPU utilization might not be that good because of frequent context switching. Similarly, if there are many IO bound processes, CPU utilization might be low as well. 
+**CPU Utilization**: High CPU utilization means that the total length of time CPU stayed idle is low. So if the length of processes are long, we can say that FCFS can achieve good CPU utilization since CPU will be able to execute these processes without being interrupted and will not be idle during this time. If short processes come frequently, CPU utilization might not be that good because of frequent context switching. Similarly, if there are many IO bound processes, CPU utilization might be low as well since this increases the risk of staying idle and frequent context switching.
 
 #### SJF 
 
@@ -1168,25 +1168,23 @@ Comparison of the outputs of different scheduling algorithms can be seen in [her
 
 If short process(es) arrived while a long process is being executed, these processes will have to wait for that long process because SJF is not preemptive. If the currently running process is too long, this may result in poor response time for short process(es).
 
-**CPU Utilization**:
+**CPU Utilization**: If short processes keep coming continuously, long processes may have to wait to be executed indefinitely. And this reduces the CPU utilization overall. 
 
 #### SRTF
 
-**Average Turnaround Time**: The scheduler picks the process that has the shortest remaining time. Therefore, the average turnaround time tends to be relatively low.
+**Average Turnaround Time**: The scheduler picks the process that has the shortest remaining time. Therefore, the processes are done more quickly and as a result the average turnaround time tends to be relatively low.
 
 **Average Wait Time**: The average wait time is minimized with SRTF as well because we pick the process that has the shortest remaining time. Therefore, the execution of processes is finished more quickly and as a results, processes spend less time in the ready queue on average.
 
 **Throughput**: By completing the processes more quickly, we obtain high throughput.
 
-**Response Time**: If SRTF is applied with preemption 
+**Response Time**: Because processes don't wait in the ready queue to be executed too much, we can say that the overall response time is good especially if we are applying the SRTF algorithm with preemption.
+
+**CPU Utilization**: 
+
+#### RR 
 
 # Inter-Process Communication
-
-In computer, there are programs that basically consists a set of instructions that are written to handle specific tasks. 
-
-These instructions/codes are stored in the disk or memory and they need to be executed by the CPU to give us what we want. 
-
-When these set of instructions are executed, we can call the process of the execution of these instructions as **process**.
 
 Sometimes there might be multiple processes that need to work with each other and share resources to be able to finish their executions successfully and efficiently.
 
@@ -1232,7 +1230,7 @@ One note is that some parts of this cycle should be atomic. Otherwise, we may en
 
 # Preventing Race Conditions
 
-One simple way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared resource at the same time. In other words, if one process or thread accesses to a shared resource, all the other processes or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
+One simple way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared resource at the same time. In other words, when one process or thread accesses to a shared resource, all the other processes or threads should be excluded from doing the same thing during that time and we call this **mutual exclusion**.
 
 And the section of the program/codes in which shared resources are accessed is called **critical region**. 
 
