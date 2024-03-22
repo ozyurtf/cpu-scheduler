@@ -849,9 +849,11 @@ It is a **good metric to use in batch systems** because the goal of the batch sy
 
 **Throughput**: **The rate of processes/threads that are completed per unit of time.** The **higher throughput** means the **higer number of processes/threads are completed in a specified time unit**. A scheduling algorithm that tries to maximize throughput may not necessarily minimize turnaround time. For example, given a mix of short jobs and long jobs, a **scheduler** that **always ran short jobs** and **never ran long jobs** might achieve **great throughput** but at the expense of **bad turnaround time** for the long jobs. If short jobs keep arriving at a steady rate, the **long jobs might never run**. And this makes the **average turnaround time infinite** while achieving **high throughput**. 
 
-**Response Time**: The **time between** the **user's request** and the **system's response to the user's request**. As we might guess, the goal of the **interactive systems** is to **reduce the average response time** to **minimize the response time experienced by the users**. It is a good metric to use in interactive systems.
+**Response Time**: The **time between** the **user's request** and the **system's response to the user's request**. It is the time between the arrival of a process and the first time it starts running.
 
-**Average Wait Times**: **Average time the processes/threads spend waiting to be executed by the CPU**. And the less average wait times is better for us. 
+As we might guess, the goal of the **interactive systems** is to **reduce the average response time** to **minimize the response time experienced by the users**. It is a good metric to use in interactive systems.
+
+**Average Wait Time**: **Average time the processes/threads spend waiting to be executed by the CPU in total**. Note that the response time and wait time are different. In response time, we measure the time between process arrival and the first time the process starts running. In wait time, we measure the total amount of time the process waited for the CPU. And by averaging this across all the processes, we calculate average wait time. The less average wait time is better for us. 
 
 **CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly dependent on the process' behavior. 
 
@@ -1139,6 +1141,44 @@ One way to solve this problem is **letting the CPUs to steal work from other CPU
 ## Comparing Different Scheduling Algorithms 
 
 Comparison of the outputs of different scheduling algorithms can be seen in [here](https://github.com/ozyurtf/scheduler/blob/main/COMPARISON.md)
+
+## The Effect of Scheduling Algorithms on the Metrics 
+
+### FCFS 
+
+**Average Turnaround Time**: We can expect a relatively high turnaround time because FCFS doesn't take the length of the processes/threads into account. So short processes/threads have to wait for the long processes/threads if they arrived later and this means higher turnaround time overall. 
+
+**Average Wait Time**: Similary, we can expect a relatively high wait time because short processes/threads have to wait for the long processes/threads if they arrived later. This means they have to wait for significantly more compared to some other scheduling algorithms, and this means higher wait time overall.
+
+**Throughput**: Again, since the short processes/threads have to wait for the long processes/threads, the rate of the finished processes/threads in a time unit is lowwer than some other scheduling algorithms.
+
+**Response Time**: In FCFS, if a process/thread started to be executed, the CPU cannot be taken away from that process/thread until it finishes its CPU burst. This means if a high priority task comes from the user, it will have to wait for the currently running process/thread to be finished™. Similarly, if short processes/threads come after the long processes/threads, they have to wait as well. That's why we can say that the response time is not good when we use FCFS. 
+
+**CPU Utilization**: High CPU utilization means that the overall length of time CPU stayed idle is low. So if the length of processes are long, we can say that FCFS can achieve good  CPU utilization since CPU will be able to execute these processes without being interrupted. If short processes come frequently, CPU utilization might not be that good because of frequent context switching. Similarly, if there are many IO bound processes, CPU utilization might be low as well. 
+
+#### SJF 
+
+**Average Turnaround Time**: Because SJF prioritizes the shortest processes, we can say that average turnaround time tends to be low.
+
+**Average Wait Time**: Similarly, average wait time tends to be low as well because of prioritizing the shortest processes. Because these processes won't wait too much like in other scheduling algorithms. 
+
+**Throughput**: By completing the shortest jobs quickly, SJF can result in high throughput. 
+
+**Response Time**: This depends on whether the processes arrived simultaneously or in intervals. If the processes arrived at the same time, the response time can be good for short processes since they are prioritized but bad for long processes because they will have to wait for the short processes to be finished. 
+
+If short process(es) arrived while a long process is being executed, these processes will have to wait for that long process because SJF is not preemptive. If the currently running process is too long, this may result in poor response time for short process(es).
+
+**CPU Utilization**:
+
+#### SRTF
+
+**Average Turnaround Time**: The scheduler picks the process that has the shortest remaining time. Therefore, the average turnaround time tends to be relatively low.
+
+**Average Wait Time**: The average wait time is minimized with SRTF as well because we pick the process that has the shortest remaining time. Therefore, the execution of processes is finished more quickly and as a results, processes spend less time in the ready queue on average.
+
+**Throughput**: By completing the processes more quickly, we obtain high throughput.
+
+**Response Time**: If SRTF is applied with preemption 
 
 # Inter-Process Communication
 
