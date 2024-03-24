@@ -8,21 +8,7 @@ In computer, there are programs that basically consist a set of instructions tha
 
 These **instructions/codes** are **stored** in the **disk or memory passively**. They need to be executed by the processor/CPU to do the tasks they are expected.
 
-But what is processor/CPU ? 
-
-CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is to execute the instructions and perform operations on the data. 
-
-Imagine that you ran a program in your computer. This program includes some set of instructions. And these instructions are sent to the CPU. Then CPU follows these instructions step by step to do the required tasks specified in the program. And while doing that, it can retrieve the data from the memory, manipulate that data according to the instructions, and then store the results back in the memory or maybe send them to monitor, or printer for instance. 
-
-CPU generally has one or more cores. These **cores** are **physical processing units** that are **responsible from executing instructions** and performing computations in general. 
-
-And we can divide the core into three groups: 
-
-- Memory: In core, a **memory unit** is built to store & transfer information fastly/efficiently. This memory unit consists of **registers** and **cache**.
-- Control Unit: These units **fetches** the **instructions** that are represented as bits from the memory unit, and **translates** those **instructions** into **electricity** or maybe light so that they can be **sent** to **other parts of the computer as signal**. 
-- Arithmetic Logic Unit: This unit includes **electronic circuits**. And these circuits are responsible from **arithmetic and logic operations**. 
-
-So, When these sets of instructions are executed by the CPU, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
+So, when these sets of instructions are executed by the CPU, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
 
 A **process** typically **includes** information like:
 
