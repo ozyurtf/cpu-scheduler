@@ -1226,9 +1226,9 @@ So, using interrupts is not the best way to provide mutual exclusion. Let's look
 
 For example, if the process A enter its critical region, it can set this lock variable to 1, which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions after the lock variable is set to 1 by the process A, they will see that lock variable is 1 and they will have to wait until the lock variable is set to 0 by the process A (which means that process A stopped accessing to the shared resource, left its critical region and one process can now enter its own critical region and access to the shared resource).
 
-But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter with print spooler: what if two processes see the lock variable as 0 and enter their critical regions simultaneously ? 
+But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter in read-modify-write cycle: if multiple processes perform this cycle, and tries to access the shared data simultaneously, race condition may occur. In addition, when we implement only lock variables, a process that is running outside its critical region may block another process. 
 
-Now, let's say that there are two processes: 
+For example, let's say that there are two processes: 
 
 ```
 Process A:
