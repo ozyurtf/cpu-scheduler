@@ -1116,6 +1116,7 @@ One way to solve this problem is **letting the CPUs to steal work from other CPU
 
 **Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs. And when a CPU is idle and decides to steal work from other CPUs, **small jobs** are preferred over the long ones. 
 
+After covering the execution units (processes, threads), what kind of information they carry, their differences and similarities, how these execution units are created, how they are implemented, when they are executed, and  when they are terminated, etc., now this might be a good time to explain how these execution units work with each other. 
 
 # Communication Between Execution Units
 
