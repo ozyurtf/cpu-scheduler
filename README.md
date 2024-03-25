@@ -1562,17 +1562,21 @@ So, **after consuming the item**, **the consumer will start the loop again**. At
 
 Sooner or later, **the producer will produce items and fill the whole buffer** while the consumer is sleeping. At that moment, **consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever**. 
 
-The main issue in these two scenarios is that the wakeup() call that is sent to a process that is not sleeping is lost. 
+The main issue in these two scenarios is that the **wakeup() call that is sent to a process that is not sleeping is lost**. 
 
-So we need to develop a new mechanism that allows multiple processes to access to the shared resources simultaneously **on the basis of some shared resource**. We call this mechanism **semaphores**.
+So, we need to develop a new mechanism that prevents this issue and that also allows multiple processes to access to the shared resources in a sycnhronized way **on the basis of some shared resource (buffer)**. 
+
+We call this new mechanism **semaphore**.
 
 ## Semaphores 
 
-A semaphore is an integer value just like mutex. But the only way to access it is through two separate operations that are called **wait()** and **signal()**.
+A semaphore is a data type like integer just like mutex. But the only way to **access** it is through two separate operations that are called **wait()** and **signal()**.
 
-- **wait():**  Decrements the value of the semaphore by 1 which means that the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore was/were already being used. And after wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread and run the wait() operation again to avoid spinning and wasting CPU time.
+- **wait():**  **Decrements the value of the semaphore by 1** which means that the **resource is acquired**.
 
-- **signal():** Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left its critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
+**Before** this **decrementation**, if the **value** of the **semaphore** was **0** or **negative**, this means that **resource(s)** controlled by the semaphore was/were **already being used**. **After** wait() operation **decreases** the value of the semaphore **by 1**, the value of the semaphore **will be lower than 0**. In that case, **we add the current thread into the wait queue**, because of the **lack of available resources**, **block** it (since it cannot access to the shared resource at this moment), and **schedule another thread** and **run the wait() operation again to avoid spinning and wasting CPU time**.
+
+- **signal():** **Increments the value of the semaphore by 1** which means that the **process/thread** that was **using a resource** **left its critical region** and **stopped accessing to that resource**. If the **semaphore** value **was negative before this increment**, this means that **there were waiting processes/threads in the wait queue**. And **after we release the resource and increment the value of semaphore by 1**, **one of these waiting processes/threads can now start using that resource**. So in that condition, **we pick one thread from the wait queue** and **add it to the scheduler.**
 
 You can see the implementation of Semaphore below:
 
@@ -1605,14 +1609,15 @@ void Semaphore::Init(int v) {
 
 void Semaphore::wait() {                  
   value--;
-    // Decrement the value of semaphore by 1.
+      // Decrement the value of semaphore by 1.
 
   if (value < 0) {
 
     waitQ.add(current_thread);
       // If the new value of the semaphore is negative,
       // this means that resource(s) controlled by the semaphore was already being used.
-      // In that case, add current thread into the wait queue because of the lack of available resources.
+      // In that case, add current thread into the wait queue
+      // because of the lack of available resources.
 
     current_thread->status = blocked;
       // Update the status of the thread as "blocked"
