@@ -1170,7 +1170,9 @@ If short process(es) arrived while a long process is being executed, these proce
 
 #### RR 
 
-# Inter-Process Communication
+# Communication Between Execution Units
+
+## Inter-Process Communication
 
 Sometimes there might be multiple processes that need to work with each other and share resources to be able to finish their executions successfully and efficiently.
 
@@ -1192,7 +1194,7 @@ Okay, using a shared storage like this is cool but it actually brings an importa
 
 **Race Condition**: It is a situation in which two or more processes attempts to do their operatings at the same time. When two or more processes read from the same resource and also write into the same resource at the same time, a race condition occurs. Because processes are kind of racing with each other to do their tasks.
 
-# Intra-Process Communication
+## Intra-Process Communication
 
 Until this point, we have mentioned about the processes as well as the inter-process communication. And one thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. If there are multiple threads in a process, these threads work together and share the same address space and other resources. Therefore, there should be some kind of communication between them as well. 
 
@@ -1206,7 +1208,7 @@ So, the ability of the multiple processes/threads to access/modify the shared re
 
 For instance, when multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The overall goal is for the code to access to the consistent and same view of the data. 
 
-### Read-Modify-Write Cycles
+## Read-Modify-Write Cycles
 
 - **Read**: Reading the current value of a memory location from the memory is called **read**.
 - **Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
@@ -1214,7 +1216,7 @@ For instance, when multiple processes or threads are accessing/sharing/modifying
 
 One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency. 
 
-# Preventing Race Conditions
+## Preventing Race Conditions
 
 One simple way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared resource at the same time. In other words, when one process or thread accesses to a shared resource, all the other processes or threads should be excluded from doing the same thing during that time and we call this **mutual exclusion**.
 
@@ -1236,7 +1238,7 @@ in addition to the first condition that we defined previously
 
 Now let's try to find a method that can meet all of these four rules. 
 
-# Mutual Exclusion with Busy Waiting
+### Mutual Exclusion with Busy Waiting
 
 Let's say that there is a process that is currently in it's critical region. And let's call it process A. One of the conditions of preventing race conditions was to prevent all other processes from entering their critical regions if process A is in it's critical region. 
 
@@ -1297,7 +1299,7 @@ That's why, this kind of procedure is not a good solution because it violates th
 
 So we can conclude that using lock variables solely is not the best method to achieve mutual exclusion. So, let's take a look at other methods.
 
-## Peterson's Solution for Achieving Mutual Exclusion
+### Peterson's Solution for Achieving Mutual Exclusion
 
 ```
 #define FALSE 0
@@ -1332,7 +1334,7 @@ void leave_region(int process) {
 
 The other methods that are used to do ensure mutual exclusion are called **Test and Set Lock** and **XCHG**.
 
-## TSL (Test and Set Lock)
+### TSL (Test and Set Lock)
 
 ```
 enter_region:
@@ -1364,7 +1366,7 @@ leave_region:
     | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
-## XCHG
+### XCHG
 
 ```
 enter_region:
@@ -1425,7 +1427,7 @@ So in the next steps, we will try to find a way to eliminate the busy waiting an
 
 Let's try to do the lock implementation by reducing the busy waiting. 
 
-# Lock Implementation with Semi-Busy Waiting 
+### Lock Implementation with Semi-Busy Waiting 
 
 ```
 mutex_lock: 
@@ -1467,7 +1469,7 @@ Okay with this new method, we now reduced the **busy waiting** by scheduling ano
 
 Note that when a process/thread tries to acquire a lock, if the lock is not available for that process, we call this **lock contention**
 
-# Lock Contention
+## Lock Contention
 
 Lock contention depends on 
 
@@ -1481,7 +1483,7 @@ Until now, we used lock variable to ensure that only one process can occupy the 
 
 Let's explain this in a new problem that is called **producer-consumer problem**.
 
-# Producer-Consumer Problem
+## Producer-Consumer Problem
 
 In producer-consumer problem, there are two processes. And they share a common buffer (temporary data storage) which it's size is fixed. 
 
