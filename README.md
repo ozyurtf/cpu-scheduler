@@ -570,7 +570,7 @@ Imagine that there is an application that wants to perform multiple tasks concur
 
 In addition, **threads** **prevent** us from **creating new address spaces and managing separate memory regions**. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
 
-That's why **threads** are **faster to create/restore** and they **lighter than processes**. When the **number of execution units** that are **needed** **changes dynamically** and rapidly, **threads becomes useful**. 
+That's why **threads** are **faster to create/restore** and they **lighter than processes**. When the **number of execution units** that are **needed** **changes dynamically** and rapidly, **threads become useful**. 
 
 In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. Tha's why having multiple processes (with their own separate address spaces that cannot be accessed by another process) will not work in those cases. 
 
@@ -580,7 +580,7 @@ Lastly, it is important to note that **threads** are especially **useful** when 
 
 In summary, **processes** are essentially programs that **encapsulate various resources** that are **required** for **executing the instructions**. And these resoruces can be memory, files, etc. 
 
-Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process **cannot modify** the address space of another process because these address spaces are **independent**. Because of this, we can say that **address spaces** are **protected** by being modified/destroyed by another process and that's why **process** can also be seen as **unit of protection**. 
+Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process **cannot modify** the address space of another process because these address spaces are **independent**. Because of this, we can say that **address spaces** are **protected** from being modified/destroyed by another process and that's why **a process** can also be seen as **unit of protection**. 
 
 **Threads** or **lightweight procss**, on the other hand, are the entitis within processes. They can be seen as **the unit of dispatching**. 
 
@@ -626,9 +626,9 @@ Multi-Threaded Process
 
 So, we talked about the difference between single-threading and multiple-threading but we didn't compare multiprograming and multithreading. 
 
-Multiprogramming provides concurrency at the process level. It allows multiple processes to run concurrently within the CPU. 
+**Multiprogramming** provides **concurrency** at the **process level**. It **allows multiple processes to run concurrently within the CPU**. 
 
-Multithreading provides concurrecny at the thread level. It allows multiple threads to run concurrently within a single process.
+**Multithreading** provides **concurrecny** at the **thread level**. It **allows multiple threads to run concurrently within a single process**.
 
 Also note that because **threads** within the same process **share** the **same address space**, one **thread** **can completely modify** or even destroy **another thread's stack**. In other words, there is **no protection among threads**. 
 
