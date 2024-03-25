@@ -1044,7 +1044,7 @@ If the process is preempted, in other words, if its execution stops to give the 
 
 When the IO operation of the process is finished and it becomes ready to be executed, its dynamic priority is reset to the static priority as well.
 
-**It is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks.** 
+IO bound tasks often involve user interactions. To prevent the users to experience delays, **it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
 
 ## Lottery Scheduling 
 
