@@ -383,7 +383,7 @@ The best way to solve this problem is to split the **not running** state into tw
 Blocked
 ```
 
-In the three-state model, now the process can transition to **blocked** state when it starts waiting for an external event such as IO operation. And when the external event the process was waiting for occurs, this means that the process is now ready to be executed again and therefore it can now transition from the **blocked** state into the **ready** state.
+In the three-state model, now the process can transition to **blocked** state when it starts waiting for an external event such as IO operation. And when the external event the process was waiting for is completed, this means that the process is now ready to be executed again and therefore it can now transition from the **blocked** state into the **ready** state.
 
 And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run for a long time, the currently running process can transition from the **running** state into the **ready** state. And then we can execute another process that is ready to be executed and move that process from the **ready** state into **running** state. 
 
