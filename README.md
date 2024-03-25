@@ -2107,7 +2107,11 @@ C | 2 | 7
 Free: 3
 ```
 
-This is a **safe** safe. And now let's say that process A acquires one resource. 
+This is a **safe** safe. Because we can give the 3 resources to the process B. Then process B will return 4 resources and at that moment we will have 5 resources in total and we can give these 5 resources to the process C. Once the process C finishes its execution and releases its 7 resources, we will have 7 resources in total which is enough for the process A. So from this state, there is a guarantee that all processes will finish their execution. That's why this is called **safe state**. 
+
+The difference between a safe and unsafe state is that from a safe state the system can guarantee that all processes will finish; from an unsafe state, no such guarantee can be given
+
+But now let's say that process A acquires one resource in this state. 
 
 ```
 A | 4 | 9
@@ -2117,7 +2121,7 @@ C | 2 | 7
 Free: 2
 ```
 
-Now, this state is **unsafe** because the system cannot guarantee that all processes will finish unlike a **safe** state. Because at this step, we can give the available 2 resources only to process B,
+Once that happens, this state becomes **unsafe** because the system cannot guarantee that all processes will finish from here unlike a **safe** state. Because at this step, we can give the available 2 resources only to process B,
 
 ```
 A | 3 | 9
@@ -2137,7 +2141,7 @@ C | 2 | 7
 Free: 4
 ```
 
-So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this way is called **Banker's Algorithm**. 
+So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this is the basis of a common resource allocation algorithm that is called **Banker's Algorithm**. 
 
 ## Banker's Algorithm
 
@@ -2223,49 +2227,51 @@ The Banker Algorithm looks nice in theory but it is practically **not useful** b
 - the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or some of the existing processes might vanish. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
-We talked about deadlock avoidance which basically means analyzing the resources dynamically and trying to make decisions that won't end up with deadlock. We can see deadlock avoidance as a more indirect way to prevent deadlocks before they happen.
+So checking the safety of states this way is a method of deadlock avoidance which basically means analyzing the resources dynamically and trying to make decisions that will help us to avoid deadlocks beforehand. We can see deadlock avoidance as a more indirect way to prevent deadlocks before they happen.
 
-But we can also try to prevent the system entering into deadlock directly by violating at least one of the conditions of deadlocks. And this is called **deadlock prevention**
+But we can also try to **prevent the system entering into deadlock directly** by **violating at least one of the conditions of deadlocks**. And this is called **deadlock prevention**
 
 ## Deadlock Prevention 
 
-We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
+We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. Let's start with the first condition.
 
 ### 1) Deadlock Prevention: Attacking the Mutual Exclusion
 
-One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource concurrently without waiting another process to release it. 
+One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource without waiting another process to release it. 
 
 Spooling can be a way to violate the mutual exclusion rule. A spooler is a program/software that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
 
-So attacking the mutual exclusion condition prevents the deadlock directly. But we cannot apply this procedure in all cases. Some resources should be exclusively accessed by one process at a time and in those cases, this solution cannot be used for those cases. 
+So attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
 
 ### 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
 Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes from waiting for new resources if they are currently holding resources, we can prevent the deadlock as well. 
 
-One way to do this is to make processes to request all of the resources at the same time before starting the execution.
+One way to do this is to make processes to **request all of the resources at the same time before starting the execution.**
 
-Imagine that there is a process named process A. If all the resources that process A needs are available, they can be allocated to the process A directly and process A can begin execution. But even if one the requested resources is not available, process A is not granted any of the resources and must wait until all the resources become available. And once the resources it needs are available to use, it can start. Through this way, we prevent incremental acquisition of the resources which is the potential cause of the deadlocks.
+Imagine that there is a process named process A. **If all the resources that process A needs are available**, they can be **allocated to the process A** directly and process A can begin execution. But even **if one the requested resources** is **not available**, process A is **not granted any of the resources** and must **wait until all the resources become available**. And once the resources it needs are available to use, it can start. Through this way, **we prevent incremental acquisition of the resources which is the potential cause of the deadlocks**.
 
-Another way is to make the process to release all the resources it holds when it wants to acquire new resources. After releasing all the resources, now it can try to acquire all the resources it needs at the same time. 
+**Another way** is to make the process to **release all the resources it holds** **when** it wants to **acquire new resources**. **After releasing all the resources**, now it can try to **acquire all the resources it needs at the same time**. 
 
 ### 3) Deadlock Prevention: Attacking No Preemption Condition
 
-The third condition of the deadlock was not allowing preemption. So we can prevent the deadlock by preempting a resource from a process when the same resource is required by another process. 
+The third condition of the deadlock was not allowing preemption. So we can **prevent the deadlock by preempting a resource from a process when the same resource is required by another process**. 
 
-A good strategy to do this is virtualization. 
+A good strategy to do this is **virtualization**. 
 
-Virtualization allows multiple virtual machines/containers/etc. to share the same resources. Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logical view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. 
+**Virtualization allows multiple virtual machines/containers/etc. to share the same resources**. 
 
-If a process has been assigned the printer and it is in the middle of printing its output, taking away the printer would be tricky and sometimes impossible without this abstract layer. By using spooler, in other words virtualizing the resources, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now preempt the resources and as a result deadlocks. 
+Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logical view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. 
 
-However, one thing to note is that not all resources are eligible to be virtualized. 
+If a **process** has been **assigned** the **printer** and it is in the **middle** of **printing** its output, **taking away** the **printer** would be **tricky** and sometimes **impossible** **without this abstract layer**. **By** using **spooler**, in other words **virtualizing** the **resources**, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now **preempt** the **resources** and as a result of this we can **prevent deadlocks**. 
+
+However, one thing to note is that **not all resources are eligible to be virtualized.** 
 
 ### 4) Deadlock Prevention: Attacking The Circular Wait Condition 
 
-**Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must first release the first resource. 
+**Method 1:** For us to **observe** the **circular chain of dependencies**, a process should **hold one resource** and **wait another resource**. So, if we have a **rule forcing the processes** to be **entitled to a single** resource at a moment, **we can violate the circular wait condition** and as a result **prevent the deadlock**. According to this rule, **if** a **process** **needs** a **second source while holding another resource**, it must **first release the first resource**. 
 
-**Method 2:** Another way to violate the circular wait condition is having a rule forcing the processes to request resources in numerical order. They can request resources whenever they want as long as they request in numerical order. 
+**Method 2:** **Another way** to **violate** the **circular wait condition** is having a rule **forcing the processes to request resources in numerical order**. They can **request resources whenever they want** as long as they request **in numerical order**. 
 
 Let's say that we have these resources: 
 
@@ -2275,9 +2281,9 @@ Let's say that we have these resources:
 4) Tape Drive
 5) Blu-ray Drive
 
-So if we apply this method, a process may request printer first and then a tape driver second but it can never request a plotter first and then printer second. 
+So if we apply this method, a **process** may **request** **printer** first and then a **tape** **driver** second but it **can never request a plotter first and then printer second**. 
 
-If we have the process A and process B, and the resources are i and j, for instance, 
+If we have the **process A and process B**, and the **resources are i and j**, for instance, 
 
 ```
 A   B
@@ -2285,7 +2291,9 @@ A   B
 i   j
 ```
 
-at every instant, one of the assigned resources (i or j) will have the highest number. The process that is holding that resource will never ask for another resource that was already assigned. It will either be completed (if it doesn't require any other source) or request even higher numbered resources (and all of them will be available). This way, circular wait condition won't occur and as a result we won't see deadlock.
+**at every instant**, **one of the assigned resources** (i or j) will have the **highest number**. 
+
+**The process** that is **holding that resource** **will never ask for another resource that was already assigned**. **It will either be completed** (if it doesn't require any other source) or **request even higher numbered resources** (and all of them will be available). This way, **circular wait condition won't occur** and as a result we **prevent deadlock**.
 
 
 
