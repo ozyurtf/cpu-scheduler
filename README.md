@@ -23,7 +23,8 @@ A **process** typically **includes** information like:
     - condition registers: These registers **store the outcome of arithmetic or logical operations** that are performed by the CPU. They contain **bits** that **represent the outcomes of the operations** (e.g., **whether the result of an operation is zero, positive, negative, too large**, etc.). These registers are **visible to the programmer.**
     - program status word (PSW): These registers contain bits that indicate the operating mode of the CPU (e.g., kernel mode, user mode). Unlike the other 3 registers, they are **not visible to the programmer.**
 - **process state** *(current activity of the process)*
-- ...
+- **open files**
+- **resources held**
 
 And these information are basically stored in physical memory. Each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
 
