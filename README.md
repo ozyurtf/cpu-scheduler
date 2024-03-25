@@ -648,7 +648,7 @@ Okay it is great to know all these but where do we implement these threads thoug
 
 ### Where to Put Thread ? 
 
-### Implementing Threads in User-Space
+#### Implementing Threads in User-Space
 
 There are two places to implement threads: 
 - user space
@@ -678,7 +678,7 @@ Disadvantages:
 
 What if we implement the threads in the kernel space ? 
 
-### Implementing Threads in Kernel-Space
+#### Implementing Threads in Kernel-Space
 
 As we might guess, when we implement the threads in the kernel space, they are managed by the kernel. No thread management is handled by an application/library.
 
@@ -696,7 +696,7 @@ And the advantages of implementing threads in the kernel are:
 Disadvantages: 
 - If we want to switch from executing one thread to another within the same process, we need to switch to kernel mode. *(But note that if we would try to do the same thing in user-space implementation of the threads, we would have to send a signal which would be more expensive)*
 
-### Hybrid Approach
+#### Hybrid Approach
 
 In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. After these threads are implemented in user space, however, they are associated with smaller or equal number of threads in the kernel.
 
