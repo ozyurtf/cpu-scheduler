@@ -777,7 +777,7 @@ So, if context switching is switching from executing one process/thread to execu
 
 # Process & Thread Scheduling 
 
-Scheduling is a mechanism that decides which process/thread should be executed by the CPU within a group of ready processes/threads. During this decision, multiple factors are taken into account: 
+**Scheduling** is a **mechanism** that **decides** **which process/thread** should be **executed/run** by the CPU **within a group of ready processes/threads**. During this decision, **multiple factors** are taken into account: 
 
 - When these processes/threads should be scheduled ?
 - Do we want the ability to stop executing the currently running process in the middle (preemptive) and start executing another process or not (nonpreemptive) ?
@@ -796,8 +796,8 @@ So, let's take a look at when processes/threads should be scheduled.
 
 - Whenever a process is created and ready to be executed. 
 - Whenever a process is terminated. Because whenever the execution of a process is finished, CPU becomes idle. So we should pick another process to execute.
-- Whenever a process blocks. This means the process cannot be able to proceed its execution because of the reasons like waiting for a lock or semaphore, or for a timer to expire, etc. When that happens, we should pick another process to execute.
-- Whenever an IO event occurs. This is another time the process cannot be able to proceed its execution. But now the reason is because it is doing some IO operation. Nevertheless, the CPU becomes idle when this happens and therefore we should pick another process to execute.
+- Whenever a process blocks. This means the process cannot be able to proceed its execution because of the reasons like waiting for an IO operation, lock, semaphore, or maybe for a timer to expire. When that happens, we should pick another process to execute.
+- Whenever an IO interrupt occurs. This is another time the process cannot be able to proceed its execution. But now the reason is because it is interrupted by some IO device. Nevertheless, the CPU becomes idle when this happens and therefore we should pick another process to execute.
 
 In summary, we should schedule process or thread in the cases above but there are many decisions we should make when we schedule processes or threads. For example, how long we should let processes to run without stopping them ? Should we just execute them until they are finished ? If so, what if they enter a very long IO operation ? Should we wait for that process to finish its IO operation or should we just start executing another process or thread during this time period ? The answers to these questions depend on that kind of operating system we are currently in.
 
@@ -811,7 +811,9 @@ In interactive systems, the ability of taking away the CPU from the process and 
 
 ### Batch System
 
-In batch systems, there is no user who is waiting impatiently. In these systems, the jobs are grouped together and executed in batches in a predetermined order rather than being executed individually, immediately or interactively. Because human intervention does not occur when processes are executed, when we use a scheduling algorithm in these systems, it doesn't have to be preemptive most of the times. Even if preemption feature is used, it has preemption period for each process so switching from one process to another is not the case in these systems. 
+In batch systems, there is **no user** who is **waiting impatiently**. In these systems, the **jobs** are **grouped together** and **executed in batches** in a **predetermined order** rather than being executed individually, immediately or interactively. 
+
+Because **human intervention does not occur** when processes are executed, when we use a scheduling algorithm in these systems, it **doesn't have to be preemptive** most of the times. Even if preemption feature is used, it has long preemption period for each process so switching from one process to another is not the case in these systems. 
 
 ### Real-Time System
 
