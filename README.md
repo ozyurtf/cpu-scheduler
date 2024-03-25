@@ -907,10 +907,10 @@ FCFS scheduler can be seen fair only if we look at from arrival time perspective
 **If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished their CPU execution. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
 
 That's why we might encounter
-**- high wait time**
-**- high turnaround time**
-**- low throughput**
-**- poor response time** 
+- **high wait time**
+- **high turnaround time**
+- **low throughput**
+- **poor response time**
 
 in some cases (e.g. frequent and/or long IO operations, long processes coming first frequently) when we use FCFS. 
 
