@@ -570,6 +570,7 @@ Items that are **shared by all the threads** in a process:
 - address space
 - global variables
 - open files
+- process-level resources
 
 Items that are **private to each thread**: 
 - program counter
