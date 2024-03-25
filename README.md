@@ -894,7 +894,7 @@ when the process becomes ready to be executed *(either because this process is r
 And to enfore the policy (specified the predetermined scheduling algorithm), we can create a queue data structure to store all the processes that are ready to be run. This queue is called **ready queue** or **run queue** and the scheduler picks a process from this data structure and the selected process is executed by the CPU.
 This **ready queue** is called **mechanism** because it helps to **enforce the policy** (scheduling algorithm).
 
-But now the question is what are the different types of scheduling algorithms ? What kind of scheduling algorithm we should use ?: Well that depends on the system and your needs. The list of scheduling algorithms that are suitable for batch systems is quite different from the scheduling algorithms that are suitable for interactive systems for example. Because the priorities are different in those systems. 
+Okay, if we turn back to the scheduling, after explaining the goals of the scheduling in different systems, now the question we want to ask might be: what are the different types of scheduling algorithms ? What kind of scheduling algorithm we should use to reach our goals ?: Well that depends on the system and our needs. The list of scheduling algorithms that are suitable for batch systems is quite different from the scheduling algorithms that are suitable for interactive systems for example. Because the priorities are different in those systems. 
 
 ## Scheduling in Batch Systems 
 
