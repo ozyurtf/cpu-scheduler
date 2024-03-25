@@ -1114,53 +1114,8 @@ Therefore, we should find a way to solve this problem.
 
 One way to solve this problem is **letting the CPUs to steal work from other CPUs occasionally**. 
 
-**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs.
+**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs. And when a CPU is idle and decides to steal work from other CPUs, **small jobs** are preferred over the long ones. 
 
-## Comparing Different Scheduling Algorithms 
-
-Comparison of the outputs of different scheduling algorithms can be seen in [here](https://github.com/ozyurtf/scheduler/blob/main/COMPARISON.md)
-
-## The Effect of Scheduling Algorithms on the Metrics 
-
-### FCFS 
-
-**Average Turnaround Time**: We can expect a relatively high turnaround time because FCFS doesn't take the length of the processes/threads into account. So short processes/threads have to wait for the long processes/threads if they arrived later and this means higher turnaround time overall. 
-
-**Average Wait Time**: Similary, we can expect a relatively high wait time because short processes/threads have to wait for the long processes/threads if they arrived later. This means they have to wait for significantly more compared to some other scheduling algorithms, and this means higher wait time overall.
-
-**Throughput**: Again, since the short processes/threads have to wait for the long processes/threads, the rate of the finished processes/threads in a time unit is lowwer than some other scheduling algorithms.
-
-**Response Time**: In FCFS, if a process/thread started to be executed, the CPU cannot be taken away from that process/thread until it finishes its CPU burst. This means if a high priority task comes from the user, it will have to wait for the currently running process/thread to be finished™. Similarly, if short processes/threads come after the long processes/threads, they have to wait as well. That's why we can say that the response time is not good in general when we use FCFS. 
-
-**CPU Utilization**: High CPU utilization means that the total length of time CPU stayed idle is low. So if the length of processes are long, we can say that FCFS can achieve good CPU utilization since CPU will be able to execute these processes without being interrupted and will not be idle during this time. If short processes come frequently, CPU utilization might not be that good because of frequent context switching. Similarly, if there are many IO bound processes, CPU utilization might be low as well since this increases the risk of staying idle and frequent context switching.
-
-#### SJF 
-
-**Average Turnaround Time**: Because SJF prioritizes the shortest processes, we can say that average turnaround time tends to be low.
-
-**Average Wait Time**: Similarly, average wait time tends to be low as well because of prioritizing the shortest processes. Because these processes won't wait too much like in other scheduling algorithms. 
-
-**Throughput**: By completing the shortest jobs quickly, SJF can result in high throughput. 
-
-**Response Time**: This depends on whether the processes arrived simultaneously or in intervals. If the processes arrived at the same time, the response time can be good for short processes since they are prioritized but bad for long processes because they will have to wait for the short processes to be finished. 
-
-If short process(es) arrived while a long process is being executed, these processes will have to wait for that long process because SJF is not preemptive. If the currently running process is too long, this may result in poor response time for short process(es).
-
-**CPU Utilization**: If short processes keep coming continuously, long processes may have to wait to be executed indefinitely. And this reduces the CPU utilization overall. 
-
-#### SRTF
-
-**Average Turnaround Time**: The scheduler picks the process that has the shortest remaining time. Therefore, the processes are done more quickly and as a result the average turnaround time tends to be relatively low.
-
-**Average Wait Time**: The average wait time is minimized with SRTF as well because we pick the process that has the shortest remaining time. Therefore, the execution of processes is finished more quickly and as a results, processes spend less time in the ready queue on average.
-
-**Throughput**: By completing the processes more quickly, we obtain high throughput.
-
-**Response Time**: Because processes don't wait in the ready queue to be executed too much, we can say that the overall response time is good especially if we are applying the SRTF algorithm with preemption.
-
-**CPU Utilization**: 
-
-#### RR 
 
 # Communication Between Execution Units
 
