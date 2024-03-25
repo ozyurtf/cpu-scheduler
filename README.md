@@ -22,12 +22,12 @@ A **process** typically **includes** information like:
   - **heap segment** *(used for dynamic memory allocation during the execution of the process)*
   
 - **registers** *(hardware resource that are used to hold data during the execution of instructions)*
-  - general registers: These registers are used to **hold variables**, and **results that are obtained during the execution of the program temporarily.**
-  - special registers
+  - **general registers**: These registers are used to **hold variables**, and **results that are obtained during the execution of the program temporarily.**
+  - **special registers**
     - program counter: This is one of the special registers that is **visible to the programmer**. It contains the **memory address of the next instruction**.
     - stack pointer: Another special register is stack pointer. It **points to the top of the current stack** in memory. This is **visible to the programmer** as well.
-    - condition registers: These registers **store the outcome of arithmetic or logical operations** that are performed by the CPU. They contain **bits** that **represent the outcomes of the operations** (e.g., **whether the result of an operation is zero, positive, negative, too large**, etc.). These registers are **visible to the programmer.**
-    - program status word (PSW): These registers contain bits that indicate the operating mode of the CPU (e.g., kernel mode, user mode). Unlike the other 3 registers, they are **not visible to the programmer.**
+    - **condition registers**: These registers **store the outcome of arithmetic or logical operations** that are performed by the CPU. They contain **bits** that **represent the outcomes of the operations** (e.g., **whether the result of an operation is zero, positive, negative, too large**, etc.). These registers are **visible to the programmer.**
+    - **program status word (PSW)**: These registers contain bits that indicate the operating mode of the CPU (e.g., kernel mode, user mode). Unlike the other 3 registers, they are **not visible to the programmer.**
 - **process state** *(current activity of the process)*
 - **open files**
 - **resources held**
