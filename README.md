@@ -1676,12 +1676,11 @@ We can put the **signal()** call after A2, and **wait()** call before B4. Throug
 
 So if we want to summarize: semaphores are elegant solutions for sycnhronization of the processes/threads. But a **race condition** can **occur** like in the other methods if multiple processes/threads try to **execute the wait() and signal() operations simultaneously**. 
 
-For instance, if one thread is in the middle of decrementing the semaphore value by using wait() operation and another thread tries to increment the same value in signal() operation at the same time, that will cause race condition. 
+For instance, **if one thread** is in the middle of **decrementing the semaphore value** by using **wait()** operation and **another thread** tries to **increment** the same value with **signal()** operation at the same time, that will **cause race condition.**
 
 Therefore, we must **impement the wait() and signal()** operations in **atomic** way so that they should be executed exclusively.
 
 We can make the wait() and signal() operations atomic by using **lock variable** 
-
 
 ```
 class Semaphore {
