@@ -1824,15 +1824,15 @@ Consumer(T &item) {
 }
 ```
 
-So, semaphores are great but like all the other methods, they have some downsides as well:
+So, **semaphores are great** but like all the other methods, they **have some downsides** as well:
 
-- It is not always easy to write the codes with semaphores.
-- If a thread dies while holding a semaphore, the permit to access to a shared resource is basically lost. And this can prevent other threads being blocked from accessing shared resource even. That's why we need to be extra careful when constructing the semaphores.
+- It is **not** always **easy to write** the codes with semaphores.
+- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can prevent other threads being blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
 
-In addition, they may cause a situation in which the processes had to wait for resources(s) forever. To avoid this situation, we should
+In addition, they **may cause a situation in which the processes had to wait for resources(s) forever**. **To avoid this** situation, we should
 
-- acquire the multiple locks in the same order.
-- release the locks in reverse order ideally.
+- **acquire the multiple locks in the same order.**
+- **release the locks in reverse order ideally.**
 
 And we can show how these solutions work in an example. In below, we can see two very similar but different codes: 
 
@@ -1891,23 +1891,20 @@ typedef int semaphore;
   }
 
 ```
+In the second case, **process A can acquire the resource 1**, and **process B can acquire the resource 2**. Then **process A will attempt to acquire the resource 2** but **it won't be able to** because the **resource 2 is hold by the process B**. 
 
-In the second case, process A can acquire the resource 1, and process B can acquire the resource 2. Then process A will attempt to acquire the resource 2 but it won't be able to because the resource 2 is hold by the process B. 
+Similarly, **process B will attempt to acquire the resource 1** but **it won't be able to because the resource 1 is hold by the process A**. This is called **deadlock** and both processes will wait to hold a resource forever.
 
-Similarly, process B will attempt to acquire the resource 1 but it won't be able to because the resource 1 is hold by the process A. This is called **deadlock** and both processes will wait to hold a resource forever.
-
-But by acquiring locks in the same order and releasing them in the reverse order we can avoid deadlock.
+But by **acquiring locks in the same order** and **releasing them in the reverse order we can avoid deadlock.**
 
 Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
 
-**!!Lecture 4 - Slides between 50 and 72 are passed!!**
-
 ## Deadlock vs Starvation
 
-- **Deadlock**: This occurs when the processes wait for a resource that will never be available. 
-- **Starvation** The resource can become available at some point but if a process cannot get access to that resource, that process will experience starvation. In other words, the process waits for its turn but its turn never comes even if there is an available resource.
+- **Deadlock**: This occurs when the **processes wait for a resource that will never be available**. 
+- **Starvation** The **resource can become available at some point** but **if a process cannot get access to that resource**, **that process will experience starvation**. In other words, **the process waits for its turn but its turn never comes even if there is an available resource**.
 
-Deadlock occurs when **none** of the processes are able to move ahead while starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward. 
+**Deadlock occurs** when **none** of the processes are able to **move ahead** while **starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward**. 
 
 If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependency between processes to move forward. Deadlock occurs among processes that are waiting to acquire resources in order to progress forever.
 
@@ -1915,15 +1912,15 @@ Okay we compared the deadlock and starvation and explained their differences but
 
 ## Resources
 
-If we want to explain simply, we call anything that needs to be 
+If we want to explain simply, we call **anything** that **needs** to be 
 
-1) acquired
-2) used
-3) released
+1) **acquired**
+2) **used**
+3) **released**
 
  **resource**. 
 
-So, a printer, lock variable, or semaphore, for instance, can be seen as resources because they all need to be acquired, used, and then released.
+So, a **printer**, **lock variable**, or **semaphore**, for instance, can be seen as resources because they all need to be acquired, used, and then released.
 
 The resource can be **preemptable** or **nonpreemptable** as well. In other words, sometimes, you can take away some resources from the process while the process is actively using that resource. These resources are preemptable. But not all the resources are like this. There are also other resources that cannot/should not be taken away from the process if it is actively using it. 
 
@@ -1940,30 +1937,30 @@ One thing to note is that when we explained the deadlocks, we have made some **a
 
 And now, let's explain the **conditions of a deadlock**
 
-- Each resource is either available or assigned to exactly one process
-- Only one process can use a resource at a time. In other words, the resources cannot be used by multiple processes at the same time.
-- Processes that are holding resources can request new resources.
-- Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.
-- There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain
+- **Each resource is either available or assigned to exactly one process**. Because if resources could be shared, processes would not need to wait for exclusive access to them. 
+- **Only one process can use the resource at a time. In other words, the resources cannot be used by multiple processes at the same time.** If multiple processes could use a resource at the same time, they would not need to wait for each other.
+- **Processes that are holding resources can request new resources.** Because if a process holding resources requests new resources, which are held by other processes, this will cause circular dependency which is one of the other conditions of deadlock.
+- **Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.** Because if resources could be taken away, the system could resolve resource conflicts and avoid deadlocks.
+- **There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain** The circular chain is a fundamental characteristic of a deadlock, as it creates a situation where no process can make progress.
 
 Well, it is good to know the conditions of a deadlock but another important question that we should answer is: when the deadlock happens, how can we deal with them ? 
 
 ## How to Deal with Deadlocks ? 
 
-- You can ignore them.
-- Let the deadlock occurs, detect it, and take an action.
-  -  We can dynamically manage the resources to avoid deadlock. **(Deadlock Avoidance)**
-  -  We can also break one of the conditions of the deadlock and prevent the deadlock. **(Deadlock Prevention)**
+- You can **ignore** them.
+- **Let** the deadlock **occurs**, **detect** it, and **take** an **action**.
+  -  We can **dynamically manage the resources** to avoid deadlock. **(Deadlock Avoidance)**
+  -  We can also **break one of the conditions of the deadlock** and **prevent the deadlock**. **(Deadlock Prevention)**
 
 ## Deadlock Detection and Recovery
 
-The system actually does not attempt to prevent the deadlock. It just detects the deadlock as it happens. And once it detects the deadlock, it takes actions to recover.
+The **system** actually **does not attempt to prevent the deadlock**. It **just detects the deadlock as it happens**. And **once** it **detects** the deadlock, **it takes actions to recover**.
 
-But the question is: how we can detect the deadlock ? 
+But the question is: **how we can detect the deadlock ?**
  
 ### Deadlock Detection with One Resource of Each Type
 
-If there is only 1 resource for each type, constructing a resource graph is a good way to detect the deadlock. Because if we detect a cycle in that graph, this means that there is a deadlock.
+If there is only 1 resource for each type, in other words if the resources that are used by the processes are unique, constructing a resource graph is a good way to detect the deadlock. Because **if we detect a cycle in that graph, this means that there is a deadlock.**
 
 We can give a system that has one scanner, one plotter, one tape-drive as an example of a system in which there is one resource of eacy type. Having two printers, however, would break the rule. 
 
@@ -1982,35 +1979,35 @@ For each node in the graph:
 4) Pick an unmarked and outgoing arc randomly and mark it. Then follow it to the new node and jump into step 2.
 5) If the current node is visited first time, this means that there is no cycle and we terminate the algorithm. Otherwise, we are in dead end and we remove the node and go back to the previous node. Then we jump into the 2nd step.
 
-Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: when to check for deadlocks ? 
+Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: **when to check for deadlocks ?** 
 
 ## When to Check Deadlocks ? 
 
-- We can check when a resource is requested but this might be very expensive to run.
-- We can check periodically (e.g. every x minutes)
-- We can also check when CPU utilization drops to a level that is lower than a specific threshold. Because if the CPU utilization is low, this means that the amount of time spent for idle tasks is high. And this means that some processes or threads are not making enough progress and it may be because of the deadlock.
+- We can check **when a resource is requested**.
+- We can check **periodically** (e.g. every x minutes)
+- We can also **check when CPU utilization drops to a level that is lower than a specific threshold**. Because **if** the **CPU utilization** is **low**, this means that the **amount of time spent for idle tasks** is **high**. And this means that **some processes or threads** are **not making enough progress** and it may be because they are **endlessly waiting for a resource** and **cannot be able to progress** which means a **deadlock**.
 
 Okay let's say that we checked the deadlocks, and detected one. Now the question is: how we can recover from the deadlock ? 
 
 ### 1) Recovering from Deadlock Through Preemption
 
-When a deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention. We can recover from the deadlock throug this way but it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
+When a deadlock happens, we can **take the resource away from its owner** and give that resource to another process temporarily. And this requires **manual intervention**. We can recover from the deadlock through this way but it is important to note that the decision of whether we should take away the resource from the process or not is **highly dependent on the nature of resource.**
 
-Also, this method is often not possible because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
+Also, this method is **often not possible** because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
 
 ### 2) Recovering from Deadlock Through Rollback 
 
-We can also save the information about the processes periodically (e.g. every x minutes). And when a deadlock happens, we can roll the process back to the previous checkpoint. 
+We can also **save the state of the processes periodically** (e.g. every x minutes). And **when** a **deadlock** happens, we can **roll the process back to its previous checkpoint.**
 
-But this method may cause significant delays. 
+But this method may **cause significant delays.**
 
 ### 3) Recovering from Deadlock Through Killing Process 
 
-Another simple way to recover from deadlock is killing process(es). And we can continue killing processes until the deadlock is resolved. 
+Another simple way to recover from deadlock is **killing process(es).** And we can **continue killing processes until the deadlock is resolved.**
 
-One note is that killing a process outside of the cycle can release resources that can be used to fix the deadlock. So we can kill process(es) outside of the cycle as well. 
+One note is that **killing a process outside of the cycle can release resources that can be used to fix the deadlock**. So we can **kill process(es) outside of the cycle as well**. 
 
-So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to avoid them before they happen. 
+So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to **avoid** them **before they happen.**
 
 ## Deadlock Avoidance
 
