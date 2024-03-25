@@ -155,6 +155,8 @@ Processes -------------------> Process Table
                                           ---------------
                                           IO Status Info
                                           ---------------
+                                          Accounting Info
+                                          ---------------
                                           ...
                                           ---------------
 
