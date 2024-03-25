@@ -311,8 +311,6 @@ When a program is being executed, if exceptions happen (e.g., division by zero, 
 
 For example, let's say that the user presses CTRL + C. In that case, an **interrupt** is **created** by the **keyboard hardware** and this interrupt is handled by the interrupt handler. Then the interrupt handler **sends** a **signal** that is **created by the kernel** to the **right process** and notify that process about the user's action that will interrupt the process.
 
-**!Slide 27 is skipped!**
-
 **Summary**: **fork(), exec(), wait()** and its variants are the operating system's system calls that are used to **create** and **manipulate processes**. 
 
 So, after seeing that how processes are created, implemented, and terminated in Linux, we can turn back where we left off. 
@@ -479,8 +477,6 @@ To avoid this, we can divide the suspend state into two new states: **Ready - Su
 - **Blocked - Suspend**: This state means that the process is currently in the disk but it is still waiting for an event completion. 
 
 When we introduce these two states and remove the **Suspend** state, the new model will have seven states in total and we call this **seven-state model**.
-
-**!Slides 32-33 are skipped!**
 
 So, in many of these state models, we introduced the idea of moving the CPU away from the currently running process (in other words stopping the currently running process), and giving it to another process. 
 
@@ -757,8 +753,6 @@ Just like the processes, threads can get the same states: **New/Created**, **Run
 
 And we can create a thread state model just like how we created the process state model. There is really no difference in terms of how state models are implemented and what types of states can be assigned. 
 
-**!Slides 64 and 65 are skipped!**
-
 Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. And CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
 
 And because processor can only run one process/thread at a time, it would be more efficient if we could be able to switch among multiple processes/threads even if these execution units will all look like progressing but at a slower speed. And this among the execution units is called **context switching**. 
@@ -780,8 +774,6 @@ But why do we need to save registers to the PCB or TCB ? What kind of informatio
 The benefit of context switching is that when a process performs IO operation, instead of forcing the CPU to wait for that process to finish its IO operation, we can just direct that CPU to another process during that time. And as result, we can finish more tasks.
 
 So, if context switching is switching from executing one process/thread to executing another process/thread, what is the mechanism that decides when and which process should be executed at the moment. The answer to that question is **scheduler** and we will cover that now.
-
-**!Slides 67-68 are skipped!**
 
 # Process & Thread Scheduling 
 
@@ -1121,8 +1113,6 @@ Therefore, we should find a way to solve this problem.
 One way to solve this problem is **letting the CPUs to steal work from other CPUs occasionally**. 
 
 **Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs.
-
-**!Slides 29-35 are skipped!**
 
 ## Comparing Different Scheduling Algorithms 
 
