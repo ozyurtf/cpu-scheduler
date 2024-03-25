@@ -1089,8 +1089,8 @@ Because threads are lightweight processes, and they share the same address space
 Like we do in process scheduling, **we can also execute multiple threads in parallel if there are multiple cores.**
 
 So in thread scheduling, we have **two levels of parallelism:**
-**- processes**
-**- threads within these processes**
+- **processes**
+- **threads within these processes**
 
 If threads are **implemented** in the **kernel**, **thread management** is handled by the **kernel**. If the **threads are implemented** in the **user-space**, **thread management** is **handled by thread libraries**. 
 
