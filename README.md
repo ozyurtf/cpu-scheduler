@@ -1595,7 +1595,7 @@ The main issue in these two scenarios is that the wakeup() call that is sent to 
 
 So we can develop a new mechanism in that allows multiple processes to access to the shared resources simultaneously on the basis shared resource. We call this mechanism **semaphores**.
 
-# Semaphores 
+## Semaphores 
 
 A semaphore is an integer value just like mutex. But the only way to access it is through two separate operations that are called **wait()** and **signal()**.
 
@@ -1929,7 +1929,7 @@ Okay we have mentioned about the deadlock above but one note is that sometimes p
 
 **!!Lecture 4 - Slides between 50 and 72 are passed!!**
 
-# Deadlock vs Starvation
+## Deadlock vs Starvation
 
 - **Deadlock**: This occurs when the processes wait for a resource that will never be available. 
 - **Starvation** The resource can become available at some point but if a process cannot get access to that resource, that process will experience starvation. In other words, the process waits for its turn but its turn never comes even if there is an available resource.
@@ -1940,7 +1940,7 @@ If we want to give an example, let's say that you submit a large document to pri
 
 Okay we compared the deadlock and starvation and explained their differences but we also talked about the resources. What are the things that we call **resource** in general ? 
 
-# Resources
+## Resources
 
 If we want to explain simply, we call anything that needs to be 
 
@@ -1975,20 +1975,20 @@ And now, let's explain the **conditions of a deadlock**
 
 Well, it is good to know the conditions of a deadlock but another important question that we should answer is: when the deadlock happens, how can we deal with them ? 
 
-# How to Deal with Deadlocks ? 
+## How to Deal with Deadlocks ? 
 
 - You can ignore them.
 - Let the deadlock occurs, detect it, and take an action.
   -  We can dynamically manage the resources to avoid deadlock. **(Deadlock Avoidance)**
   -  We can also break one of the conditions of the deadlock and prevent the deadlock. **(Deadlock Prevention)**
 
-# Deadlock Detection and Recovery
+## Deadlock Detection and Recovery
 
 The system actually does not attempt to prevent the deadlock. It just detects the deadlock as it happens. And once it detects the deadlock, it takes actions to recover.
 
 But the question is: how we can detect the deadlock ? 
  
-## Deadlock Detection with One Resource of Each Type
+### Deadlock Detection with One Resource of Each Type
 
 If there is only 1 resource for each type, constructing a resource graph is a good way to detect the deadlock. Because if we detect a cycle in that graph, this means that there is a deadlock.
 
@@ -1996,7 +1996,7 @@ We can give a system that has one scanner, one plotter, one tape-drive as an exa
 
 Okay now the question is: how to detect cycles ? We can detect it by simply looking at it but how a computer can detect a cycle in a graph ? 
 
-## Formal Algorithm to Detect Cycles
+### Formal Algorithm to Detect Cycles
 
 For each node in the graph: 
 
@@ -2011,7 +2011,7 @@ For each node in the graph:
 
 Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: when to check for deadlocks ? 
 
-# When to Check Deadlocks ? 
+## When to Check Deadlocks ? 
 
 - We can check when a resource is requested but this might be very expensive to run.
 - We can check periodically (e.g. every x minutes)
@@ -2019,19 +2019,19 @@ Okay we have mentioned about the deadlocks, conditions of the deadlock, and how 
 
 Okay let's say that we checked the deadlocks, and detected one. Now the question is: how we can recover from the deadlock ? 
 
-## 1) Recovering from Deadlock Through Preemption
+### 1) Recovering from Deadlock Through Preemption
 
 When a deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention. We can recover from the deadlock throug this way but it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
 
 Also, this method is often not possible because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
 
-## 2) Recovering from Deadlock Through Rollback 
+### 2) Recovering from Deadlock Through Rollback 
 
 We can also save the information about the processes periodically (e.g. every x minutes). And when a deadlock happens, we can roll the process back to the previous checkpoint. 
 
 But this method may cause significant delays. 
 
-## 3) Recovering from Deadlock Through Killing Process 
+### 3) Recovering from Deadlock Through Killing Process 
 
 Another simple way to recover from deadlock is killing process(es). And we can continue killing processes until the deadlock is resolved. 
 
@@ -2039,13 +2039,13 @@ One note is that killing a process outside of the cycle can release resources th
 
 So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to avoid them before they happen. 
 
-# Deadlock Avoidance
+## Deadlock Avoidance
 
 Most of the times, the resources are requested one at a time and we don't see many cases in which process(es) request(s) mutliple resources at the same time.
 
 One main way to avoid deadlock is granting the resource **only if** it it is **safe** to grant the resource. But what do we mean by **safe** ? 
 
-## Safe and Unsafe States
+### Safe and Unsafe States
 
 If there is a sequence of order in which each process in the sequence can run and can be completed, that state is called **safe**. Even if every process requests the maximum number of resources immediately, as long as each process can run and finish without a problem, then the state is safe. 
 
@@ -2169,11 +2169,11 @@ Free: 4
 
 So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this way is called **Banker's Algorithm**. 
 
-# Banker's Algorithm
+## Banker's Algorithm
 
 The main idea behind this algorithm is checking if granting a resource will lead to an **unsafe** state. If it won't, we just release the resource.
 
-## Applying Banker Algorithm to Single Resource
+### Applying Banker Algorithm to Single Resource
 
 ```
 A | 0 | 6
@@ -2208,7 +2208,7 @@ Free: 1
 (Unsafe)
 ```
 
-## Applying Banker Algorithm to Multiple Resources
+### Applying Banker Algorithm to Multiple Resources
 
 As in the single-resource case, processes must state their total resource needs before executing.
 
@@ -2257,11 +2257,11 @@ We talked about deadlock avoidance which basically means analyzing the resources
 
 But we can also try to prevent the system entering into deadlock directly by violating at least one of the conditions of deadlocks. And this is called **deadlock prevention**
 
-# Deadlock Prevention 
+## Deadlock Prevention 
 
 We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
 
-## 1) Deadlock Prevention: Attacking the Mutual Exclusion
+### 1) Deadlock Prevention: Attacking the Mutual Exclusion
 
 One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource concurrently without waiting another process to release it. 
 
@@ -2269,7 +2269,7 @@ Spooling can be a way to violate the mutual exclusion rule. A spooler is a progr
 
 So attacking the mutual exclusion condition prevents the deadlock directly. But we cannot apply this procedure in all cases. Some resources should be exclusively accessed by one process at a time and in those cases, this solution cannot be used for those cases. 
 
-## 2) Deadlock Prevention: Attacking the Hold and Wait Condition
+### 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
 Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes from waiting for new resources if they are currently holding resources, we can prevent the deadlock as well. 
 
@@ -2279,7 +2279,7 @@ Imagine that there is a process named process A. If all the resources that proce
 
 Another way is to make the process to release all the resources it holds when it wants to acquire new resources. After releasing all the resources, now it can try to acquire all the resources it needs at the same time. 
 
-## 3) Deadlock Prevention: Attacking No Preemption Condition
+### 3) Deadlock Prevention: Attacking No Preemption Condition
 
 The third condition of the deadlock was not allowing preemption. So we can prevent the deadlock by preempting a resource from a process when the same resource is required by another process. 
 
@@ -2291,7 +2291,7 @@ If a process has been assigned the printer and it is in the middle of printing i
 
 However, one thing to note is that not all resources are eligible to be virtualized. 
 
-## 4) Deadlock Prevention: Attacking The Circular Wait Condition 
+### 4) Deadlock Prevention: Attacking The Circular Wait Condition 
 
 **Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must first release the first resource. 
 
@@ -2316,15 +2316,6 @@ i   j
 ```
 
 at every instant, one of the assigned resources (i or j) will have the highest number. The process that is holding that resource will never ask for another resource that was already assigned. It will either be completed (if it doesn't require any other source) or request even higher numbered resources (and all of them will be available). This way, circular wait condition won't occur and as a result we won't see deadlock.
-
-# Conclusion 
-
-In summary, deadlocks can occur in hardware resources or software resources.
-
-And the operating system needs to 
-- try to avoid the as much as possible before they happen,
-- detect these deadblocks when they happen,
-- take actions and deal with them when they are detected.
 
 
 
