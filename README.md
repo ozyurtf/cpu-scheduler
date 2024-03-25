@@ -1124,13 +1124,13 @@ After covering the execution units (processes, threads), what kind of informatio
 
 Sometimes there might be multiple processes that need to work with each other and share resources to be able to finish their executions successfully and efficiently.
 
-In addition, before we handle the communication between the processes, it is important to stop and think about the 3 key points:
+But when they work together,
 
-1) How these processes will pass information to each others ? 
-2) Ensuring that two processes don't interfere with each other.
-3) Ordering the processes properly if there is a dependency: *If process A produces data and process B prints these data, process B has to wait until process A produce data to print.*
+1) how these processes will pass information to each others ? 
+2) How will they ensure that they don't interfere with each other.
+3) how to order the processes properly if there is a dependency between them ? *(e.g., If process A produces data and process B prints these data, process B has to wait until process A produce data to print.)*
 
-We have mentioned that sometimes multiple processes can share the same resource. And one of the resources they may share might be storage (e.g. main memory, shared file). 
+We have mentioned that multiple processes may share the same resources. And one of the resources they may share might be storage (e.g. main memory, shared file). 
 
 Print spooler is a perfect example to this. A print stooler is basically a program/software that puts the print jobs that are sent from an application to a spooler directory (which can be seen as temporary data storage). When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
 
