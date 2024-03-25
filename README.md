@@ -817,9 +817,9 @@ Because **human intervention does not occur** when processes are executed, when 
 
 ### Real-Time System
 
-Real time systems are used when we want to provide predictable and timely responses with **strict timing constraints**. That's why the deadlines are important to take into account when we use a scheduling algorithm. This doesn't mean that it has to be fast though. It just means there has to be deadlines. 
+Real time systems are used when we want to provide predictable and timely responses with **strict timing constraints**. That's why the deadlines are important to take into account when we use a scheduling algorithm in these systems. This doesn't mean that it has to be fast though. It just means there has to be deadlines. 
 
-In chemcial operations, for example, the real time could mean minutes,hours,days,etc. to initiate something. 
+In chemical operations, for example, we can see the application of real-time systems. The real time could mean minutes, hours, days, etc. to initiate an event. 
 
 ## Measures of the Scheduling Algorithms
 
