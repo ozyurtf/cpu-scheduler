@@ -1094,7 +1094,7 @@ So in thread scheduling, we have **two levels of parallelism:**
 
 If threads are **implemented** in the **kernel**, **thread management** is handled by the **kernel**. If the **threads are implemented** in the **user-space**, **thread management** is **handled by thread libraries**. 
 
-So until now, we talked about the scenarios in in which there is only one CPU. But what if there are multiple CPUs ? How we can handle scheduling in that case ? 
+Until this point, we talked about the scenarios in in which there is one CPU. But what if there are multiple CPUs ? How we can handle scheduling in that case ? 
 
 ## SMP (Symmetric Multi Process) Scheduling
 
