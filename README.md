@@ -13,8 +13,14 @@ So, when these sets of instructions are executed by the CPU, we can call the `pr
 A **process** typically **includes** information like:
 
 - **address space**
-  - **variables** *(global variables, local variables, and any other data structures required by the program)*
-  - **code** *(instructions or machine code that make up the program being executed by the process)*
+  - **text segment**
+    - code *(instructions or machine code that make up the program being executed by the process)*
+  - **data segment**
+    - global and static variables
+  - **stack segment**
+    - local variables, function parameters, and return addresses
+  - **heap segment** *(used for dynamic memory allocation during the execution of the process)*
+  
 - **registers** *(hardware resource that are used to hold data during the execution of instructions)*
   - general registers: These registers are used to **hold variables**, and **results that are obtained during the execution of the program temporarily.**
   - special registers
