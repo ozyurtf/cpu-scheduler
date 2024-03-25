@@ -14,11 +14,11 @@ A **process** typically **includes** information like:
 
 - **address space**
   - **text segment**
-    - code *(instructions or machine code that make up the program being executed by the process)*
+    - It contains code *(instructions or machine code that make up the program being executed by the process)*
   - **data segment**
-    - global and static variables
+    - Global and static variables are stored in here
   - **stack segment**
-    - local variables, function parameters, and return addresses
+    - Local variables, function parameters, and return addresses are stored in stack segment.
   - **heap segment** *(used for dynamic memory allocation during the execution of the process)*
   
 - **registers** *(hardware resource that are used to hold data during the execution of instructions)*
