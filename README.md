@@ -562,7 +562,17 @@ Items that are **private to each thread**:
 - state
 - stack *(stores return addresses, the values of the arguments that are passed to a function, local variables, etc.)*
 
-Imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require **significant state management**. **Threads save us from this.**
+But how do we create the threads ? 
+
+### How Threads Are Created ? 
+
+1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
+2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
+3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
+4) Set the program counter (instruction pointer) to a function pointer. Function pointer in here points to the function the thread will start executing when it starts running. 
+5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
+
+Now, imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require **significant state management**. **Threads save us from this.**
 
 In addition, **threads** **prevent** us from **creating new address spaces and managing separate memory regions**. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
 
@@ -735,17 +745,7 @@ Here is the information that is **carried by each thread**:
 - stack/stack pointer *(points to the thread's stack in the process)*
 - thread state
 
-At this point, we already talked about different features of the threads, their benefits, where they are created, etc. But we didn't mention about how these threads are created. 
-
-### How Threads Are Created ? 
-
-1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
-2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
-3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
-4) Set the program counter (instruction pointer) to a function pointer. Function pointer in here points to the function the thread will start executing when it starts running. 
-5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
-
-While we were mentioning about the steps of thread creation, it may be useful to talk about different states a thread can have after they are created.
+So, we are already be familiar with the program counter, register, and stack. But how about thread state ? Are the states that are assigned to threads different from the states that are assigned to the processes ? 
 
 ### Thread State
 
