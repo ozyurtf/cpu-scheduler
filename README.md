@@ -753,7 +753,7 @@ Just like the processes, threads can get the same states: **New/Created**, **Run
 
 And we can create a thread state model just like how we created the process state model. There is really no difference in terms of how state models are implemented and what types of states can be assigned. 
 
-Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. And CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
+Note that the instructions and registers are not virtualized in some systems by their nature. In these systems, real physical instructions and registers are used. In addition, CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time in these cases. 
 
 And because processor can only run one process/thread at a time, it would be more efficient if we could be able to switch among multiple processes/threads even if these execution units will all look like progressing but at a slower speed. And this among the execution units is called **context switching**. 
 
