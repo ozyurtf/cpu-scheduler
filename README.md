@@ -835,15 +835,15 @@ As we might guess, the goal of the **interactive systems** is to **reduce the av
 
 **Average Wait Time**: **Average time the processes/threads spend waiting to be executed by the CPU in total**. Note that the response time and wait time are different. In response time, we measure the time between process arrival and the first time the process starts running. In wait time, we measure the total amount of time the process waited for the CPU. And by averaging this across all the processes, we calculate average wait time. The less average wait time is better for us. 
 
-**CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly dependent on the process' behavior. 
+**CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly **dependent** on the **programs' behavior.**
 
-**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly dependent on the system's behavior. For example, **the number of other IO events, the speed of device, etc. can change the IO Burst.** 
+**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly **dependent** on the **system's behavior**. Because **the number of other IO events, the speed of device, etc. can change the IO Burst.** 
 
 **CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change.**
 
 ## Goals of the Scheduling 
 
-The goals generally change from systems to systems. 
+The goals of the scheduling generally change from systems to systems. 
 
 In **batch** systems, for example, the goal might be 
 - **maximizing the number of processes that are completed per hour** (throughput) (all things considered, finishing 50 jobs per hour is better than finishing 40 jobs per hour. But this might not be the case in other systems that has other priorities other than the number of completed processes in a time unit)
