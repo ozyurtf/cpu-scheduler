@@ -694,7 +694,7 @@ Disadvantages:
 
 In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. After these threads are implemented in user space, however, they are associated with smaller or equal number of threads in the kernel.
 
-The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to **switch from user mode to kernel mode when **
+The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to **switch from user mode to kernel mode when**
 
 - the user requests services from the operating system *(e.g. IO operations)*
 - **interrupts** *(e.g, timer interrupts, device interrupts)* occur
