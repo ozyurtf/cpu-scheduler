@@ -746,7 +746,8 @@ At this point, we already talked about different features of the threads, their 
 1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
 2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
 3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
-4) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
+4) Set the program counter (instruction pointer) to a function pointer. Function pointer in here points to the function the thread will start executing when it starts running. 
+5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
 
 While we were mentioning about the steps of thread creation, it may be useful to talk about different states a thread can have after they are created.
 
