@@ -46,7 +46,7 @@ Address spaces typically can either be **flat** or **segmented**. In the flat ad
 
 In segmented address space, however, we **group** the virtual addresses **based on their properties**, divide them into segments, and store the virtual addresses in these segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a **region** that has the **same properties**. 
 
-A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions**. 
+A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions.**
 
 *Also one note is that if we have two same applications, their address space will be exactly the same.*
 
