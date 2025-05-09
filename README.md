@@ -578,7 +578,40 @@ Items that are **private to each thread**:
 - state
 - stack *(stores return addresses, the values of the arguments that are passed to a function, local variables, etc.)*
 
-But how do we create the threads ? 
+### What Is The Difference Between Threads and Processes ?
+
+Imagine a web browser. You can think of this **web browser** as a **process** because
+
+- It **has its own memory space** and this memory space is **separate from other applications in your computer**.
+- If it **crashes**, **nothing happens to other applications**.
+- It **has its own ID** (Process ID) in the operating system.
+
+So, **when you launch** this web browser, 
+
+- **Memory** is **allocated**
+- **Executable code** is **loaded**
+- **Resources** are set up for that browswer (process)
+- An **entry** is **created** **in** the **process table** 
+- Program's entry point starts to be executed
+
+**by the operating system.**
+
+And **the tabs you open in this web browser operate as threads** because
+
+- **Each tab (thread)** can **load** a **different** **website**
+- **All tabs** (threads) **share the same memory** of the web browser
+- **Tabs (threads) can be executed in parallel**
+- E**ach tab doesn't appear separately**.
+
+So, when you open a tab in the web browswer, the workflow can be summarized like this: 
+
+- The **browser** (process) **creates** a **new** **tab** (thread)
+- It **allocates** a **stack** for that thread
+- It **shares** **access** to the **browser's** (process) **memory** and **resources**
+- It **sets** **up** **execution** **context** for that tab (thread)
+- It **begins executing of the page loading code**.
+
+Okay, these are good to know but how do we create the threads ? 
 
 ### How Threads Are Created ? 
 
