@@ -1125,7 +1125,35 @@ In **static** scheduling algorithms, a **scheduling table** is created in advanc
 
 If the scheduling algorithm is **dynamic**, this means that **the order of the processes that will be executed is not prdetermined** and **it can change** during the runtime **based on current system state, durations and urgency of the tasks, etc**. **Dynamic scheduling algorithms is commonly used in soft real-time systems.**
 
-So we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
+Let's now dive into different types of scheduling algorithms used in real-time systems. 
+
+### Earliest Deadline First (EDF) 
+
+In EDF, the processes are prioritized based on their deadlines. The process that has the earliest deadline is assigned the highest priority and therefore, it is executed first. The deadlines to the processes are typically assigned by 
+
+- System designers/developers during the design phase of a real-time system
+- Application programmers who code real-time applications
+- Predefined rules
+- Higher-level scheduling algorithms
+
+Here is how EDF works: 
+
+1) After the processes are assigned a deadline, the scheduler maintains a priority queue of processes that are ready to be executed.
+2) Then processes are sorted by their deadline (As we mentioned earlier, earlier deadlines are assigned higher priority)
+3) The CPU executes the highest priority (earliest deadline) task
+4) When a new process arrives, the scheduler evalutes the priorities again 
+
+If the deadline of the new process is higher than the deadline of the currently running process, current process is stopped and the new process starts being executed. 
+
+### Rate Monotonic Scheduling (RMS) 
+
+IN RMS, the processes are prioritized based on their periods. The process that has the shortest period is assigned the highest priority and therefore, it is executed first. Once a priority is assigned to a process, this priority does not change dynamically. 
+
+In addition, there is a preemption in RMS. In other words, if the period of the new process is shorter than the period of the currently running process, the current process stops being executed because the priority of the new process is higher. Then, the new process starts being executed.
+
+Lastly, it is possible to analyze the schedulability of the RMS. Let's say that we have a set of n periodic processes. 
+
+So, we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
 
 ## Thread Scheduling
 
