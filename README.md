@@ -1089,11 +1089,9 @@ But the issue with multi level queue scheduling is that **starvation might happe
 
 When the processes are created, their dynamic priorities are assigned within the range of static priority depending on their importances. 
 
-If the process is preempted, in other words, if its execution stops to give the CPU to another process, the dynamic priority of this process is decreased by 1. The reason is to prevent the processes to be executed for a very long time and ensure fairness. And if the dynamic priority reaches to 0 and if the process is preempted again, the dynamic priority is reset to the static priority. 
+If the process consumes too much CPU time, or if a process with higher priority arrives, it might be preempted, in other words, its execution stops to give the CPU to another process. In those cases, the dynamic priority of this process is decreased by 1. The reason is to prevent the processes to be executed for a very long time and ensure fairness. And if the dynamic priority reaches to 0 and if the process is preempted again, the dynamic priority is reset to the static priority. 
 
-When the IO operation of the process is finished and it becomes ready to be executed, its dynamic priority is reset to the static priority as well.
-
-IO bound tasks often involve user interactions. To prevent the users to experience delays, **it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
+If a process performs an IO operation, it is preempted as well but once IO operation is done, it is put into a higher priority queue instead of lower one because IO operations, especially if they are done frequently, are a strong signal that the process is interactive. Since interactive processes often directly impact user experience (keyboard input, clicks, UI updates), they should usually have higher priority to prevent the users to experience delays. **So, it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
 
 ## Lottery Scheduling 
 
@@ -1129,7 +1127,7 @@ Let's now dive into different types of scheduling algorithms used in real-time s
 
 ### Earliest Deadline First (EDF) 
 
-In EDF, the processes are prioritized based on their deadlines. The process that has the earliest deadline is assigned the highest priority and therefore, it is executed first. The deadlines to the processes are typically assigned by 
+In EDF, the processes are prioritized based on their deadlines. The process that has the earliest deadline is assigned the highest priority and therefore, it is executed first. The deadlines to the processes are typically assigned by:
 
 - System designers/developers during the design phase of a real-time system
 - Application programmers who code real-time applications
@@ -2355,29 +2353,3 @@ i   j
 **at every instant**, **one of the assigned resources** (i or j) will have the **highest number**. 
 
 **The process** that is **holding that resource** **will never ask for another resource that was already assigned**. **It will either be completed** (if it doesn't require any other source) or **request even higher numbered resources** (and all of them will be available). This way, **circular wait condition won't occur** and as a result we **prevent deadlock**.
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
