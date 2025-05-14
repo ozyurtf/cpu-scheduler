@@ -1089,13 +1089,13 @@ But the issue with multi level queue scheduling is that **starvation might happe
 
 When the processes are created, their dynamic priorities are assigned within the range of static priority depending on their importances. 
 
-If the process consumes too much CPU time, or if a process with higher priority arrives, it might be preempted, in other words, its execution stops to give the CPU to another process. In those cases, the dynamic priority of this process is decreased by 1. The reason is to prevent the processes to be executed for a very long time and ensure fairness. And if the dynamic priority reaches to 0 and if the process is preempted again, the dynamic priority is reset to the static priority. 
+If the process **consumes too much CPU time**, or if a **process with higher priority arrives**, it might be **preempted**, in other words, its execution stops to give the CPU to another process. In those cases, **the dynamic priority of this process is decreased by 1**. The reason is to **prevent the processes to be executed for a very long time and ensure fairness**. And **if the dynamic priority reaches to 0 and if the process is preempted again**, the **dynamic priority is reset to the static priority**. 
 
-If a process performs an IO operation, it is preempted as well but once IO operation is done, it is put into a higher priority queue instead of lower one because IO operations, especially if they are done frequently, are a strong signal that the process is interactive. Since interactive processes often directly impact user experience (keyboard input, clicks, UI updates), they should usually have higher priority to prevent the users to experience delays. **So, it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
+If **a process performs an IO operation**, it is **preempted as well** but **once IO operation is done**, it is **put into a higher priority queue instead of lower one because IO operations, especially if they are done frequently, are a strong signal that the process is interactive**. Since **interactive processes often directly impact user** experience (keyboard input, clicks, UI updates), they should usually have **higher priority** to prevent the users to experience delays. **So, it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
 
 ## Lottery Scheduling 
 
-Lottery Scheduler is a mechanism that assigns some something like integer variable to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
+Lottery Scheduler is a mechanism that assigns something like integer variable to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
 
 Imagine that there are two processes: process A and process B and let's assume that the integer value (the number of tickets) is 50 for both of them. If we pick process from the queue first time randomly, we will get process A with 50% probability and process B with 50% probability. 
 
@@ -1127,31 +1127,33 @@ Let's now dive into different types of scheduling algorithms used in real-time s
 
 ### Earliest Deadline First (EDF) 
 
-In EDF, the processes are prioritized based on their deadlines. The process that has the earliest deadline is assigned the highest priority and therefore, it is executed first. The deadlines to the processes are typically assigned by:
+In EDF, **the processes are prioritized based on their deadlines**. The process that has the **earliest deadline is assigned the highest priority** and therefore, it is **executed first**. The **deadlines to the processes are typically assigned by**:
 
-- System designers/developers during the design phase of a real-time system
-- Application programmers who code real-time applications
-- Predefined rules
-- Higher-level scheduling algorithms
+- **System designers/developers** during the design phase of a real-time system
+- **Application programmers** who code real-time applications
+- **Predefined rules**
+- **Higher-level scheduling algorithms**
 
 Here is how EDF works: 
 
-1) After the processes are assigned a deadline, the scheduler maintains a priority queue of processes that are ready to be executed.
-2) Then processes are sorted by their deadline (As we mentioned earlier, earlier deadlines are assigned higher priority)
-3) The CPU executes the highest priority (earliest deadline) task
-4) When a new process arrives, the scheduler evalutes the priorities again 
+1) **After the processes are assigned a deadline**, the **scheduler maintains a priority queue of processes that are ready to be executed**.
+2) Then **processes are sorted by their deadline** (As we mentioned earlier, earlier deadlines are assigned higher priority)
+3) The **CPU executes the highest priority** (earliest deadline) task
+4) **When a new process arrives**, the **scheduler evalutes the priorities again** 
 
-If the deadline of the new process is higher than the deadline of the currently running process, current process is stopped and the new process starts being executed. 
+If the **deadline of the new process is higher than the deadline of the currently running process**, **current process is stopped** and the **new process starts being executed.** In other words, EDF is preemptive. 
 
 ### Rate Monotonic Scheduling (RMS) 
 
-IN RMS, the processes are prioritized based on their periods. The process that has the shortest period is assigned the highest priority and therefore, it is executed first. Once a priority is assigned to a process, this priority does not change dynamically. 
+IN RMS, the **processes are prioritized based on their periods**. The **process that has the shortest period is assigned the highest priority** and therefore, it is **executed first**. Once **a priority is assigned to a process**, this **priority does not change dynamically**. 
 
 In addition, there is a preemption in RMS. In other words, if the period of the new process is shorter than the period of the currently running process, the current process stops being executed because the priority of the new process is higher. Then, the new process starts being executed.
 
 Lastly, it is possible to analyze the schedulability of the RMS. Let's say that we have a set of n periodic processes. 
 
 So, we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
+
+## Other Scheduling Algorithms
 
 ## Thread Scheduling
 
