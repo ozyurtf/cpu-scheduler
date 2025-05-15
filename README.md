@@ -1,4 +1,4 @@
-**Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. 
+**Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
 
 # Processes and Threads 
 
@@ -8,30 +8,29 @@ In computer, there are programs that basically consist a set of instructions tha
 
 These **instructions/codes** are **stored** in the **disk or memory passively**. They need to be executed by the processor/CPU to do the tasks they are expected.
 
-But what is processor/CPU ? 
-
-CPU is basically a chip that is made up from electronic components that are called transistors. Its primary job is to execute the instructions and perform operations on the data. 
-
-Imagine that you ran a program in your computer. This program includes some set of instructions. And these instructions are sent to the CPU. Then CPU follows these instructions step by step to do the required tasks specified in the program. And while doing that, it can retrieve the data from the memory, manipulate that data according to the instructions, and then store the results back in the memory or maybe send them to monitor, or printer for instance. 
-
-CPU generally has one or more cores. These **cores** are **physical processing units** that are **responsible from executing instructions** and performing computations in general. 
-
-And we can divide the core into three groups: 
-
-- Memory: In core, a **memory unit** is built to store & transfer information fastly/efficiently. This memory unit consists of **registers** and **cache**.
-- Control Unit: These units **fetches** the **instructions** that are represented as bits from the memory unit, and **translates** those **instructions** into **electricity** or maybe light so that they can be **sent** to **other parts of the computer as signal**. 
-- Arithmetic Logic Unit: This unit includes **electronic circuits**. And these circuits are responsible from **arithmetic and logic operations**. 
-
-So, When these sets of instructions are executed by the CPU, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
+So, when these sets of instructions are executed by the CPU, we can call the `process of the execution of these instructions` as **process**. We can also say that **process** is an **abstraction of running program**. Or if we want to define in another way **process** is actually a program in execution but it is not as the same as program.
 
 A **process** typically **includes** information like:
 
-- **variables** *(global variables, local variables, and any other data structures required by the program)*
-- **code** *(instructions or machine code that make up the program being executed by the process)*
-- **program counter** *(hardware resource that keeps track of the next instruction to be executed)*
+- **address space**
+  - **text segment**
+    - It contains code *(instructions or machine code that make up the program being executed by the process)*
+  - **data segment**
+    - Global and static variables are stored in here
+  - **stack segment**
+    - Local variables, function parameters, and return addresses are stored in stack segment.
+  - **heap segment** *(used for dynamic memory allocation during the execution of the process)*
+  
 - **registers** *(hardware resource that are used to hold data during the execution of instructions)*
+  - **general registers**: These registers are used to **hold variables**, and **results that are obtained during the execution of the program temporarily.**
+  - **special registers**
+    - **program counter**: This is one of the special registers that is **visible to the programmer**. It contains the **memory address of the next instruction**.
+    - **stack pointer**: Another special register is stack pointer. It **points to the top of the current stack** in memory. This is **visible to the programmer** as well.
+    - **condition registers**: These registers **store the outcome of arithmetic or logical operations** that are performed by the CPU. They contain **bits** that **represent the outcomes of the operations** (e.g., **whether the result of an operation is zero, positive, negative, too large**, etc.). These registers are **visible to the programmer.**
+    - **program status word (PSW)**: These registers contain bits that indicate the operating mode of the CPU (e.g., kernel mode, user mode). Unlike the other 3 registers, they are **not visible to the programmer.**
 - **process state** *(current activity of the process)*
-- ...
+- **open files**
+- **resources held**
 
 And these information are basically stored in physical memory. Each of these information has a physical address in the memory. So by using these addresses, we can access to a specific information in the memory indirectly. 
 
@@ -47,7 +46,7 @@ Address spaces typically can either be **flat** or **segmented**. In the flat ad
 
 In segmented address space, however, we **group** the virtual addresses **based on their properties**, divide them into segments, and store the virtual addresses in these segments. When we divide the virtual addresses into groups like these, the operationg system can treat these groups (segments) as a **region** that has the **same properties**. 
 
-A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions**. 
+A good thing about the **segmented address** space is that we can **assign different access permissions** (e.g. read only, reaad write, execute only) to different segments. And this can **prevent unauthorized access to the critical memory regions.**
 
 *Also one note is that if we have two same applications, their address space will be exactly the same.*
 
@@ -155,6 +154,8 @@ Processes -------------------> Process Table
                                           Memory Pointers
                                           ---------------
                                           IO Status Info
+                                          ---------------
+                                          Accounting Info
                                           ---------------
                                           ...
                                           ---------------
@@ -325,8 +326,6 @@ When a program is being executed, if exceptions happen (e.g., division by zero, 
 
 For example, let's say that the user presses CTRL + C. In that case, an **interrupt** is **created** by the **keyboard hardware** and this interrupt is handled by the interrupt handler. Then the interrupt handler **sends** a **signal** that is **created by the kernel** to the **right process** and notify that process about the user's action that will interrupt the process.
 
-**!Slide 27 is skipped!**
-
 **Summary**: **fork(), exec(), wait()** and its variants are the operating system's system calls that are used to **create** and **manipulate processes**. 
 
 So, after seeing that how processes are created, implemented, and terminated in Linux, we can turn back where we left off. 
@@ -397,7 +396,7 @@ The best way to solve this problem is to split the **not running** state into tw
 Blocked
 ```
 
-In the three-state model, now the process can transition to **blocked** state when it starts waiting for an external event such as IO operation. And when the external event the process was waiting for occurs, this means that the process is now ready to be executed again and therefore it can now transition from the **blocked** state into the **ready** state.
+In the three-state model, now the process can transition to **blocked** state when it starts waiting for an external event such as IO operation. And when the external event the process was waiting for is completed, this means that the process is now ready to be executed again and therefore it can now transition from the **blocked** state into the **ready** state.
 
 And if another process that has a higher priority than the currently running process arrives, or if the currently running process has run for a long time, the currently running process can transition from the **running** state into the **ready** state. And then we can execute another process that is ready to be executed and move that process from the **ready** state into **running** state. 
 
@@ -494,31 +493,27 @@ To avoid this, we can divide the suspend state into two new states: **Ready - Su
 
 When we introduce these two states and remove the **Suspend** state, the new model will have seven states in total and we call this **seven-state model**.
 
-**!Slides 32-33 are skipped!**
-
 So, in many of these state models, we introduced the idea of moving the CPU away from the currently running process (in other words stopping the currently running process), and giving it to another process. 
 
-This is called **multiprogramming** because it helps us to run multiple processes simultaneously on a single CPU. Let's now talk about multiprogramming more.  
+When we keep multiple processes in the main memory, and the CPU is switched between them, we call this **multiprogramming** beacuse we run multiple processes simultaneously on a single CPU. Let's now talk about multiprogramming more.  
 
 ### Multiprogramming
-
-Like we mentioned previously, **multiprogramming** is the ability of **executing multiple processes simultaneously on a single CPU**. The goal is organizing the jobs in such a way that the CPU has always something to execute. 
 
 In an operating system that is capable of **multiprogramming**, there are **multiple processes that are residing in the main memory** and **sharing the resources**. And **CPU can switch from executing one process to another quickly**. 
 
 Multiprogramming is beneficial because it **lets processes to use the CPU when the CPU would otherwise become idle**. Through this way, we can **increase the CPU utilization**, **resource utilization**, **ensure fairness** among the processes and obtain **higher throughput**. 
 
-In a multiprogramming environment, because there are multiple processes that are executed, the execution order of all of these processes are determined based on the system load and resources at that moment. And since the system load and resources might change from time to time, when we run the same program/application multiple times, we will get different execution times. 
+In a **multiprogramming** environment, because there are **multiple processes that are executed**, the **execution order** of all of these processes are **determined** based on the **system load and resources** at that moment. And since the **system load and resources might change from time to time**, when we **run** the **same program/application multiple time**s, we will **get different execution times**. 
 
-One another reason why we get different execution times when we run the same program/application multiple times is **interrupts**.
+One **another reason** why we get **different execution times** when we run the **same program/application** multiple times is **interrupts**.
 
 If you don't know what the interrupt is: interrupt is basically a signal/notification that is sent by the hardware or software to the CPU to suspend the execution of a process temporarily. It indicates that an event happened and it requires attention. 
 
-Therefore, interrupts bring unpredictable delays and if we run the same program several times and interrupts occur during the execution, we won't get the same execution times because of this. 
+Therefore, **interrupts bring unpredictable delays** and if we **run** the **same program several times** and **interrupts** **occur** during the execution, we **won't** **get** the **same execution times** because of this. 
 
 The interrupts can be generated by external devices such as keyboard, mouse, etc. or internal system components such as disk controller, timer, etc. One way to represent interrupts is using a vector of numerical values associated with a specific interrupt type. 
 
-When an interrupt happens, the execution context (e.g. registers, program counter, etc.) is saved and the control is transferred to the interrupt handler, which is a software that is responsible from handling interrupts. And the interrupt handler performs the necessary actions from there. 
+When an **interrupt** happens, the **execution context (e.g. registers, program counter, etc.) is saved** and the **control** is **transferred** to the **interrupt** **handler**, which is a software that is responsible from handling interrupts. And the **interrupt handler performs the necessary actions from there.** 
 
 So, if we turn back to multiprogramming: we have mentioned that multiprogramming increses CPU utilization but how do we calculate the CPU utilization ?  
 
@@ -548,7 +543,7 @@ Note that concurrency is not the same as **parallelism** in which the **processe
 
 And in **parallelism**, the **processes** are **run at the same time**.
 
-Therefore, the question of **how to do multiprogramming** is actually a **question of how to increase concurrency**, in other words, **how to manage execution of multiple processes at the same time** and **how to switch from process A to process B** if process A is waiting for an external event. 
+Therefore, the question of **how to do multiprogramming** is actually a **question of how to increase concurrency**, in other words, **how to manage execution of multiple processes at the same time** and **how to switch from process A to process B if process A is waiting for an external event**.
 
 Imagine that there is a web server that is handled by only one process. In this kind of system, whenever the process is blocked and starts waiting for an external event (e.g. reading from a socket, writing to disk, etc.), the entire web server is blocked as well because everything is handled with only one process. That's why the entire web server would wait for the external event to be done. This will obviously result in delays and reduced throughput. 
 
@@ -556,24 +551,26 @@ A solution to this problem might be using multiple processes instead of one proc
 
 But the issue in here is that, if we create multiple processes, each of them will have its own address space (e.g. stack, heap, files, etc.) and this means that these multiple address spacess will consume memory and other resources more. This is resource-intensive.
 
-Maybe what we need is execution units like process that can execute the instructions but that doesn't require a separate address space and that shares the resources. And this execution unit is called **thread**.
+Maybe what we need is **execution units** like **process** that can **execute** the **instructions** but that **doesn't require a separate address space** and that **shares** the **resources**. And this execution unit is called **thread**.
 
 ## Thread
 
-Threads are unit of executions like processes. But they are created within the processes so that they share the jobs of the process, and work together with all the other threads to reach the goal/task that is expected from the process they are part of. And to be able to work and communicate together efficiently, they share/use the same address space and the resources of the process they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
+**Threads** are **unit of executions** like processes. But they are **created within the processes** so that they share the jobs of the process, and work together with all the other threads to reach the goal/task that is expected from the process they are part of. 
+
+And to be able **to work and communicate together efficiently**, **they share/use the same address space and the resources of the process** they are part of. The only exception in here is stack space. Each thread has its own stack so that it can store its own local variables, function parameters, return address, etc. 
 
 A **thread** typically **has**: 
 - a state *(current activity of the thread such as running, ready, blocked, etc.)*
 - saved thread context when the thread is not running *(when CPU stops running thread A and starts running the thread B, the context of the thread A is saved so that the next time thread A is executed, it can start from where it lefts off)*
 - execution stack
 - storage for local variables
-- access to the memory and resources of the process that it is part of
+- access to the address space and resources of the process that it is part of
 
 Items that are **shared by all the threads** in a process: 
 - address space
 - global variables
 - open files
-- child processes
+- process-level resources
 
 Items that are **private to each thread**: 
 - program counter
@@ -581,11 +578,54 @@ Items that are **private to each thread**:
 - state
 - stack *(stores return addresses, the values of the arguments that are passed to a function, local variables, etc.)*
 
-Imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require significant state management. Threads save us from this.
+### What Is The Difference Between Threads and Processes ?
 
-In addition, threads prevent us from creating new address spaces and managing separate memory regions. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
+Imagine a web browser. You can think of this **web browser** as a **process** because
 
-That's why **threads** are **faster to create/restore** and they **lighter than processes**. When the **number of execution units** that are **needed** **changes dynamically** and rapidly, **threads becomes useful**. 
+- It **has its own memory space** and this memory space is **separate from other applications in your computer**.
+- If it **crashes**, **nothing happens to other applications**.
+- It **has its own ID** (Process ID) in the operating system.
+
+So, **when you launch** this web browser, 
+
+- **Memory** is **allocated**
+- **Executable code** is **loaded**
+- **Resources** are set up for that browswer (process)
+- An **entry** is **created** **in** the **process table** 
+- Program's entry point starts to be executed
+
+**by the operating system.**
+
+And **the tabs you open in this web browser operate as threads** because
+
+- **Each tab (thread)** can **load** a **different** **website**
+- **All tabs** (threads) **share the same memory** of the web browser
+- **Tabs (threads) can be executed in parallel**
+- E**ach tab doesn't appear separately**.
+
+So, when you open a tab in the web browswer, the workflow can be summarized like this: 
+
+- The **browser** (process) **creates** a **new** **tab** (thread)
+- It **allocates** a **stack** for that thread
+- It **shares** **access** to the **browser's** (process) **memory** and **resources**
+- It **sets** **up** **execution** **context** for that tab (thread)
+- It **begins executing of the page loading code**.
+
+Okay, these are good to know but how do we create the threads ? 
+
+### How Threads Are Created ? 
+
+1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
+2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
+3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
+4) Set the program counter (instruction pointer) to a function pointer. Function pointer in here points to the function the thread will start executing when it starts running. 
+5) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
+
+Now, imagine that there is an application that wants to perform multiple tasks concurrently. If there are no threads, for example, execution units would be processes. Therefore each process would have to execute only one task at a time. As aresult, whenever we need to switch between different tasks, we would need to switch the entire processes. And we would have to save and restore all the information of these processes (e.g., state, variables, register values, program counter etc.) everytime we stop executing one task and start executing another. This would require **significant state management**. **Threads save us from this.**
+
+In addition, **threads** **prevent** us from **creating new address spaces and managing separate memory regions**. They just need a **stack** and a hardware component that is responsible from executing instructions **(execution unit)** and they use the same address space and resources of the process they are part of. 
+
+That's why **threads** are **faster to create/restore** and they **lighter than processes**. When the **number of execution units** that are **needed** **changes dynamically** and rapidly, **threads become useful**. 
 
 In addition, the ability for parallel tasks to share an address space and all of its data among themselves is essential for certain applications. Tha's why having multiple processes (with their own separate address spaces that cannot be accessed by another process) will not work in those cases. 
 
@@ -595,7 +635,7 @@ Lastly, it is important to note that **threads** are especially **useful** when 
 
 In summary, **processes** are essentially programs that **encapsulate various resources** that are **required** for **executing the instructions**. And these resoruces can be memory, files, etc. 
 
-Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process **cannot modify** the address space of another process because these address spaces are **independent**. Because of this, we can say that **address spaces** are **protected** by being modified/destroyed by another process and that's why **process** can also be seen as **unit of protection**. 
+Therefore, **the resource ownership**, **the unit of resource allocation** can also be seen as **process** or **task**. Also, each process has its own address space that are isolated from other processes. That's why a process **cannot modify** the address space of another process because these address spaces are **independent**. Because of this, we can say that **address spaces** are **protected** from being modified/destroyed by another process and that's why **a process** can also be seen as **unit of protection**. 
 
 **Threads** or **lightweight procss**, on the other hand, are the entitis within processes. They can be seen as **the unit of dispatching**. 
 
@@ -641,9 +681,9 @@ Multi-Threaded Process
 
 So, we talked about the difference between single-threading and multiple-threading but we didn't compare multiprograming and multithreading. 
 
-Multiprogramming provides concurrency at the process level. It allows multiple processes to run concurrently within the CPU. 
+**Multiprogramming** provides **concurrency** at the **process level**. It **allows multiple processes to run concurrently within the CPU**. 
 
-Multithreading provides concurrecny at the thread level. It allows multiple threads to run concurrently within a single process.
+**Multithreading** provides **concurrecny** at the **thread level**. It **allows multiple threads to run concurrently within a single process**.
 
 Also note that because **threads** within the same process **share** the **same address space**, one **thread** **can completely modify** or even destroy **another thread's stack**. In other words, there is **no protection among threads**. 
 
@@ -657,7 +697,7 @@ Okay it is great to know all these but where do we implement these threads thoug
 
 ### Where to Put Thread ? 
 
-### Implementing Threads in User-Space
+#### Implementing Threads in User-Space
 
 There are two places to implement threads: 
 - user space
@@ -687,7 +727,7 @@ Disadvantages:
 
 What if we implement the threads in the kernel space ? 
 
-### Implementing Threads in Kernel-Space
+#### Implementing Threads in Kernel-Space
 
 As we might guess, when we implement the threads in the kernel space, they are managed by the kernel. No thread management is handled by an application/library.
 
@@ -705,11 +745,11 @@ And the advantages of implementing threads in the kernel are:
 Disadvantages: 
 - If we want to switch from executing one thread to another within the same process, we need to switch to kernel mode. *(But note that if we would try to do the same thing in user-space implementation of the threads, we would have to send a signal which would be more expensive)*
 
-### Hybrid Approach
+#### Hybrid Approach
 
 In the hybdrid approach, all the threads are created in the user-space. When we want to schedule and sycnhronize the threads, these are done in the user space in bulk. After these threads are implemented in user space, however, they are associated with smaller or equal number of threads in the kernel.
 
-The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to **switch from user mode to kernel mode when **
+The benefit of creating all the threads in the user-space is that it is more efficient compared to creating them in the kernel space. Because when we implement threads in kernel space, the kernel will need to manage various data structures (e.g. thread control block, kernel stacks, etc.) and resources. We will also need to **switch from user mode to kernel mode when**
 
 - the user requests services from the operating system *(e.g. IO operations)*
 - **interrupts** *(e.g, timer interrupts, device interrupts)* occur
@@ -754,16 +794,7 @@ Here is the information that is **carried by each thread**:
 - stack/stack pointer *(points to the thread's stack in the process)*
 - thread state
 
-At this point, we already talked about different features of the threads, their benefits, where they are created, etc. But we didn't mention about how these threads are created. 
-
-### How Threads Are Created ? 
-
-1) We first allocate a memory for the thread's stack using a memory allocation function. *(e.g. malloc())*
-2) Then we create a new thread within the current process. *(by making a system call such as clone(). clone() creates a new execution context within the process and this execution context represents the new thread)*
-3) We set the stack pointer of this thread to the thread's stack that we created in step 1.
-4) After setting up the execution context of the thread, we allow the scheduler to run this thread whenever it is appropriate to run by marking the thread schedulable.
-
-While we were mentioning about the steps of thread creation, it may be useful to talk about different states a thread can have after they are created.
+So, we are already be familiar with the program counter, register, and stack. But how about thread state ? Are the states that are assigned to threads different from the states that are assigned to the processes ? 
 
 ### Thread State
 
@@ -771,9 +802,7 @@ Just like the processes, threads can get the same states: **New/Created**, **Run
 
 And we can create a thread state model just like how we created the process state model. There is really no difference in terms of how state models are implemented and what types of states can be assigned. 
 
-**!Slides 64 and 65 are skipped!**
-
-Note that the instructions and registers are not virtualized by their nature. They are the real physical instructions and registers. And CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time. 
+Note that the instructions and registers are not virtualized in some systems by their nature. In these systems, real physical instructions and registers are used. In addition, CPU can execute instructions sequentially. That's why a processor, or core, or hardware thread can only run one process/thread (these can also be called as unit of execution) at a time in these cases. 
 
 And because processor can only run one process/thread at a time, it would be more efficient if we could be able to switch among multiple processes/threads even if these execution units will all look like progressing but at a slower speed. And this among the execution units is called **context switching**. 
 
@@ -795,11 +824,9 @@ The benefit of context switching is that when a process performs IO operation, i
 
 So, if context switching is switching from executing one process/thread to executing another process/thread, what is the mechanism that decides when and which process should be executed at the moment. The answer to that question is **scheduler** and we will cover that now.
 
-**!Slides 67-68 are skipped!**
-
 # Process & Thread Scheduling 
 
-Scheduling is a mechanism that decides which process/thread should be executed by the CPU within a group of ready processes/threads. During this decision, multiple factors are taken into account: 
+**Scheduling** is a **mechanism** that **decides** **which process/thread** should be **executed/run** by the CPU **within a group of ready processes/threads**. During this decision, **multiple factors** are taken into account: 
 
 - When these processes/threads should be scheduled ?
 - Do we want the ability to stop executing the currently running process in the middle (preemptive) and start executing another process or not (nonpreemptive) ?
@@ -818,8 +845,8 @@ So, let's take a look at when processes/threads should be scheduled.
 
 - Whenever a process is created and ready to be executed. 
 - Whenever a process is terminated. Because whenever the execution of a process is finished, CPU becomes idle. So we should pick another process to execute.
-- Whenever a process blocks. This means the process cannot be able to proceed its execution because of the reasons like waiting for a lock or semaphore, or for a timer to expire, etc. When that happens, we should pick another process to execute.
-- Whenever an IO event occurs. This is another time the process cannot be able to proceed its execution. But now the reason is because it is doing some IO operation. Nevertheless, the CPU becomes idle when this happens and therefore we should pick another process to execute.
+- Whenever a process blocks. This means the process cannot be able to proceed its execution because of the reasons like waiting for an IO operation, lock, semaphore, or maybe for a timer to expire. When that happens, we should pick another process to execute.
+- Whenever an IO interrupt occurs. This is another time the process cannot be able to proceed its execution. But now the reason is because it is interrupted by some IO device. Nevertheless, the CPU becomes idle when this happens and therefore we should pick another process to execute.
 
 In summary, we should schedule process or thread in the cases above but there are many decisions we should make when we schedule processes or threads. For example, how long we should let processes to run without stopping them ? Should we just execute them until they are finished ? If so, what if they enter a very long IO operation ? Should we wait for that process to finish its IO operation or should we just start executing another process or thread during this time period ? The answers to these questions depend on that kind of operating system we are currently in.
 
@@ -833,13 +860,15 @@ In interactive systems, the ability of taking away the CPU from the process and 
 
 ### Batch System
 
-In batch systems, there is no user who is waiting impatiently. In these systems, the jobs are grouped together and executed in batches in a predetermined order rather than being executed individually, immediately or interactively. Because human intervention does not occur when processes are executed, when we use a scheduling algorithm in these systems, it doesn't have to be preemptive most of the times. Even if preemption feature is used, it has preemption period for each process so switching from one process to another is not the case in these systems. 
+In batch systems, there is **no user** who is **waiting impatiently**. In these systems, the **jobs** are **grouped together** and **executed in batches** in a **predetermined order** rather than being executed individually, immediately or interactively. 
+
+Because **human intervention does not occur** when processes are executed, when we use a scheduling algorithm in these systems, it **doesn't have to be preemptive** most of the times. Even if preemption feature is used, it has long preemption period for each process so switching from one process to another is not the case in these systems. 
 
 ### Real-Time System
 
-Real time systems are used when we want to provide predictable and timely responses with **strict timing constraints**. That's why the deadlines are important to take into account when we use a scheduling algorithm. This doesn't mean that it has to be fast though. It just means there has to be deadlines. 
+Real time systems are used when we want to provide predictable and timely responses with **strict timing constraints**. That's why the deadlines are important to take into account when we use a scheduling algorithm in these systems. This doesn't mean that it has to be fast though. It just means there has to be deadlines. 
 
-In chemcial operations, for example, the real time could mean minutes,hours,days,etc. to initiate something. 
+In chemical operations, for example, we can see the application of real-time systems. The real time could mean minutes, hours, days, etc. to initiate an event. 
 
 ## Measures of the Scheduling Algorithms
 
@@ -849,19 +878,21 @@ It is a **good metric to use in batch systems** because the goal of the batch sy
 
 **Throughput**: **The rate of processes/threads that are completed per unit of time.** The **higher throughput** means the **higer number of processes/threads are completed in a specified time unit**. A scheduling algorithm that tries to maximize throughput may not necessarily minimize turnaround time. For example, given a mix of short jobs and long jobs, a **scheduler** that **always ran short jobs** and **never ran long jobs** might achieve **great throughput** but at the expense of **bad turnaround time** for the long jobs. If short jobs keep arriving at a steady rate, the **long jobs might never run**. And this makes the **average turnaround time infinite** while achieving **high throughput**. 
 
-**Response Time**: The **time between** the **user's request** and the **system's response to the user's request**. As we might guess, the goal of the **interactive systems** is to **reduce the average response time** to **minimize the response time experienced by the users**. It is a good metric to use in interactive systems.
+**Response Time**: The **time between** the **user's request** and the **system's response to the user's request**. It is the time between the arrival of a process and the first time it starts running.
 
-**Average Wait Times**: **Average time the processes/threads spend waiting to be executed by the CPU**. And the less average wait times is better for us. 
+As we might guess, the goal of the **interactive systems** is to **reduce the average response time** to **minimize the response time experienced by the users**. It is a good metric to use in interactive systems.
 
-**CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly dependent on the process' behavior. 
+**Average Wait Time**: **Average time the processes/threads spend waiting to be executed by the CPU in total**. Note that the response time and wait time are different. In response time, we measure the time between process arrival and the first time the process starts running. In wait time, we measure the total amount of time the process waited for the CPU. And by averaging this across all the processes, we calculate average wait time. The less average wait time is better for us. 
 
-**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly dependent on the system's behavior. For example, **the number of other IO events, the speed of device, etc. can change the IO Burst.** 
+**CPU Burst**: Sequence of instructions a process/thread runs without requesting for an IO operation. This is mostly **dependent** on the **programs' behavior.**
+
+**IO Burst**: The length of time required to finish an IO event while the process cannot run any code. This is mostly **dependent** on the **system's behavior**. Because **the number of other IO events, the speed of device, etc. can change the IO Burst.** 
 
 **CPU Burst and IO Burst are the behaviors of the applications when they are running. They continuously change.**
 
 ## Goals of the Scheduling 
 
-The goals generally change from systems to systems. 
+The goals of the scheduling generally change from systems to systems. 
 
 In **batch** systems, for example, the goal might be 
 - **maximizing the number of processes that are completed per hour** (throughput) (all things considered, finishing 50 jobs per hour is better than finishing 40 jobs per hour. But this might not be the case in other systems that has other priorities other than the number of completed processes in a time unit)
@@ -912,35 +943,31 @@ when the process becomes ready to be executed *(either because this process is r
 And to enfore the policy (specified the predetermined scheduling algorithm), we can create a queue data structure to store all the processes that are ready to be run. This queue is called **ready queue** or **run queue** and the scheduler picks a process from this data structure and the selected process is executed by the CPU.
 This **ready queue** is called **mechanism** because it helps to **enforce the policy** (scheduling algorithm).
 
-But now the question is what are the different types of scheduling algorithms ? What kind of scheduling algorithm we should use ?: Well that depends on the system and your needs. The list of scheduling algorithms that are suitable for batch systems is quite different from the scheduling algorithms that are suitable for interactive systems for example. Because the priorities are different in those systems. 
+Okay, if we turn back to the scheduling, after explaining the goals of the scheduling in different systems, now the question we want to ask might be: what are the different types of scheduling algorithms ? What kind of scheduling algorithm we should use to reach our goals ?: Well that depends on the system and our needs. The list of scheduling algorithms that are suitable for batch systems is quite different from the scheduling algorithms that are suitable for interactive systems for example. Because the priorities are different in those systems. 
 
 ## Scheduling in Batch Systems 
 
 ### First-Come First-Served (FCFS/FIFO) 
 
-In FCFS scheduling, when a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready for execution, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. Then the selected process is executed on the CPU without any interruption until it is finished. So there is no preemption in this scheduler.
+In FCFS scheduling, when a new process enters the system and becomes ready for execution, or when a process stops its IO operation and becomes ready for execution, it is added to the **end** of the ready queue. And the FCFS scheduler selects a process from the ready queue based on its arrival time without taking any other factors (e.g. priority, user group, time limit) into account. Then the selected process is executed on the CPU without any interruption. So there is no preemption in this scheduler.
 
 FCFS scheduler can be seen fair only if we look at from arrival time perspective.
 
-**If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
-
-In addition, imagine that there are 3 processes: process A, process B, and process C. And assume that process A arrived first, and process B arrived second and process C arrived last. 
-
-If process A has a lot of IO operations and it takes a long time for the process A to be finished, it will take a long time for process B and C to start being executed by the CPU. Because when process A is being executed by the CPU, whenever it starts an IO operation, process B and C will have to wait for process A to come back from IO operation and finish its execution. 
+**If long processes come first**, they are **executed first** based on their arrival time. And **if short processes come later**, they will **have to wait** until the long processes are finished their CPU execution. This means that the **time between the arrival time and completion time might be large for especially short processes** in this kind of scenario. 
 
 That's why we might encounter
-**- high wait time**
-**- high turnaround time**
-**- low throughput**
-**- poor response time** 
+- **high wait time**
+- **high turnaround time**
+- **low throughput**
+- **poor response time**
 
 in some cases (e.g. frequent and/or long IO operations, long processes coming first frequently) when we use FCFS. 
 
-### Shortest Job First 
+### Shortest Job First (SJF)
 
-In SJF, When a new process enter the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
+In SJF, when a new process enters the system and becomes ready for execution, it is added to the ready queue. When we use this scheduler, we assume that we already know the burst time of each process in advance. We can try to estimate the burst time based on the execution histories of the processes for example. 
 
-Once the processes are in the ready queue, we **pick the process with shortest burst time (the time that is required by the process to finish its execution)**. Then the selected process is executed by the CPU. Like FCFS, this scheduler is **not preemptive** as well, in other words, once we start running a process, we cannot take the CPU away from that process even if it starts an IO operation. So the process is executed until it is finished. 
+Once the processes are in the ready queue, we **pick the process with shortest burst time (the time that is required by the process to finish its execution)**. Then the selected process is executed by the CPU. Like FCFS, this scheduler is **not preemptive** as well, in other words, once we start running a process, we cannot take the CPU away from that process. 
 
 This scheduler is **only optimal when all the processes are available simultaneously** and **we have a good idea about their burst times in advance**. Because through this way, it can arrange the processes ensuring that no process that has shorter burst time arrives later and disrupts the scheduling order.
 
@@ -980,7 +1007,7 @@ In the first step, processes are added to the ready queue after they become read
 
 When a process that has remaining time shorter than the remaining time of the currently running process arrives, **if** our scheduler is **preemptive**, the **currently running process stops its execution**, and the **CPU is given to the newly arrived process that has shorter remaining time**. 
 
-**If** our scheduler is **not preemptive**, this **preemption does not happen** and the **selected processes are run until their executions are finished**. 
+**If** our scheduler is **not preemptive**, this **preemption does not happen** and the **selected processes are run until their burst time are finsihed**. 
 
 And since **we are always prioritizing the processes that are closest to their completion**, **we minimize the amount of time processes spend waiting to be executed in the ready queue**. As we **choose the processes that has the shortest remaining time**, **processes are completed more quickly** and **this allows choosing a new process from the ready queue more quickly**. And that makes the **overall waiting time smaller**. And we can say that **processes are completed faster on average and the average turnaround time is shorter with this scheduler**.
 
@@ -1062,15 +1089,13 @@ But the issue with multi level queue scheduling is that **starvation might happe
 
 When the processes are created, their dynamic priorities are assigned within the range of static priority depending on their importances. 
 
-If the process is preempted, in other words, if its execution stops to give the CPU to another process, the dynamic priority of this process is decreased by 1. The reason is to prevent the processes to be executed for a very long time and ensure fairness. And if the dynamic priority reaches to 0 and if the process is preempted again, the dynamic priority is reset to the static priority. 
+If the process **consumes too much CPU time**, or if a **process with higher priority arrives**, it might be **preempted**, in other words, its execution stops to give the CPU to another process. In those cases, **the dynamic priority of this process is decreased by 1**. The reason is to **prevent the processes to be executed for a very long time and ensure fairness**. And **if the dynamic priority reaches to 0 and if the process is preempted again**, the **dynamic priority is reset to the static priority**. 
 
-When the IO operation of the process is finished and it becomes ready to be executed, its dynamic priority is reset to the static priority as well.
-
-**It is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks.** 
+If **a process performs an IO operation**, it is **preempted as well** but **once IO operation is done**, it is **put into a higher priority queue instead of lower one because IO operations, especially if they are done frequently, are a strong signal that the process is interactive**. Since **interactive processes often directly impact user** experience (keyboard input, clicks, UI updates), they should usually have **higher priority** to prevent the users to experience delays. **So, it is best practice to assign higher priority to IO bound tasks, and lower priority to CPU bound tasks** 
 
 ## Lottery Scheduling 
 
-Lottery Scheduler is a mechanism that assigns some something like integer variable to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
+Lottery Scheduler is a mechanism that assigns something like integer variable to the processes/threads and increases this variable by 1 in certain conditions. If we see these variables as tickets in a bowl, and the person who picks these tickets from the bowl as scheduler, it is obvious that the higher number of tickets a process has, the more likely it is picked up by the scheduler. And once the process is picked by the scheduler, it is executed by the CPU.  
 
 Imagine that there are two processes: process A and process B and let's assume that the integer value (the number of tickets) is 50 for both of them. If we pick process from the queue first time randomly, we will get process A with 50% probability and process B with 50% probability. 
 
@@ -1098,7 +1123,37 @@ In **static** scheduling algorithms, a **scheduling table** is created in advanc
 
 If the scheduling algorithm is **dynamic**, this means that **the order of the processes that will be executed is not prdetermined** and **it can change** during the runtime **based on current system state, durations and urgency of the tasks, etc**. **Dynamic scheduling algorithms is commonly used in soft real-time systems.**
 
-So we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
+Let's now dive into different types of scheduling algorithms used in real-time systems. 
+
+### Earliest Deadline First (EDF) 
+
+In EDF, **the processes are prioritized based on their deadlines**. The process that has the **earliest deadline is assigned the highest priority** and therefore, it is **executed first**. The **deadlines to the processes are typically assigned by**:
+
+- **System designers/developers** during the design phase of a real-time system
+- **Application programmers** who code real-time applications
+- **Predefined rules**
+- **Higher-level scheduling algorithms**
+
+Here is how EDF works: 
+
+1) **After the processes are assigned a deadline**, the **scheduler maintains a priority queue of processes that are ready to be executed**.
+2) Then **processes are sorted by their deadline** (As we mentioned earlier, earlier deadlines are assigned higher priority)
+3) The **CPU executes the highest priority** (earliest deadline) task
+4) **When a new process arrives**, the **scheduler evalutes the priorities again** 
+
+If the **deadline of the new process is higher than the deadline of the currently running process**, **current process is stopped** and the **new process starts being executed.** In other words, EDF is preemptive. 
+
+### Rate Monotonic Scheduling (RMS) 
+
+IN RMS, the **processes are prioritized based on their periods**. The **process that has the shortest period is assigned the highest priority** and therefore, it is **executed first**. Once **a priority is assigned to a process**, this **priority does not change dynamically**. 
+
+In addition, there is a preemption in RMS. In other words, if the period of the new process is shorter than the period of the currently running process, the current process stops being executed because the priority of the new process is higher. Then, the new process starts being executed.
+
+Lastly, it is possible to analyze the schedulability of the RMS. Let's say that we have a set of n periodic processes. 
+
+So, we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
+
+## Other Scheduling Algorithms
 
 ## Thread Scheduling
 
@@ -1111,24 +1166,24 @@ Because threads are lightweight processes, and they share the same address space
 Like we do in process scheduling, **we can also execute multiple threads in parallel if there are multiple cores.**
 
 So in thread scheduling, we have **two levels of parallelism:**
-**- processes**
-**- threads within these processes**
+- **processes**
+- **threads within these processes**
 
 If threads are **implemented** in the **kernel**, **thread management** is handled by the **kernel**. If the **threads are implemented** in the **user-space**, **thread management** is **handled by thread libraries**. 
 
-So until now, we talked about the scenarios in in which there is only one CPU. But what if there are multiple CPUs ? How we can handle scheduling in that case ? 
+Until this point, we talked about the scenarios in in which there is one CPU. But what if there are multiple CPUs ? How we can handle scheduling in that case ? 
 
 ## SMP (Symmetric Multi Process) Scheduling
 
 Modern computers can have 100s of CPUs. And **SMP** refers to a **computer architecture in which multiple CPUs are connected to a shared main memory**. In SMP systems, **each process has equal level of access to the memory and IO devices.**
 
-And **each scheduler has its own scheduler** which is responsible from **scheduling the threads in that CPU**. That's why **each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum).** Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
+And **each CPU has its own scheduler** which is responsible from **scheduling the threads in that CPU**. That's why **each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum).** Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
 
 **New processes**, which are created with fork(), **or threads**, which are created with clone(), are **generally assigned to the local CPU where the process/thread creation request is made**. And **if the process/thread load vary across different CPUs, the workload becomes imbalanced across different CPUs**.
 
 And **when imbalances occur in the workloads of different CPUs**, **the resources in the CPUs that have small amount of workloads might be idle for a long time while some other CPUs might be overloaded**. 
 
-**This is not the situation we want because we don't want the resources to be idle**. In addition to this, **when imbalances happen** **some proceses/threads receive more CPU time compared to others and this decreases fairness**, **reduce overall responsiveness**, and **user experience**. 
+**This is not the situation we want because we don't want the resources to be idle**. In addition to this, **when imbalances happen**, **some proceses/threads receive more CPU time compared to others and this decreases fairness**, **reduce overall responsiveness**, and **user experience**. 
 
 Therefore, we should find a way to solve this problem.
 
@@ -1136,43 +1191,35 @@ Therefore, we should find a way to solve this problem.
 
 One way to solve this problem is **letting the CPUs to steal work from other CPUs occasionally**. 
 
-**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs.
+**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make **informed decisions about whether** or not it should **steal** **work** from other CPUs and what kind of **processes it should execute from other CPUs**. And when a CPU is idle and decides to steal work from other CPUs, **small jobs** are **preferred** over the long ones. 
 
-**!Slides 29-35 are skipped!**
+After covering the execution units (processes, threads), what kind of information they carry, their differences and similarities, how these execution units are created, how they are implemented, how they are scheduled, when they are executed, and  when they are terminated, etc., now this might be a good time to explain how these execution units work with each other. 
 
-## Comparing Scheduling Algorithms Outcomes
+# Communication Between Execution Units
 
-Let's say that our input is like the one below:
+## Inter-Process Communication
 
-# Inter-Process Communication
+Sometimes there might be **multiple processes** that **need to work with each other and share resources to be able to finish their executions** successfully and efficiently.
 
-In computer, there are programs that basically consists a set of instructions that are written to handle specific tasks. 
+But when they work together,
 
-These instructions/codes are stored in the disk or memory and they need to be executed by the CPU to give us what we want. 
+1) **How these processes will pass information** to each others ? 
+2) **How will they ensure that they don't interfere** with each other.
+3) **How to order the processes properly if there is a dependency between them** ? *(e.g., If process A produces data and process B prints these data, process B has to wait until process A produce data to print.)*
 
-When these set of instructions are executed, we can call the process of the execution of these instructions as **process**.
+We have mentioned that **multiple processes may share** the same resources. And one of the resources they may share might be **storage** (e.g. main memory, shared file). 
 
-Sometimes there might be multiple processes that need to work with each other and share resources to be able to finish their executions successfully and efficiently.
+Print spooler is a perfect example to this. A print spooler is basically a program/software that puts the print jobs that are sent from an application to a spooler directory (which can be seen as temporary data storage). When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
 
-In addition, before we handle the communication between the processes, it is important to stop and think about the 3 key points:
+**With this procedure, the print jobs do not need to be sent to the printer directly**. The benefit of applying this procedure is that sending print jobs to the printer directly could cause two print jobs to interfere with each other if multiple users would try to use the printer simultaneously. And by **storing the print jobs in a temporary place** this way, **extracting a print job from that temporary place**, and **giving the resource to it whenever the resource becomes available**, we can **prevent this kind of interference between processes**. 
 
-1) How these processes will pass information to each others ? 
-2) Ensuring that two processes don't interfere with each other.
-3) Ordering the processes properly if there is a dependency: *If process A produces data and process B prints these data, process B has to wait until process A produce data to print.*
-
-We have mentioned that sometimes multiple processes can share the same resource. And one of the resources they may share might be storage (e.g. main memory, shared file). 
-
-Print spooler is a perfect example to this. A print stooler is basically a program/software that puts the print jobs that are sent from an application to a spooler directory (which can be seen as temporary data storage). When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
-
-With this procedure, the print jobs do not need to be sent to the printer directly. The benefit of applying this procedure is that sending print jobs to the printer directly could cause two print jobs to interfere with each other if multiple users would try to use the printer simultaneously. And by storing the print jobs in a temporary place this way, extracting a print job from that temporary place, and giving the resource to it whenever the resource becomes available, we can prevent this kind of interference between processes. 
-
-Also, if we wouldn't use spooler directory, processes wouldn't be aware of each other at all.
+Also, **if we wouldn't use spooler directory, processes wouldn't be aware of each other at all.**
 
 Okay, using a shared storage like this is cool but it actually brings an important issue: **race condition**. 
 
-**Race Condition**: It is a situation in which two or more processes attempts to do their operatings at the same time. When two or more processes read from the same resource and also write into the same resource at the same time, a race condition occurs. Because processes are kind of racing with each other to do their tasks.
+**Race Condition**: It is a situation in which **two or more processes attempts to do their operatings at the same time.** When **two or more processes read from the same resource and also write into the same resource at the same time, a race condition occurs.** Because **processes are kind of racing with each other to do their tasks.**
 
-# Intra-Process Communication
+## Intra-Process Communication
 
 Until this point, we have mentioned about the processes as well as the inter-process communication. And one thing to note is that in processes, there might be multiple smaller units of execution and we call these units **threads**. If there are multiple threads in a process, these threads work together and share the same address space and other resources. Therefore, there should be some kind of communication between them as well. 
 
@@ -1184,51 +1231,55 @@ And before we handle the communication between the threads, the 3 key points tha
 
 So, the ability of the multiple processes/threads to access/modify the shared resources simultaneously is cool but it is important to note that this situation may (and will) end up with many problems if it is not handled properly.
 
-For instance, when multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations must be performed in order to ensure data consistency and integrity. This sequence of operations is what we call **Read-Modify-Write Cycle**. The overall goal is for the code to access to the consistent and same view of the data. 
+For instance, when multiple processes or threads are accessing/sharing/modifying the shared data, a specific sequence of operations is performed. This sequence of operations is what we call **Read-Modify-Write Cycle**. 
 
-### Read-Modify-Write Cycles
+## Read-Modify-Write Cycles
 
 - **Read**: Reading the current value of a memory location from the memory is called **read**.
 - **Modify**: Some operation is performed on the value that was read from a memory location and this is called **modify**. 
 - **Write**: The modified value is written back to the same memory location from where the value was read in the first step.
 
-One note is that some parts of this cycle should be atomic. Otherwise, we may end up with race conditions and data inconsistency. 
+But if the code is executed by multiple processes/threads that access to the same data concurrently, we may end up with race conditions and data inconsistency. 
 
-# Preventing Race Conditions
+This is not what we want because our expectation is that processes/threads access to same data consistently. So how we can prevent race conditions ? 
 
-One simple way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared resource at the same time. In other words, if one process or thread accesses to a shared resource, all the other processes or threads should be excluded from doing the same thing and we call this **mutual exclusion**.
+## Preventing Race Conditions
+
+One simple way to prevent race conditions is to prevent more than one process or thread from reading and modifying the shared resource at the same time. In other words, when one process or thread accesses to a shared resource, all the other processes or threads should be excluded from doing the same thing during that time and we call this **mutual exclusion**.
 
 And the section of the program/codes in which shared resources are accessed is called **critical region**. 
 
 If we can develop a system in which two or more processes would never be within their critical regions at the same time, we can prevent race conditions. 
 
-But the issue is that if we develop only this rule (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) we can prevent race conditions but this also prevents parallel processes from cooperating correctly and to using shared resources efficiently. 
+But the issue is that if we develop only this rule (in other words if we only try to prevent multiple processes from being in their critical regions at the same time) that may still not be very efficient. 
 
-For example, preventing multiple processes to be within their critical regions at the same time does not prevent a process that is **running outside of its critical region** to **block another process** that is running in its **critical region**. This kind of block is unnecessary because it may cause delays and does not bring any benefit. Therefore, we should add additional rules to make the system more efficient and scalable: 
+For example, preventing multiple processes to be within their critical regions at the same time does not prevent a process that is **running outside of its critical region** to **block another process** that is running in its **critical region**. This kind of block is unnecessary because it may cause delays and does not bring any benefit. Therefore, we should add additional rules to prevent the race conditions in an efficient way: 
 
-1) We shouldn't take the speed or the number of CPUs into account. (Not relying on assumptions about the speed of processors or the number of them helps us to develop methods that can be used in different systems)
-2) If there is a process running outside its critical region, it shouldn't block any process. (This will ensure that processes do not block each other unnecessarily when they are **not** accessing shared resources)
-3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
+1) We shouldn't take the speed or the number of CPUs into account. *(Not relying on assumptions about the speed of processors or the number of them helps us to develop methods that can be used in different systems)*
+2) If there is a process running outside its critical region, it shouldn't block any process. *(This will ensure that processes do not block each other unnecessarily when they are **not** accessing shared resources)*
+3) There should be no process that is waiting to enter its critical region forever. *(This will prevent starvation)*
 
-in addition to the first condition that we defined previously 
+In addition to the first condition that we defined previously
 
 4) Two processes should not be in their critical regions at the same time.
 
 Now let's try to find a method that can meet all of these four rules. 
 
-# Mutual Exclusion with Busy Waiting
+### Mutual Exclusion with Busy Waiting
 
-Let's say that there is a process that is currently in it's critical region. And let's call it process A. One of the conditions of preventing race conditions was to prevent all other processes from entering their critical regions if process A is in it's critical region. 
+Let's say that there is a process that is currently in it's critical region. And let's call it process A. One of the conditions of preventing race conditions was to prevent other processes from entering their critical regions that access the same shared resources if process A is in it's critical region. 
 
 The simplest way to do this is using **interrupts**. 
 
-Interrupt is basically a signal/notification that is sent by hardware or software to the CPU. It indicates that an event happened that requires attention. The interrupts can be generated by external devices such as keyboard, mouse, etc. or internal system components such as disk controller, timer, etc. One way to represent interrupts is using a vector of numerical values associated with a specific interrupt type. 
+Interrupt is basically a signal/notification that is sent by hardware or software to the CPU. It indicates that an event happened that requires attention. 
 
-When an interrupt happens, the information of the currently executed process (e.g. registers, program counter, etc.) is saved and the control is transferred to the interrupt handler, which is a software that is responsible from handling interrupts. And the intrrupt handler performs the necessary actions. 
+Interrupts can be generated by external devices such as keyboard, mouse, etc. or internal system components such as disk controller, timer, etc. One way to represent interrupts is using a vector of numerical values associated with a specific interrupt type. 
+
+Context switches are triggered by either time interrupts or IO or other types of interrupts. When an interrupt happens, the information of the currently running execution unit (e.g. registers, program counter, etc.) is saved, the control is transferred to the interrupt handler, which is a software that is responsible from handling interrupts. And the interrupt handler performs the necessary actions. 
 
 So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, only one process can be in its critical region and therefore process A can access/modify the shared memory exclusively without the fear of intervention. 
 
-But using only this approach is not the best option because it is not a good practice to give the process in the user space the ability to turn on/off the interrupts since the process may forget to turn on the interrupt after leaving its critical region and that would cause many problems. In addition, disabling interrupts from the user space will affect only the CPU that executed the process A. In this case, we actually don't prevent the processes **in other CPUs** intervening the process A and entering their own critical regions while the process A is in its critical region. 
+But using only this approach is not the best option because it is not a good practice to give the process in the user space the ability to turn on/off the interrupts since the process may forget to turn on the interrupt after leaving its critical region and that would cause many problems. In addition, disabling interrupts from the user space will affect only the CPU that executes the process A. In this case, we actually don't prevent the processes **in other CPUs** entering their own critical regions that access the same shared resources with the process A.
 
 So, using interrupts is not the best way to provide mutual exclusion. Let's look at another way to provide mutual exclusion.
 
@@ -1236,9 +1287,9 @@ So, using interrupts is not the best way to provide mutual exclusion. Let's look
 
 For example, if the process A enter its critical region, it can set this lock variable to 1, which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions after the lock variable is set to 1 by the process A, they will see that lock variable is 1 and they will have to wait until the lock variable is set to 0 by the process A (which means that process A stopped accessing to the shared resource, left its critical region and one process can now enter its own critical region and access to the shared resource).
 
-But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter with print spooler: what if two processes see the lock variable as 0 and enter their critical regions simultaneously ? 
+But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter in read-modify-write cycle: if multiple processes perform this cycle, and tries to access the shared data/resources simultaneously, race condition may occur. For example two processes may read the lock variable as 0 simultaneously, both modify it to 1, and then write back the value 1. This would allow both processes to enter the critical section at the same time, and maybe modify the shared data/resources simultaneously. And this results in data inconsistency which is not something we want. 
 
-Now, let's say that there are two processes: 
+In addition, when we implement only lock variables, a process that is running outside its critical region may block another process. For example, let's say that there are two processes: 
 
 ```
 Process A:
@@ -1275,44 +1326,42 @@ That's why, this kind of procedure is not a good solution because it violates th
 3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
 4) Two processes should not be in their critical regions at the same time.
 
-So we can conclude that using lock variables solely is not the best method to achieve mutual exclusion. So, let's take a look at other methods.
+So we can conclude that using lock variables solely is not the best method to prevent race conditions. Let's take a look at other methods.
 
-## Peterson's Solution for Achieving Mutual Exclusion
+### Peterson's Solution for Achieving Mutual Exclusion
 
 ```
 #define FALSE 0
 #define TRUE 1
 #define N 2
-
 int turn;          
-int interested[N];
-  // interested = [. , .]
+int interested[N] = {FALSE, FALSE};  // Initially no process is interested
 
 void enter_region(int process) {
-  int other;
-
-  other = 1 - process;
-    // Other process. If the current process is 0, other process will be 1.
-    // If current process is 1, other process will be 0.
-
-  turn = process;
-    // Which process' turn to enter its critical region ?
-
-  while (turn == process && interested[other] == TRUE) {}
-    // If its current process turn and and the other process is in its critical region,
-    // keep waiting until the other process leaves its critical region,
-    // in other words until interested[other] == FALSE.
+  int other = 1 - process;
+  
+  interested[process] = TRUE;  // Indicate interest in entering critical section
+  turn = process;              // Set turn to this process
+  
+  // Wait if other process is interested AND it's their turn
+  while (interested[other] == TRUE && turn == process) {}
 }
 
 void leave_region(int process) {
-  interested[process] = FALSE;  
+  interested[process] = FALSE;  // No longer interested
 }
-
 ```
+
+In this method, here is how the workflow looks like: 
+
+1) The process A shows its interest in entering its own critical region.
+2) It sets the turn variable to itself.
+3) If another process (let's call it process B) is also interested, this means that it is already in its critical region. In that case, if it's the turn of the process A, the process waits until the other process leaves its critical region (in other words until `interested[other] = FALSE`) and/or it becomes the another process's turn. When this condition is met, the process A enters its critical region.
+4) The process A leaves its critical region after doing what it should do and sets interested[process] as FALSE to show that it is not in its critical region anymore.
 
 The other methods that are used to do ensure mutual exclusion are called **Test and Set Lock** and **XCHG**.
 
-## TSL (Test and Set Lock)
+### TSL (Test and Set Lock)
 
 ```
 enter_region:
@@ -1344,7 +1393,7 @@ leave_region:
     | Returns, allowing other threads to attempt to acquire the lock.
 ```  
   
-## XCHG
+### XCHG
 
 ```
 enter_region:
@@ -1353,7 +1402,6 @@ enter_region:
     | Load the value of 1 into the register.
 
   XCHG REGISTER, LOCK
-    | Swap the value of the register with the lock.
     | Let's say that the current value of the lock is 0.
     | This means that the lock is available and there is no process
     | that is in its critical region right now. 
@@ -1365,7 +1413,7 @@ enter_region:
     | So, by storing the initial value of the lock (0) in the register
     | and using the swap operation,
     | we can check the initial value of the lock and set the lock variable
-    | to a desired state in an atomic operation.
+    | to a desired state in an atomic way.
     | And this atomic operation prevents the situation in which
     | one process (e.g. process A) checks the lock variable and
     | another process (e.g. process B) acquires the lock
@@ -1397,15 +1445,15 @@ leave_region:
 
 So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion were correct. But the thing is they had some issues. 
 
-For instance, they had the defect of **busy waiting**. In other words, when a process wanted to enter its critical region, it checked to see whether it is allowed to enter. If this was not the case, the process just waited until the its entry was allowed. And the problem is that this waiting process wastes the CPU time. That's why it should be avoided.
+For instance, they had the defect of **busy waiting**. In other words, when a process wants to enter its critical region, it checks to see whether it is allowed to enter. If this is not the case, the process just waits until its entry is allowed. And the problem is that this waiting process wastes the CPU time. That's why it should be avoided.
 
 In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering its critical region when process B is in its critical region and holding the lock variable. And this is called **priority inversion**. 
 
-So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
+So in the next steps, we will try to find a way to **eliminate the busy waiting and priority inversion** problems as much as possible. 
 
 Let's try to do the lock implementation by reducing the busy waiting. 
 
-# Lock Implementation with Semi-Busy Waiting 
+### Lock Implementation with Semi-Busy Waiting 
 
 ```
 mutex_lock: 
@@ -1432,7 +1480,7 @@ mutex_lock:
     | Runs the mutex_lock again with a new process/thread.
 
   RET
-    | Returns, allowing the process to acquire the lock and enter its critical region.
+    | Returns. This allows the process to acquire the lock and enter its critical region.
 
 mutex_unlock:
 
@@ -1440,14 +1488,14 @@ mutex_unlock:
     | Releases the lock, and stores the value of 0 in the mutex lock variable.
 
   RET
-    | Returns, allowing other threads to attempt to acquire the lock.
+    | Returns. This allows other threads to attempt to acquire the lock.
 ```
 
 Okay with this new method, we now reduced the **busy waiting** by scheduling another process/thread instead when the lock is not available for a process.
 
 Note that when a process/thread tries to acquire a lock, if the lock is not available for that process, we call this **lock contention**
 
-# Lock Contention
+## Lock Contention
 
 Lock contention depends on 
 
@@ -1455,49 +1503,51 @@ Lock contention depends on
 2) the amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
 3) number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
 
-If the lock contention is low, this means that the length of time a process/thread spends to wait for the lock variable to be available is low. In other words, processes/threads don't wait too much and in that kind of scenario, TSL might be a good solution.
+**If** the **lock contention** is **low**, this means that the **length of time a process/thread spends to wait for the lock variable to be available is low**. In other words, **processes/threads don't wait too much** and in that kind of scenario, **TSL might be a solution** because in TSL, we just check if the lock is available or not. If it is available, it is locked and the process enters its critical region. If it is not, the process waits until the lock variable becomes available.
 
 Until now, we used lock variable to ensure that only one process can occupy the critical region at a time. We can do this with methods other than a simple lock variable as well. 
 
 Let's explain this in a new problem that is called **producer-consumer problem**.
 
-# Producer-Consumer Problem
+## Producer-Consumer Problem
 
-In producer-consumer problem, there are two processes. And they share a common buffer (temporary data storage) which it's size is fixed. 
+In producer-consumer problem, there are **two processes**. And they **share a common buffer** (temporary data storage) which it's size is fixed. 
 
-One of these two processes produces information and puts that information into this buffer. We can call this process **producer**. 
+**One** of these two processes **produces information** and **puts** that **information** into this **buffer**. We can call this process **producer**. 
 
-Another process takes this information from the buffer and uses it. We can call this process **consumer**. 
+**Another** process **takes** this information **from** the **buffer** and **uses** it. We can call this process **consumer**. 
 
-Now imagine that the buffer is full and there is no empty space. In that case, if the producer wants to put a new information into this buffer, that would cause a problem. One solution for the producer might be being forced to sleep until being awakened. And when the consumer removes one or more items from the buffer and buffer has empty slot(s), it can wake up the producer as well so that it can put its information into the buffer. 
+Now **imagine** that the **buffer is full** and there is no empty space. In that case, **if** the **producer** wants to **put** a **new information** into this buffer, that would cause a **problem**. One **solution** for the producer might be **being forced to sleep** until being awakened. And when the **consumer** **removes** one or more items **from the buffer** and **buffer has empty slot(s),** it can wake up the producer as well so that it can put its information into the buffer. 
 
-Similarly, if the buffer is completely empty, and if the consumer wants to remove an item from that buffer, that's a problem too since there is nothing to remove. And again one solution for the consumer might be being forced to sleep until being awakened. And when the producer puts information to the buffer and buffer has a non-empty slot, it can wake up the consumer as well so that it can extract the information from the buffer and use (consume) it. 
+Similarly, if the **buffer is completely empty**, and if the **consumer wants to remove an item** from that buffer, that's a **problem** too since there is **nothing to remove**. And again one solution for the consumer might be **being forced to sleep** until being awakened. And **when the producer puts information** to the buffer and **buffer has a non-empty slot**, **the producer can wake up the consumer** as well so that it can **extract the information from the buffer and use (consume) it.** 
 
 But there are some issues in these solution.
 
-If we look at from the producer's perspective: 
+If we look at from the **producer's perspective:**
 
-1) How can the producer know if a slot is free or not ?
-2) If the slot is not free, how can the producer know if it/when it will become free ?
+**1) How can the producer know if a slot is free or not ?
+2) If the slot is not free, how can the producer know if it/when it will become free ?**
 
-And if we look at from the consumer's perspective: 
+And if we look at from the **consumer's perspective:** 
 
-1) How can the consumer know if an information is available in the buffer ?
-2) If there is nothing available to consume in the buffer, how can the consumer know if/when an information will become available ?
+**1) How can the consumer know if an information is available in the buffer ?
+2) If there is nothing available to consume in the buffer, how can the consumer know if/when an information will become available ?**
 
 To answer these questions, we should first introduce a new concept named **Pipe**. 
 
 ## Pipe 
 
-Pipe is basically an inter-process communication mechanism that provides temporary storage between processes. A pipe is basically implemented with a buffer data structure in the kernel. And in the produer-consumer problem, the output of the producer is passed to this buffer and the consumer takes the information from the same buffer. 
+**Pipe** is basically an **inter-process communication mechanism** that **provides temporary storage between processes**. They can be created by **applications**. 
 
-When the buffer is full, pipe blocks the producer to put a new information to it. Similarly, when the buffer is empty, it blocks the consumer to prevent it to attempt consuming an information from an empty buffer. 
+A pipe is basically implemented with a **buffer data structure** in the kernel. And in the produer-consumer problem, the **output of the producer is passed to this buffer** and the **consumer takes the information from the same buffer**. 
 
-And when a space becomes available in the buffer, the pipe unblocks the producer. Similarly, when some data becomes available in the buffer, the pipe unblocks the consumer. 
+When the **buffer** is **full**, **pipe blocks the producer** to put a new information to it. Similarly, **when the buffer is empty**, **pipe blocks the consumer** to prevent it to attempt consuming an information from an empty buffer. 
 
-So, in summary pipe is a unidirectional data channel that can be used for inter-process communication. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
+And **when a space becomes available in the buffer**, **pipe unblocks the producer**. Similarly, **when some data becomes available in the buffer**, **pipe unblocks the consumer**. 
 
-So, now let's turn back to the producer-consumer problem. You can see a smiple application of this problem in below:
+So, in summary **pipe** is a **unidirectional data channel** that can be **used for inter-process communication**. You can create pipes between two processes or threads to ensure smooth data flow between processes/threads. 
+
+So, now let's turn back to the producer-consumer problem. You can see a simple implementation of this problem in below:
 
 ```
 #define N 100
@@ -1559,27 +1609,31 @@ void consumer(void) {
 
 Okay, we explained the producer-consumer problem, brought a new method (sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time. But there is still some issue. 
 
-In the producer-consumer problem above, the access to the count variable is not constrained. And as a result of this, we may encounter with a race condition. 
+In the producer-consumer problem above, **the access to the count variable is not constrained**. And as a result of this, **we may encounter with a race condition.** 
 
 ## Fatal Race Condition
 
 For instance, let's assume that the buffer is empty and the consumer reads the count variable as 0. At that moment, consumer starts sleeping. Then let's say that a scheduler starts running the producer. Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
-In another case, let's say that count value equals to 1 and consumer begins running its codes. It will first remove an item from the buffer since count is not 0. Then it will decrease the value of count from 1 to 0, and consume the item without waking up the producer since the buffer was not full before extracting the item from it. 
+In another case, **let's say that count value equals to 1** and **consumer begins running its codes**. **It will first remove an item from the buffer** since count is not 0. Then it will **decrease the value of count from 1 to 0**, and **consume the item without waking up the producer** since the buffer was not full before extracting the item from it. 
 
-So, after consuming the item, the consumer will start the loop again. At that moment, count value equals to 0. That's why the consumer will sleep. Sooner or later, the producer will produce items and fill the whole buffer. At that moment, consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever. 
+So, **after consuming the item**, **the consumer will start the loop again**. At that moment, **count value equals to 0**. **That's why the consumer will sleep.** 
 
-The main issue in these two scenarios is that the wakeup() call that is sent to a process that is not sleeping is lost. 
+Sooner or later, **the producer will produce items and fill the whole buffer** while the consumer is sleeping. At that moment, **consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever**. 
 
-So we can develop a new mechanism in that allows multiple processes to access to the shared resources simultaneously on the basis shared resource. We call this mechanism **semaphores**.
+The main issue in these two scenarios is that the **wakeup() call that is sent to a process that is not sleeping is lost**. 
 
-# Semaphores 
+So, we need to develop a new mechanism that prevents this issue and that also allows multiple processes to access to the shared resources in a sycnhronized way **on the basis of some shared resource (buffer)**. 
 
-A semaphore is an integer value just like mutex. But the only way to access it is through two separate operations that are called **wait()** and **signal()**.
+We call this new mechanism **semaphore**.
 
-- **wait():**  Decrements the value of the semaphore by 1 which means that the resource is acquired. Before this decrementation, if the value of the semaphore was 0 or negative, this means that resource(s) controlled by the semaphore was/were already being used. And after wait() operation decreases the value of the semaphore by 1, the value of the semaphore will be lower than 0. In that case, we add the current thread into the wait queue, because of the lack of available resources, block it (since it cannot access to the shared resource at this moment), and schedule another thread and run the wait() operation again to avoid spinning and wasting CPU time.
+## Semaphores 
 
-- **signal():** Increments the value of the semaphore by 1 which means that the process/thread that was using a resource left its critical region and stopped accessing to that resource. If the semaphore value was negative before this increment, this means that there were waiting processes/threads in the wait queue. And after we release the resource and increment the value of semaphore by 1, one of these waiting processes/threads can now start using that resource. So in that condition, we pick one thread from the wait queue and add it to the scheduler.
+A semaphore is a data type like integer just like mutex. But the only way to **access** it is through two separate operations that are called **wait()** and **signal()**.
+
+- **wait():**  **Decrements the value of the semaphore by 1** which means that the **resource is acquired**. **Before** this **decrementation**, if the **value** of the **semaphore** was **0** or **negative**, this means that **resource(s)** controlled by the semaphore was/were **already being used**. **After** wait() operation **decreases** the value of the semaphore **by 1**, the value of the semaphore **will be lower than 0**. In that case, **we add the current thread into the wait queue**, because of the **lack of available resources**, **block** it (since it cannot access to the shared resource at this moment), and **schedule another thread** and **run the wait() operation again to avoid spinning and wasting CPU time**.
+
+- **signal():** **Increments the value of the semaphore by 1** which means that the **process/thread** that was **using a resource** **left its critical region** and **stopped accessing to that resource**. If the **semaphore** value **was negative before this increment**, this means that **there were waiting processes/threads in the wait queue**. And **after we release the resource and increment the value of semaphore by 1**, **one of these waiting processes/threads can now start using that resource**. So in that condition, **we pick one thread from the wait queue** and **add it to the scheduler.**
 
 You can see the implementation of Semaphore below:
 
@@ -1612,14 +1666,15 @@ void Semaphore::Init(int v) {
 
 void Semaphore::wait() {                  
   value--;
-    // Decrement the value of semaphore by 1.
+      // Decrement the value of semaphore by 1.
 
   if (value < 0) {
 
     waitQ.add(current_thread);
       // If the new value of the semaphore is negative,
       // this means that resource(s) controlled by the semaphore was already being used.
-      // In that case, add current thread into the wait queue because of the lack of available resources.
+      // In that case, add current thread into the wait queue
+      // because of the lack of available resources.
 
     current_thread->status = blocked;
       // Update the status of the thread as "blocked"
@@ -1680,12 +1735,11 @@ We can put the **signal()** call after A2, and **wait()** call before B4. Throug
 
 So if we want to summarize: semaphores are elegant solutions for sycnhronization of the processes/threads. But a **race condition** can **occur** like in the other methods if multiple processes/threads try to **execute the wait() and signal() operations simultaneously**. 
 
-For instance, if one thread is in the middle of decrementing the semaphore value by using wait() operation and another thread tries to increment the same value in signal() operation at the same time, that will cause race condition. 
+For instance, **if one thread** is in the middle of **decrementing the semaphore value** by using **wait()** operation and **another thread** tries to **increment** the same value with **signal()** operation at the same time, that will **cause race condition.**
 
 Therefore, we must **impement the wait() and signal()** operations in **atomic** way so that they should be executed exclusively.
 
 We can make the wait() and signal() operations atomic by using **lock variable** 
-
 
 ```
 class Semaphore {
@@ -1829,15 +1883,15 @@ Consumer(T &item) {
 }
 ```
 
-So, semaphores are great but like all the other methods, they have some downsides as well:
+So, **semaphores are great** but like all the other methods, they **have some downsides** as well:
 
-- It is not always easy to write the codes with semaphores.
-- If a thread dies while holding a semaphore, the permit to access to a shared resource is basically lost. And this can prevent other threads being blocked from accessing shared resource even. That's why we need to be extra careful when constructing the semaphores.
+- It is **not** always **easy to write** the codes with semaphores.
+- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can prevent other threads being blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
 
-In addition, they may cause a situation in which the processes had to wait for resources(s) forever. To avoid this situation, we should
+In addition, they **may cause a situation in which the processes had to wait for resources(s) forever**. **To avoid this** situation, we should
 
-- acquire the multiple locks in the same order.
-- release the locks in reverse order ideally.
+- **acquire the multiple locks in the same order.**
+- **release the locks in reverse order ideally.**
 
 And we can show how these solutions work in an example. In below, we can see two very similar but different codes: 
 
@@ -1896,39 +1950,36 @@ typedef int semaphore;
   }
 
 ```
+In the second case, **process A can acquire the resource 1**, and **process B can acquire the resource 2**. Then **process A will attempt to acquire the resource 2** but **it won't be able to** because the **resource 2 is hold by the process B**. 
 
-In the second case, process A can acquire the resource 1, and process B can acquire the resource 2. Then process A will attempt to acquire the resource 2 but it won't be able to because the resource 2 is hold by the process B. 
+Similarly, **process B will attempt to acquire the resource 1** but **it won't be able to because the resource 1 is hold by the process A**. This is called **deadlock** and both processes will wait to hold a resource forever.
 
-Similarly, process B will attempt to acquire the resource 1 but it won't be able to because the resource 1 is hold by the process A. This is called **deadlock** and both processes will wait to hold a resource forever.
-
-But by acquiring locks in the same order and releasing them in the reverse order we can avoid deadlock.
+But by **acquiring locks in the same order** and **releasing them in the reverse order we can avoid deadlock.**
 
 Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
 
-**!!Lecture 4 - Slides between 50 and 72 are passed!!**
+## Deadlock vs Starvation
 
-# Deadlock vs Starvation
+- **Deadlock**: This occurs when the **processes wait for a resource that will never be available**. 
+- **Starvation** The **resource can become available at some point** but **if a process cannot get access to that resource**, **that process will experience starvation**. In other words, **the process waits for its turn but its turn never comes even if there is an available resource**.
 
-- **Deadlock**: This occurs when the processes wait for a resource that will never be available. 
-- **Starvation** The resource can become available at some point but if a process cannot get access to that resource, that process will experience starvation. In other words, the process waits for its turn but its turn never comes even if there is an available resource.
-
-Deadlock occurs when **none** of the processes are able to move ahead while starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward. 
+**Deadlock occurs** when **none** of the processes are able to **move ahead** while **starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward**. 
 
 If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependency between processes to move forward. Deadlock occurs among processes that are waiting to acquire resources in order to progress forever.
 
 Okay we compared the deadlock and starvation and explained their differences but we also talked about the resources. What are the things that we call **resource** in general ? 
 
-# Resources
+## Resources
 
-If we want to explain simply, we call anything that needs to be 
+If we want to explain simply, we call **anything** that **needs** to be 
 
-1) acquired
-2) used
-3) released
+1) **acquired**
+2) **used**
+3) **released**
 
  **resource**. 
 
-So, a printer, lock variable, or semaphore, for instance, can be seen as resources because they all need to be acquired, used, and then released.
+So, a **printer**, **lock variable**, or **semaphore**, for instance, can be seen as resources because they all need to be acquired, used, and then released.
 
 The resource can be **preemptable** or **nonpreemptable** as well. In other words, sometimes, you can take away some resources from the process while the process is actively using that resource. These resources are preemptable. But not all the resources are like this. There are also other resources that cannot/should not be taken away from the process if it is actively using it. 
 
@@ -1945,36 +1996,36 @@ One thing to note is that when we explained the deadlocks, we have made some **a
 
 And now, let's explain the **conditions of a deadlock**
 
-- Each resource is either available or assigned to exactly one process
-- Only one process can use a resource at a time. In other words, the resources cannot be used by multiple processes at the same time.
-- Processes that are holding resources can request new resources.
-- Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.
-- There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain
+- **Each resource is either available or assigned to exactly one process**. Because if resources could be shared, processes would not need to wait for exclusive access to them. 
+- **Only one process can use the resource at a time. In other words, the resources cannot be used by multiple processes at the same time.** If multiple processes could use a resource at the same time, they would not need to wait for each other.
+- **Processes that are holding resources can request new resources.** Because if a process holding resources requests new resources, which are held by other processes, this will cause circular dependency which is one of the other conditions of deadlock.
+- **Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.** Because if resources could be taken away, the system could resolve resource conflicts and avoid deadlocks.
+- **There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain** The circular chain is a fundamental characteristic of a deadlock, as it creates a situation where no process can make progress.
 
 Well, it is good to know the conditions of a deadlock but another important question that we should answer is: when the deadlock happens, how can we deal with them ? 
 
-# How to Deal with Deadlocks ? 
+## How to Deal with Deadlocks ? 
 
-- You can ignore them.
-- Let the deadlock occurs, detect it, and take an action.
-  -  We can dynamically manage the resources to avoid deadlock. **(Deadlock Avoidance)**
-  -  We can also break one of the conditions of the deadlock and prevent the deadlock. **(Deadlock Prevention)**
+- You can **ignore** them.
+- **Let** the deadlock **occurs**, **detect** it, and **take** an **action**.
+  -  We can **dynamically manage the resources** to avoid deadlock. **(Deadlock Avoidance)**
+  -  We can also **break one of the conditions of the deadlock** and **prevent the deadlock**. **(Deadlock Prevention)**
 
-# Deadlock Detection and Recovery
+## Deadlock Detection and Recovery
 
-The system actually does not attempt to prevent the deadlock. It just detects the deadlock as it happens. And once it detects the deadlock, it takes actions to recover.
+The **system** actually **does not attempt to prevent the deadlock**. It **just detects the deadlock as it happens**. And **once** it **detects** the deadlock, **it takes actions to recover**.
 
-But the question is: how we can detect the deadlock ? 
+But the question is: **how we can detect the deadlock ?**
  
-## Deadlock Detection with One Resource of Each Type
+### Deadlock Detection with One Resource of Each Type
 
-If there is only 1 resource for each type, constructing a resource graph is a good way to detect the deadlock. Because if we detect a cycle in that graph, this means that there is a deadlock.
+If there is only 1 resource for each type, in other words if the resources that are used by the processes are unique, constructing a resource graph is a good way to detect the deadlock. Because **if we detect a cycle in that graph, this means that there is a deadlock.**
 
 We can give a system that has one scanner, one plotter, one tape-drive as an example of a system in which there is one resource of eacy type. Having two printers, however, would break the rule. 
 
 Okay now the question is: how to detect cycles ? We can detect it by simply looking at it but how a computer can detect a cycle in a graph ? 
 
-## Formal Algorithm to Detect Cycles
+### Formal Algorithm to Detect Cycles
 
 For each node in the graph: 
 
@@ -1987,43 +2038,43 @@ For each node in the graph:
 4) Pick an unmarked and outgoing arc randomly and mark it. Then follow it to the new node and jump into step 2.
 5) If the current node is visited first time, this means that there is no cycle and we terminate the algorithm. Otherwise, we are in dead end and we remove the node and go back to the previous node. Then we jump into the 2nd step.
 
-Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: when to check for deadlocks ? 
+Okay we have mentioned about the deadlocks, conditions of the deadlock, and how to teach the computer to detect them but one another question is: **when to check for deadlocks ?** 
 
-# When to Check Deadlocks ? 
+## When to Check Deadlocks ? 
 
-- We can check when a resource is requested but this might be very expensive to run.
-- We can check periodically (e.g. every x minutes)
-- We can also check when CPU utilization drops to a level that is lower than a specific threshold. Because if the CPU utilization is low, this means that the amount of time spent for idle tasks is high. And this means that some processes or threads are not making enough progress and it may be because of the deadlock.
+- We can check **when a resource is requested**.
+- We can check **periodically** (e.g. every x minutes)
+- We can also **check when CPU utilization drops to a level that is lower than a specific threshold**. Because **if** the **CPU utilization** is **low**, this means that the **amount of time spent for idle tasks** is **high**. And this means that **some processes or threads** are **not making enough progress** and it may be because they are **endlessly waiting for a resource** and **cannot be able to progress** which means a **deadlock**.
 
 Okay let's say that we checked the deadlocks, and detected one. Now the question is: how we can recover from the deadlock ? 
 
-## 1) Recovering from Deadlock Through Preemption
+### 1) Recovering from Deadlock Through Preemption
 
-When a deadlock happens, we can take the resource away from its owner and give that resource to another process temporarily. And this requires manual intervention. We can recover from the deadlock throug this way but it is important to note that the decision of whether we should take away the resource from the process or not is highly dependent on the nature of resource. 
+When a deadlock happens, we can **take the resource away from its owner** and give that resource to another process temporarily. And this requires **manual intervention**. We can recover from the deadlock through this way but it is important to note that the decision of whether we should take away the resource from the process or not is **highly dependent on the nature of resource.**
 
-Also, this method is often not possible because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
+Also, this method is **often not possible** because taking the resource away from the process would cause unpredictable and nonoptimal behavior.  
 
-## 2) Recovering from Deadlock Through Rollback 
+### 2) Recovering from Deadlock Through Rollback 
 
-We can also save the information about the processes periodically (e.g. every x minutes). And when a deadlock happens, we can roll the process back to the previous checkpoint. 
+We can also **save the state of the processes periodically** (e.g. every x minutes). And **when** a **deadlock** happens, we can **roll the process back to its previous checkpoint.**
 
-But this method may cause significant delays. 
+But this method may **cause significant delays.**
 
-## 3) Recovering from Deadlock Through Killing Process 
+### 3) Recovering from Deadlock Through Killing Process 
 
-Another simple way to recover from deadlock is killing process(es). And we can continue killing processes until the deadlock is resolved. 
+Another simple way to recover from deadlock is **killing process(es).** And we can **continue killing processes until the deadlock is resolved.**
 
-One note is that killing a process outside of the cycle can release resources that can be used to fix the deadlock. So we can kill process(es) outside of the cycle as well. 
+One note is that **killing a process outside of the cycle can release resources that can be used to fix the deadlock**. So we can **kill process(es) outside of the cycle as well**. 
 
-So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to avoid them before they happen. 
+So, until now, we covered deadlocks, its conditions, how to detect them, and how we can recover from them, but we didn't mention about how to **avoid** them **before they happen.**
 
-# Deadlock Avoidance
+## Deadlock Avoidance
 
 Most of the times, the resources are requested one at a time and we don't see many cases in which process(es) request(s) mutliple resources at the same time.
 
 One main way to avoid deadlock is granting the resource **only if** it it is **safe** to grant the resource. But what do we mean by **safe** ? 
 
-## Safe and Unsafe States
+### Safe and Unsafe States
 
 If there is a sequence of order in which each process in the sequence can run and can be completed, that state is called **safe**. Even if every process requests the maximum number of resources immediately, as long as each process can run and finish without a problem, then the state is safe. 
 
@@ -2115,7 +2166,11 @@ C | 2 | 7
 Free: 3
 ```
 
-This is a **safe** safe. And now let's say that process A acquires one resource. 
+This is a **safe** safe. Because we can give the 3 resources to the process B. Then process B will return 4 resources and at that moment we will have 5 resources in total and we can give these 5 resources to the process C. Once the process C finishes its execution and releases its 7 resources, we will have 7 resources in total which is enough for the process A. So from this state, there is a guarantee that all processes will finish their execution. That's why this is called **safe state**. 
+
+The difference between a safe and unsafe state is that from a safe state the system can guarantee that all processes will finish; from an unsafe state, no such guarantee can be given
+
+But now let's say that process A acquires one resource in this state. 
 
 ```
 A | 4 | 9
@@ -2125,7 +2180,7 @@ C | 2 | 7
 Free: 2
 ```
 
-Now, this state is **unsafe** because the system cannot guarantee that all processes will finish unlike a **safe** state. Because at this step, we can give the available 2 resources only to process B,
+Once that happens, this state becomes **unsafe** because the system cannot guarantee that all processes will finish from here unlike a **safe** state. Because at this step, we can give the available 2 resources only to process B,
 
 ```
 A | 3 | 9
@@ -2145,13 +2200,13 @@ C | 2 | 7
 Free: 4
 ```
 
-So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this way is called **Banker's Algorithm**. 
+So in these examples, we tried to avoid the deadlock by using the concepts of **safe** and **unsafe** states. And avoiding the deadlock through this is the basis of a common resource allocation algorithm that is called **Banker's Algorithm**. 
 
-# Banker's Algorithm
+## Banker's Algorithm
 
 The main idea behind this algorithm is checking if granting a resource will lead to an **unsafe** state. If it won't, we just release the resource.
 
-## Applying Banker Algorithm to Single Resource
+### Applying Banker Algorithm to Single Resource
 
 ```
 A | 0 | 6
@@ -2186,7 +2241,7 @@ Free: 1
 (Unsafe)
 ```
 
-## Applying Banker Algorithm to Multiple Resources
+### Applying Banker Algorithm to Multiple Resources
 
 As in the single-resource case, processes must state their total resource needs before executing.
 
@@ -2231,49 +2286,51 @@ The Banker Algorithm looks nice in theory but it is practically **not useful** b
 - the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or some of the existing processes might vanish. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
-We talked about deadlock avoidance which basically means analyzing the resources dynamically and trying to make decisions that won't end up with deadlock. We can see deadlock avoidance as a more indirect way to prevent deadlocks before they happen.
+So checking the safety of states this way is a method of deadlock avoidance which basically means analyzing the resources dynamically and trying to make decisions that will help us to avoid deadlocks beforehand. We can see deadlock avoidance as a more indirect way to prevent deadlocks before they happen.
 
-But we can also try to prevent the system entering into deadlock directly by violating at least one of the conditions of deadlocks. And this is called **deadlock prevention**
+But we can also try to **prevent the system entering into deadlock directly** by **violating at least one of the conditions of deadlocks**. And this is called **deadlock prevention**
 
-# Deadlock Prevention 
+## Deadlock Prevention 
 
-We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. 
+We have mentioned about the conditions of the deadlock. For a deadlock to happen, all of those conditions were suppposed to be met simultaneously. And by violating at least one of these conditions, we can directly prevent the deadlock. Let's start with the first condition.
 
-## 1) Deadlock Prevention: Attacking the Mutual Exclusion
+### 1) Deadlock Prevention: Attacking the Mutual Exclusion
 
-One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource concurrently without waiting another process to release it. 
+One of the conditions of the deadlock was the mutual exclusion. In other words, if one process is accessing to the resource, no other process is allowed to use that resource until it is released. If we violate this rule, this means that the resources will become sharable among multiple processes simultaneously and these processes can access to the shared resource without waiting another process to release it. 
 
 Spooling can be a way to violate the mutual exclusion rule. A spooler is a program/software that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
 
-So attacking the mutual exclusion condition prevents the deadlock directly. But we cannot apply this procedure in all cases. Some resources should be exclusively accessed by one process at a time and in those cases, this solution cannot be used for those cases. 
+So attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
 
-## 2) Deadlock Prevention: Attacking the Hold and Wait Condition
+### 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
 Another condition of the deadlock was having process(es) that hold(s) a resource and that wait(s) a new resource to make progress. If we prevent this, in other words, if we prevent processes from waiting for new resources if they are currently holding resources, we can prevent the deadlock as well. 
 
-One way to do this is to make processes to request all of the resources at the same time before starting the execution.
+One way to do this is to make processes to **request all of the resources at the same time before starting the execution.**
 
-Imagine that there is a process named process A. If all the resources that process A needs are available, they can be allocated to the process A directly and process A can begin execution. But even if one the requested resources is not available, process A is not granted any of the resources and must wait until all the resources become available. And once the resources it needs are available to use, it can start. Through this way, we prevent incremental acquisition of the resources which is the potential cause of the deadlocks.
+Imagine that there is a process named process A. **If all the resources that process A needs are available**, they can be **allocated to the process A** directly and process A can begin execution. But even **if one the requested resources** is **not available**, process A is **not granted any of the resources** and must **wait until all the resources become available**. And once the resources it needs are available to use, it can start. Through this way, **we prevent incremental acquisition of the resources which is the potential cause of the deadlocks**.
 
-Another way is to make the process to release all the resources it holds when it wants to acquire new resources. After releasing all the resources, now it can try to acquire all the resources it needs at the same time. 
+**Another way** is to make the process to **release all the resources it holds** **when** it wants to **acquire new resources**. **After releasing all the resources**, now it can try to **acquire all the resources it needs at the same time**. 
 
-## 3) Deadlock Prevention: Attacking No Preemption Condition
+### 3) Deadlock Prevention: Attacking No Preemption Condition
 
-The third condition of the deadlock was not allowing preemption. So we can prevent the deadlock by preempting a resource from a process when the same resource is required by another process. 
+The third condition of the deadlock was not allowing preemption. So we can **prevent the deadlock by preempting a resource from a process when the same resource is required by another process**. 
 
-A good strategy to do this is virtualization. 
+A good strategy to do this is **virtualization**. 
 
-Virtualization allows multiple virtual machines/containers/etc. to share the same resources. Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logical view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. 
+**Virtualization allows multiple virtual machines/containers/etc. to share the same resources**. 
 
-If a process has been assigned the printer and it is in the middle of printing its output, taking away the printer would be tricky and sometimes impossible without this abstract layer. By using spooler, in other words virtualizing the resources, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now preempt the resources and as a result deadlocks. 
+Spooling, for instance, can be seen as virtualization. We can create an abstract layer that separates the logical view of the printer from the physical printer istelf. And after that, processes can interact with spooler instead of directly interacting with the physical printer. 
 
-However, one thing to note is that not all resources are eligible to be virtualized. 
+If a **process** has been **assigned** the **printer** and it is in the **middle** of **printing** its output, **taking away** the **printer** would be **tricky** and sometimes **impossible** **without this abstract layer**. **By** using **spooler**, in other words **virtualizing** the **resources**, spooling printer outputs to disk and allowing only printer daemon to access to the real printer, we can now **preempt** the **resources** and as a result of this we can **prevent deadlocks**. 
 
-## 4) Deadlock Prevention: Attacking The Circular Wait Condition 
+However, one thing to note is that **not all resources are eligible to be virtualized.** 
 
-**Method 1:** For us to observe the circular chain of dependencies, a process should hold one resource and wait another resource. So, if we have a rule forcing the processes to be entitled to a **single** resource at a moment, we can violate the circular wait condition and as a result prevent the deadlock. According to this rule, if a process needs a second source while holding another resource, it must first release the first resource. 
+### 4) Deadlock Prevention: Attacking The Circular Wait Condition 
 
-**Method 2:** Another way to violate the circular wait condition is having a rule forcing the processes to request resources in numerical order. They can request resources whenever they want as long as they request in numerical order. 
+**Method 1:** For us to **observe** the **circular chain of dependencies**, a process should **hold one resource** and **wait another resource**. So, if we have a **rule forcing the processes** to be **entitled to a single** resource at a moment, **we can violate the circular wait condition** and as a result **prevent the deadlock**. According to this rule, **if** a **process** **needs** a **second source while holding another resource**, it must **first release the first resource**. 
+
+**Method 2:** **Another way** to **violate** the **circular wait condition** is having a rule **forcing the processes to request resources in numerical order**. They can **request resources whenever they want** as long as they request **in numerical order**. 
 
 Let's say that we have these resources: 
 
@@ -2283,9 +2340,9 @@ Let's say that we have these resources:
 4) Tape Drive
 5) Blu-ray Drive
 
-So if we apply this method, a process may request printer first and then a tape driver second but it can never request a plotter first and then printer second. 
+So if we apply this method, a **process** may **request** **printer** first and then a **tape** **driver** second but it **can never request a plotter first and then printer second**. 
 
-If we have the process A and process B, and the resources are i and j, for instance, 
+If we have the **process A and process B**, and the **resources are i and j**, for instance, 
 
 ```
 A   B
@@ -2293,39 +2350,6 @@ A   B
 i   j
 ```
 
-at every instant, one of the assigned resources (i or j) will have the highest number. The process that is holding that resource will never ask for another resource that was already assigned. It will either be completed (if it doesn't require any other source) or request even higher numbered resources (and all of them will be available). This way, circular wait condition won't occur and as a result we won't see deadlock.
+**at every instant**, **one of the assigned resources** (i or j) will have the **highest number**. 
 
-# Conclusion 
-
-In summary, deadlocks can occur in hardware resources or software resources.
-
-And the operating system needs to 
-- try to avoid the as much as possible before they happen,
-- detect these deadblocks when they happen,
-- take actions and deal with them when they are detected.
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
+**The process** that is **holding that resource** **will never ask for another resource that was already assigned**. **It will either be completed** (if it doesn't require any other source) or **request even higher numbered resources** (and all of them will be available). This way, **circular wait condition won't occur** and as a result we **prevent deadlock**.
