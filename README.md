@@ -1177,13 +1177,13 @@ Until this point, we talked about the scenarios in in which there is one CPU. Bu
 
 Modern computers can have 100s of CPUs. And **SMP** refers to a **computer architecture in which multiple CPUs are connected to a shared main memory**. In SMP systems, **each process has equal level of access to the memory and IO devices.**
 
-And **each scheduler has its own scheduler** which is responsible from **scheduling the threads in that CPU**. That's why **each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum).** Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
+And **each CPU has its own scheduler** which is responsible from **scheduling the threads in that CPU**. That's why **each CPU is triggered by its own timer interrupt when a process/thread reaches its time limit of execution (time quantum).** Because each CPU is responsible from scheduling the processes/threads in it, the scheduling algorithm in each CPU might be called as **local scheduler** as well.
 
 **New processes**, which are created with fork(), **or threads**, which are created with clone(), are **generally assigned to the local CPU where the process/thread creation request is made**. And **if the process/thread load vary across different CPUs, the workload becomes imbalanced across different CPUs**.
 
 And **when imbalances occur in the workloads of different CPUs**, **the resources in the CPUs that have small amount of workloads might be idle for a long time while some other CPUs might be overloaded**. 
 
-**This is not the situation we want because we don't want the resources to be idle**. In addition to this, **when imbalances happen** **some proceses/threads receive more CPU time compared to others and this decreases fairness**, **reduce overall responsiveness**, and **user experience**. 
+**This is not the situation we want because we don't want the resources to be idle**. In addition to this, **when imbalances happen**, **some proceses/threads receive more CPU time compared to others and this decreases fairness**, **reduce overall responsiveness**, and **user experience**. 
 
 Therefore, we should find a way to solve this problem.
 
@@ -1191,33 +1191,33 @@ Therefore, we should find a way to solve this problem.
 
 One way to solve this problem is **letting the CPUs to steal work from other CPUs occasionally**. 
 
-**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make informed decisions about whether or not it should steal work from other CPUs and what kind of processes it should execute from other CPUs. And when a CPU is idle and decides to steal work from other CPUs, **small jobs** are preferred over the long ones. 
+**Each scheduler maintains an average workload history** so that **it can see how stable workload it had until now**. This helps it to make **informed decisions about whether** or not it should **steal** **work** from other CPUs and what kind of **processes it should execute from other CPUs**. And when a CPU is idle and decides to steal work from other CPUs, **small jobs** are **preferred** over the long ones. 
 
-After covering the execution units (processes, threads), what kind of information they carry, their differences and similarities, how these execution units are created, how they are implemented, when they are executed, and  when they are terminated, etc., now this might be a good time to explain how these execution units work with each other. 
+After covering the execution units (processes, threads), what kind of information they carry, their differences and similarities, how these execution units are created, how they are implemented, how they are scheduled, when they are executed, and  when they are terminated, etc., now this might be a good time to explain how these execution units work with each other. 
 
 # Communication Between Execution Units
 
 ## Inter-Process Communication
 
-Sometimes there might be multiple processes that need to work with each other and share resources to be able to finish their executions successfully and efficiently.
+Sometimes there might be **multiple processes** that **need to work with each other and share resources to be able to finish their executions** successfully and efficiently.
 
 But when they work together,
 
-1) how these processes will pass information to each others ? 
-2) How will they ensure that they don't interfere with each other.
-3) how to order the processes properly if there is a dependency between them ? *(e.g., If process A produces data and process B prints these data, process B has to wait until process A produce data to print.)*
+1) **How these processes will pass information** to each others ? 
+2) **How will they ensure that they don't interfere** with each other.
+3) **How to order the processes properly if there is a dependency between them** ? *(e.g., If process A produces data and process B prints these data, process B has to wait until process A produce data to print.)*
 
-We have mentioned that multiple processes may share the same resources. And one of the resources they may share might be storage (e.g. main memory, shared file). 
+We have mentioned that **multiple processes may share** the same resources. And one of the resources they may share might be **storage** (e.g. main memory, shared file). 
 
-Print spooler is a perfect example to this. A print stooler is basically a program/software that puts the print jobs that are sent from an application to a spooler directory (which can be seen as temporary data storage). When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
+Print spooler is a perfect example to this. A print spooler is basically a program/software that puts the print jobs that are sent from an application to a spooler directory (which can be seen as temporary data storage). When a process wants to print a file, for example, it enters the name of the file into the spooler directory which is where the information about the file is stored. And another separate process (printer daemon) periodically checks if there is any file in spooler directory to be printed. If there is a file to be printed, it's printed and then it's file name is removed from the spooler directory.
 
-With this procedure, the print jobs do not need to be sent to the printer directly. The benefit of applying this procedure is that sending print jobs to the printer directly could cause two print jobs to interfere with each other if multiple users would try to use the printer simultaneously. And by storing the print jobs in a temporary place this way, extracting a print job from that temporary place, and giving the resource to it whenever the resource becomes available, we can prevent this kind of interference between processes. 
+**With this procedure, the print jobs do not need to be sent to the printer directly**. The benefit of applying this procedure is that sending print jobs to the printer directly could cause two print jobs to interfere with each other if multiple users would try to use the printer simultaneously. And by **storing the print jobs in a temporary place** this way, **extracting a print job from that temporary place**, and **giving the resource to it whenever the resource becomes available**, we can **prevent this kind of interference between processes**. 
 
-Also, if we wouldn't use spooler directory, processes wouldn't be aware of each other at all.
+Also, **if we wouldn't use spooler directory, processes wouldn't be aware of each other at all.**
 
 Okay, using a shared storage like this is cool but it actually brings an important issue: **race condition**. 
 
-**Race Condition**: It is a situation in which two or more processes attempts to do their operatings at the same time. When two or more processes read from the same resource and also write into the same resource at the same time, a race condition occurs. Because processes are kind of racing with each other to do their tasks.
+**Race Condition**: It is a situation in which **two or more processes attempts to do their operatings at the same time.** When **two or more processes read from the same resource and also write into the same resource at the same time, a race condition occurs.** Because **processes are kind of racing with each other to do their tasks.**
 
 ## Intra-Process Communication
 
