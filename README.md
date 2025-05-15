@@ -1445,11 +1445,11 @@ leave_region:
 
 So, the solutions we tried until now, **Peterson's solution**, **TSL**, and **XCHG**, to achieve mutual exclusion were correct. But the thing is they had some issues. 
 
-For instance, they had the defect of **busy waiting**. In other words, when a process wanted to enter its critical region, it checked to see whether it is allowed to enter. If this was not the case, the process just waited until the its entry was allowed. And the problem is that this waiting process wastes the CPU time. That's why it should be avoided.
+For instance, they had the defect of **busy waiting**. In other words, when a process wants to enter its critical region, it checks to see whether it is allowed to enter. If this is not the case, the process just waits until its entry is allowed. And the problem is that this waiting process wastes the CPU time. That's why it should be avoided.
 
 In addition, suppose  that there are two processes: process A and process B and the priority of process A is higher than the priority of process B. When we use methods like **Peterson's solution**, **TSL**, or **XCHG**, there is a chance that process A can be prevented from entering its critical region when process B is in its critical region and holding the lock variable. And this is called **priority inversion**. 
 
-So in the next steps, we will try to find a way to eliminate the busy waiting and priority inversion problems as much as possible. 
+So in the next steps, we will try to find a way to **eliminate the busy waiting and priority inversion** problems as much as possible. 
 
 Let's try to do the lock implementation by reducing the busy waiting. 
 
@@ -1480,7 +1480,7 @@ mutex_lock:
     | Runs the mutex_lock again with a new process/thread.
 
   RET
-    | Returns, allowing the process to acquire the lock and enter its critical region.
+    | Returns. This allows the process to acquire the lock and enter its critical region.
 
 mutex_unlock:
 
@@ -1488,7 +1488,7 @@ mutex_unlock:
     | Releases the lock, and stores the value of 0 in the mutex lock variable.
 
   RET
-    | Returns, allowing other threads to attempt to acquire the lock.
+    | Returns. This allows other threads to attempt to acquire the lock.
 ```
 
 Okay with this new method, we now reduced the **busy waiting** by scheduling another process/thread instead when the lock is not available for a process.
