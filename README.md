@@ -1334,32 +1334,30 @@ So we can conclude that using lock variables solely is not the best method to pr
 #define FALSE 0
 #define TRUE 1
 #define N 2
-
 int turn;          
-int interested[N];
-  // interested = [. , .]
+int interested[N] = {FALSE, FALSE};  // Initially no process is interested
 
 void enter_region(int process) {
-  int other;
-
-  other = 1 - process;
-    // Other process. If the current process is 0, other process will be 1.
-    // If current process is 1, other process will be 0.
-
-  turn = process;
-    // Which process' turn to enter its critical region ?
-
-  while (turn == process && interested[other] == TRUE) {}
-    // If its current process turn and and the other process is in its critical region,
-    // keep waiting until the other process leaves its critical region,
-    // in other words until interested[other] == FALSE.
+  int other = 1 - process;
+  
+  interested[process] = TRUE;  // Indicate interest in entering critical section
+  turn = process;              // Set turn to this process
+  
+  // Wait if other process is interested AND it's their turn
+  while (interested[other] == TRUE && turn == process) {}
 }
 
 void leave_region(int process) {
-  interested[process] = FALSE;  
+  interested[process] = FALSE;  // No longer interested
 }
-
 ```
+
+In this method, here is how the workflow looks like: 
+
+1) The process A shows its interest in entering its own critical region.
+2) It sets the turn variable to itself.
+3) If another process (let's call it process B) is also interested, this means that it is already in its critical region. In that case, if it's the turn of the process A, the process waits until the other process leaves its critical region (in other words until `interested[other] = FALSE`) and/or it becomes the another process's turn. When this condition is met, the process A enters its critical region.
+4) The process A leaves its critical region after doing what it should do and sets interested[process] as FALSE to show that it is not in its critical region anymore.
 
 The other methods that are used to do ensure mutual exclusion are called **Test and Set Lock** and **XCHG**.
 
