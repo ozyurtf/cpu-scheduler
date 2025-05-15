@@ -290,10 +290,6 @@ struct FCFS: public Scheduler {
     public:
         deque<PCB*> runQ;
 
-    FCFS() {
-        deque<PCB*> runQ;
-    }
-
     void addProcess(PCB* pcb) {
         runQ.push_back(pcb);
     };
@@ -320,10 +316,6 @@ struct LCFS: public Scheduler {
     public:
         deque<PCB*> runQ;
 
-    LCFS() {
-        deque<PCB*> runQ;
-    }
-
     void addProcess(PCB* pcb) {
         runQ.push_back(pcb);
     };
@@ -349,10 +341,6 @@ struct LCFS: public Scheduler {
 struct SRTF: public Scheduler {
     public:
         set<PCB*> runQ;
-
-    SRTF() {
-        set<PCB*> runQ;
-    }
 
     void addProcess(PCB* pcb) {
         runQ.insert(pcb);
@@ -408,10 +396,6 @@ struct RR: public Scheduler {
     public:
         queue<PCB*> runQ;
 
-    RR() {
-        queue<PCB*> runQ;
-    }
-
     void addProcess(PCB* pcb) {
         runQ.push(pcb);
     };
@@ -438,11 +422,6 @@ struct PRIO: public Scheduler {
     public:
         vector<queue<PCB*>> activeQVec;
         vector<queue<PCB*>> expiredQVec;
-
-    PRIO() {
-        activeQVec = vector<queue<PCB*>>(maxPrio);
-        expiredQVec = vector<queue<PCB*>>(maxPrio);
-    }
 
     void addProcess(PCB* pcb) {
 
@@ -538,11 +517,6 @@ struct PREPRIO: public Scheduler {
     public:
         vector<queue<PCB*>> activeQVec;
         vector<queue<PCB*>> expiredQVec;
-
-    PREPRIO() {
-        activeQVec = vector<queue<PCB*>>(maxPrio);
-        expiredQVec = vector<queue<PCB*>>(maxPrio);
-    }
 
     void addProcess(PCB* pcb) {
 
