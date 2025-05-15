@@ -1279,7 +1279,7 @@ Context switches are triggered by either time interrupts or IO or other types of
 
 So, if process A disables all the interrupts just after it enters it's critical region and then re-enable these interrupts just before leaving the critical region, only one process can be in its critical region and therefore process A can access/modify the shared memory exclusively without the fear of intervention. 
 
-But using only this approach is not the best option because it is not a good practice to give the process in the user space the ability to turn on/off the interrupts since the process may forget to turn on the interrupt after leaving its critical region and that would cause many problems. In addition, disabling interrupts from the user space will affect only the CPU that executed the process A. In this case, we actually don't prevent the processes **in other CPUs** intervening the process A and entering their own critical regions while the process A is in its critical region. 
+But using only this approach is not the best option because it is not a good practice to give the process in the user space the ability to turn on/off the interrupts since the process may forget to turn on the interrupt after leaving its critical region and that would cause many problems. In addition, disabling interrupts from the user space will affect only the CPU that executes the process A. In this case, we actually don't prevent the processes **in other CPUs** entering their own critical regions that access the same shared resources with the process A.
 
 So, using interrupts is not the best way to provide mutual exclusion. Let's look at another way to provide mutual exclusion.
 
@@ -1287,7 +1287,7 @@ So, using interrupts is not the best way to provide mutual exclusion. Let's look
 
 For example, if the process A enter its critical region, it can set this lock variable to 1, which basically means that the critical section is occupied at this moment. And if other processes try to enter their critical regions after the lock variable is set to 1 by the process A, they will see that lock variable is 1 and they will have to wait until the lock variable is set to 0 by the process A (which means that process A stopped accessing to the shared resource, left its critical region and one process can now enter its own critical region and access to the shared resource).
 
-But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter in read-modify-write cycle: if multiple processes perform this cycle, and tries to access the shared data simultaneously, race condition may occur. For example two processes may read the lock variable as 0 simultaneously, both modify it to 1, and then write back the value 1. This would allow both processes to enter the critical section at the same time, and maybe modify the shared data simultaneously. And this results in data inconsistency which is not something we want. 
+But the thing is: when we use just lock variables, we might encounter with the same problem that we encounter in read-modify-write cycle: if multiple processes perform this cycle, and tries to access the shared data/resources simultaneously, race condition may occur. For example two processes may read the lock variable as 0 simultaneously, both modify it to 1, and then write back the value 1. This would allow both processes to enter the critical section at the same time, and maybe modify the shared data/resources simultaneously. And this results in data inconsistency which is not something we want. 
 
 In addition, when we implement only lock variables, a process that is running outside its critical region may block another process. For example, let's say that there are two processes: 
 
@@ -1326,7 +1326,7 @@ That's why, this kind of procedure is not a good solution because it violates th
 3) There should be no process that is waiting to enter its critical region forever. (This will prevent starvation)
 4) Two processes should not be in their critical regions at the same time.
 
-So we can conclude that using lock variables solely is not the best method to achieve mutual exclusion. So, let's take a look at other methods.
+So we can conclude that using lock variables solely is not the best method to prevent race conditions. Let's take a look at other methods.
 
 ### Peterson's Solution for Achieving Mutual Exclusion
 
