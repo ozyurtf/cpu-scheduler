@@ -1925,34 +1925,6 @@ And we can show how these solutions work in an example. In below, we can see two
 
 **1st Scenario:**
 ```
-typedef int semaphore;   
-  semaphore resource_1;
-  semaphore resource_2;
-
-  void process_A(void) {
-    down(&resource_1);
-    down(&resource_2);
-
-    use_both_resources();
-
-    up(&resource_2);
-    up(&resource_1);
-  }
-
-  void process_B(void) {
-    down(&resource_1);
-    down(&resource_2);
-
-    use_both_resources();
-
-    up(&resource_2);
-    up(&resource_1);
-  }
-
-```
-
-**2nd Scenario:**
-```
 typedef int semaphore;
   semaphore resource_1;
   semaphore resource_2;
@@ -1983,6 +1955,36 @@ In the second case, **process A can acquire the resource 1**, and **process B ca
 Similarly, **process B will attempt to acquire the resource 1** but **it won't be able to because the resource 1 is hold by the process A**. This is called **deadlock** and both processes will wait to hold a resource forever.
 
 But by **acquiring locks in the same order** and **releasing them in the reverse order we can avoid deadlock.**
+
+**2nd Scenario:**
+```
+typedef int semaphore;   
+  semaphore resource_1;
+  semaphore resource_2;
+
+  void process_A(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+  void process_B(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+```
+
+In the second case, both process A and process B acquire resources in the same order. In addition, the semaphores ensure that only one of these processes can use a resource at a time. Also, after the resources are used by the processes, they are released. Lastly, the resources are released in reverse order of acquisition. Because of these reasons, we won't see a deadlock in this scenario.
 
 Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
 
