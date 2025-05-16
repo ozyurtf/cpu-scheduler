@@ -1860,47 +1860,61 @@ T buffer[N];                // Define an empty buffer that has N elements
 int widx = 0,               // Define an integer value to write items into the buffer
 int ridx = 0;               // Define an integer value to read items from the buffer
 
-#define N 100 // Define the size of the buffer
-
-Semaphore empty = N; // Define a semaphore to manage the number of empty slots in the buffer (initially all slots are empty)
-Semaphore full = 0; // Define a semaphore to manage the number of full slots in the buffer (initially all slots are empty)
-Semaphore mutex = 1; // Define a semaphore to manage the lock/unlock process and to make operations atomic (initially unlocked)
-
-T buffer[N]; // Define an empty buffer that has N elements
-int widx = 0; // Define an integer value to write items into the buffer (initially at index 0)
-int ridx = 0; // Define an integer value to read items from the buffer (initially at index 0)
-
 Producer(T item) {
-    wait(&empty); // Decrement the value of the empty semaphore by one. If the value of the empty semaphore was 0 before this decrementation, this means that there is no empty slot in the buffer. In this case, the producer process will be blocked and added to the empty semaphore's wait queue.
+    wait(&empty); // Decrement the value of the empty semaphore by one.
+                  // If the value of the empty semaphore was 0 before this decrementation,
+                  // this means that there is no empty slot in the buffer.
+                  // In this case, the producer process will be blocked and
+                  // added to the empty semaphore's wait queue.
 
-    wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer before putting a new item to it.
+    wait(&mutex); // Lock the mutex to ensure exclusive access to
+                  // the shared buffer before putting a new item to it.
+                  // Without this mutex lock,
+                  // - Two producers might write to the same position.
+                  // - A producer might write to a certain location in the buffer
+                  // while the consumer is reading from that location.
+                  // - Race conditions would corrupt the data in the buffer. 
 
-    buffer[widx] = item; // Put an item into the next available empty slot in the buffer
+    buffer[widx] = item;   // Put an item into the next available empty slot in the buffer
     widx = (widx + 1) % N; // Update the index of the next available empty slot (using modulo to wrap around)
 
     signal(&mutex); // Unlock the mutex after putting an item into the buffer.
 
-    signal(&full); // Increment the value of the full semaphore by one. If the value of the full semaphore was larger than or equal to N before this incrementation, this means that the buffer was full, and a consumer waiting on the full semaphore will be unblocked and added to the ready queue.
+    signal(&full); // Increment the value of the full semaphore by 1.
+                   // This indicates "one more filled slot in the buffer"
+                   // If the value of the full semaphore was larger than
+                   // or equal to N before this incrementation, this means
+                   // that the buffer was full, and a consumer waiting on
+                   // the full semaphore will be unblocked and added to the ready queue.
 }
 
 Consumer(T &item) {
-    wait(&full); // Decrement the value of the full semaphore by one. If the value of the full semaphore was 0 before this decrementation, this means that there are no full slots in the buffer. In this case, the consumer process will be blocked and added to the full semaphore's wait queue.
+    wait(&full); // Decrement the value of the full semaphore by 1.
+                 // If the value of the full semaphore was 0 before this decrementation,
+                 // this means that there is no data available in the buffer.
+                 // In this case, the consumer process will be blocked
+                 // (because there is nothing to consume) and
+                 // added to the full semaphore's wait queue.
 
     wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer.
 
-    item = buffer[ridx]; // Read an item from the next available full slot in the buffer
+    item = buffer[ridx];   // Read an item from the next available full slot in the buffer
     ridx = (ridx + 1) % N; // Update the index of the next available full slot (using modulo to wrap around)
 
     signal(&mutex); // Unlock the mutex after reading an item from the buffer.
 
-    signal(&empty); // Increment the value of the empty semaphore by one. If the value of the empty semaphore was larger than or equal to N before this incrementation, this means that the buffer was empty, and a producer process waiting on the empty semaphore will be unblocked and added to the ready queue.
+    signal(&empty); // Increment the value of the empty semaphore by one.
+                    // If the value of the empty semaphore was larger than or equal to N
+                    // before this incrementation, this means that the buffer was empty,
+                    // and a producer process waiting on the empty semaphore will be unblocked
+                    // and added to the ready queue.
 }
 ```
 
 So, **semaphores are great** but like all the other methods, they **have some downsides** as well:
 
 - It is **not** always **easy to write** the codes with semaphores.
-- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can prevent other threads being blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
+- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can cause other threads to be blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
 
 In addition, they **may cause a situation in which the processes had to wait for resources(s) forever**. **To avoid this** situation, we should
 
