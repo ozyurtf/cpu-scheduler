@@ -1628,13 +1628,7 @@ For instance, **let's assume that the buffer is empty** and **the consumer reads
 
 **Then let's say that a scheduler starts running the producer**. **Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1**, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
-In another case, **let's say that count value equals to 1** and **consumer begins running its codes**. **It will first remove an item from the buffer** since count is not 0. Then it will **decrease the value of count from 1 to 0**, and **consume the item without waking up the producer** since the buffer was not full before extracting the item from it. 
-
-So, **after consuming the item**, **the consumer will start the loop again**. At that moment, **count value equals to 0**. **That's why the consumer will sleep.** 
-
-Sooner or later, **the producer will produce items and fill the whole buffer** while the consumer is sleeping. At that moment, **consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever**. 
-
-The main issue in these two scenarios is that the **wakeup() call that is sent to a process that is not sleeping is lost**. 
+The main issue in this scenario is that the **wakeup() call that was sent to a process that is not sleeping is lost**. 
 
 So, we need to develop a **new mechanism that prevents this issue** and that also **allows multiple processes to access to the shared resources in a sycnhronized way** **on the basis of some shared resource (buffer)**.
 
@@ -1642,7 +1636,7 @@ We call this new mechanism **semaphore**.
 
 ## Semaphores 
 
-A semaphore is a data type like integer just like mutex. But the only way to **access** it is through two separate operations that are called **wait()** and **signal()**.
+A semaphore is a data type like integer just like mutex. But the only way to **access** it is through **two separate operations** that are called **wait()** and **signal()**.
 
 - **wait():**  **Decrements the value of the semaphore by 1** which means that the **resource is acquired**. **Before** this **decrementation**, if the **value** of the **semaphore** was **0** or **negative**, this means that **resource(s)** controlled by the semaphore was/were **already being used**. **After** wait() operation **decreases** the value of the semaphore **by 1**, the value of the semaphore **will be lower than 0**. In that case, **we add the current thread into the wait queue**, because of the **lack of available resources**, **block** it (since it cannot access to the shared resource at this moment), and **schedule another thread** and **run the wait() operation again to avoid spinning and wasting CPU time**.
 
