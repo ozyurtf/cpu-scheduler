@@ -2298,21 +2298,21 @@ E       | 2           | 1        | 1        | 0
 
 (How many resources each process still needs in order to be finished)
 
-Existing Resources  = Tape Drivers: 6, Plotters: 3, Printers: 4, CD ROMs: 2
-Processed Resources = Tape Drivers: 1, Plotters: 0, Printers: 2, CD ROMs: 0
-Available Resources = Tape Drivers: 5, Plotters: 3, Printers: 2, CD ROMs: 2
+Existing Resources: 6 tape drives, 3 plotters, 4 printers, 2 CD ROMs
+Allocated Resources: 5 tape drives, 3 plotters, 2 printers, 2 CD ROMs
+Available Resources: 1 tape drive, 0 plotters, 2 printers, 0 CD ROMs
 
 ```
 
 To find the deadlock, we can
 
 1) look for a row whose unmet resource needs are all smaller than or equal to the values in available resources. If there is no that kind of row, this means that there is a deadlock and terminate.
-2) assume the process of the chosen row requests all resources it needs and then finishes. Mark that process as terminated and release its resources back to the available resources.
+2) assume the process of the chosen row requests all resources it needs, finishes, mark that process as terminated and release its resources back to the available resources.
 3) repeat steps 1 and 2 until either all the processes are terminated or no process is left.
 
-The Banker Algorithm looks nice in theory but it is practically **not useful** because 
+The **Banker Algorithm** looks nice in theory but it is practically **not useful** because 
 
-- prcoesses don't know the maximum number of resources they will need in advance.
+- **prcoesses don't know the maximum number of resources they will need in advance.**
 - the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or some of the existing processes might vanish. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
@@ -2330,7 +2330,7 @@ One of the conditions of the deadlock was the mutual exclusion. In other words, 
 
 Spooling can be a way to violate the mutual exclusion rule. A spooler is a program/software that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
 
-So attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
+So, attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
 
 ### 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
