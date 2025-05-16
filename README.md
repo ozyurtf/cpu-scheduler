@@ -1458,7 +1458,14 @@ Let's try to do the lock implementation by reducing the busy waiting.
 ```
 mutex_lock: 
   TSL REGISTER, MUTEX
-    | Copies the value in the mutex (mutual exclusion) lock into the register and sets the mutex lock to 1.
+    | A mutex is a variable that acts like a lock.
+    | It is typically a binary value:
+    | 0 = Unlocked
+    | 1 = Locked
+    | The code above copies the value in the mutex (mutual exclusion) lock
+    | into the register and sets the mutex lock to 1.
+    | This allows the code to know the previous state
+    | of the lock while simultaneously attempting to acquire it. 
 
   CMP REGISTER, #0
     | Compares the value in the register with 0.
@@ -1499,13 +1506,13 @@ Note that when a process/thread tries to acquire a lock, if the lock is not avai
 
 Lock contention depends on 
 
-1) the frequency of attempts to acquire the lock      *(as the number of attempts to acquire the lock increases, the probability of lock contention increases)*
-2) the amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
-3) number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
+1) The frequency of attempts to acquire the lock      *(as the number of attempts to acquire the lock increases, the probability of lock contention increases)*
+2) The amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
+3) The number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
 
-**If** the **lock contention** is **low**, this means that the **length of time a process/thread spends to wait for the lock variable to be available is low**. In other words, **processes/threads don't wait too much** and in that kind of scenario, **TSL might be a solution** because in TSL, we just check if the lock is available or not. If it is available, it is locked and the process enters its critical region. If it is not, the process waits until the lock variable becomes available.
+**If** the **lock contention** is **low**, this means that the **length of time a process/thread spends to wait for the lock variable to be available is low**. In other words, **processes/threads don't wait too much** and in that kind of scenario, **TSL might be a solution** because in TSL, **we just check if the lock is available or not**. If it is available, **it is locked and the process enters its critical region.** If it is not, **the process waits until the lock variable becomes available.**
 
-Until now, we used lock variable to ensure that only one process can occupy the critical region at a time. We can do this with methods other than a simple lock variable as well. 
+Until now, **we used the lock variable to ensure that only one process can occupy the critical region at a time**. We can do this with methods other than a simple lock variable as well. 
 
 Let's explain this in a new problem that is called **producer-consumer problem**.
 
@@ -1517,9 +1524,13 @@ In producer-consumer problem, there are **two processes**. And they **share a co
 
 **Another** process **takes** this information **from** the **buffer** and **uses** it. We can call this process **consumer**. 
 
-Now **imagine** that the **buffer is full** and there is no empty space. In that case, **if** the **producer** wants to **put** a **new information** into this buffer, that would cause a **problem**. One **solution** for the producer might be **being forced to sleep** until being awakened. And when the **consumer** **removes** one or more items **from the buffer** and **buffer has empty slot(s),** it can wake up the producer as well so that it can put its information into the buffer. 
+Now **imagine** that the **buffer is full** and there is no empty space. In that case, **if** the **producer** wants to **put** a **new information** into this buffer, that would cause a **problem**. 
 
-Similarly, if the **buffer is completely empty**, and if the **consumer wants to remove an item** from that buffer, that's a **problem** too since there is **nothing to remove**. And again one solution for the consumer might be **being forced to sleep** until being awakened. And **when the producer puts information** to the buffer and **buffer has a non-empty slot**, **the producer can wake up the consumer** as well so that it can **extract the information from the buffer and use (consume) it.** 
+One **solution** for the producer might be **being forced to sleep** until being awakened. And when the **consumer** **removes** one or more items **from the buffer** and **buffer has empty slot(s),** it can wake up the producer as well so that it can put its information into the buffer. 
+
+Similarly, if the **buffer is completely empty**, and if the **consumer wants to remove an item** from that buffer, that's a **problem** too since there is **nothing to remove**. 
+
+And again one solution for the consumer might be **being forced to sleep** until being awakened. And **when the producer puts information** to the buffer and **buffer has a non-empty slot**, **the producer can wake up the consumer** as well so that it can **extract the information from the buffer and use (consume) it.** 
 
 But there are some issues in these solution.
 
@@ -1539,7 +1550,7 @@ To answer these questions, we should first introduce a new concept named **Pipe*
 
 **Pipe** is basically an **inter-process communication mechanism** that **provides temporary storage between processes**. They can be created by **applications**. 
 
-A pipe is basically implemented with a **buffer data structure** in the kernel. And in the produer-consumer problem, the **output of the producer is passed to this buffer** and the **consumer takes the information from the same buffer**. 
+A pipe is basically implemented with a **buffer data structure** in the kernel. And in the produer-consumer problem, the **output of the producer is passed to this buffer** and the **consumer takes the information from the same buffer**. So, **a pipe allows data flow from one process to another in FIFO manner.**
 
 When the **buffer** is **full**, **pipe blocks the producer** to put a new information to it. Similarly, **when the buffer is empty**, **pipe blocks the consumer** to prevent it to attempt consuming an information from an empty buffer. 
 
@@ -1607,13 +1618,15 @@ void consumer(void) {
     
 ```
 
-Okay, we explained the producer-consumer problem, brought a new method (sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time. But there is still some issue. 
+Okay, we explained the producer-consumer problem, brought a new method **(sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time.** But there are still some issues. 
 
 In the producer-consumer problem above, **the access to the count variable is not constrained**. And as a result of this, **we may encounter with a race condition.** 
 
 ## Fatal Race Condition
 
-For instance, let's assume that the buffer is empty and the consumer reads the count variable as 0. At that moment, consumer starts sleeping. Then let's say that a scheduler starts running the producer. Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1, and lastly **wakes up the consumer** which is technically **not sleeping**. 
+For instance, **let's assume that the buffer is empty** and **the consumer reads the count variable as 0.** At that moment, **consumer starts sleeping.** 
+
+**Then let's say that a scheduler starts running the producer**. **Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1**, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
 In another case, **let's say that count value equals to 1** and **consumer begins running its codes**. **It will first remove an item from the buffer** since count is not 0. Then it will **decrease the value of count from 1 to 0**, and **consume the item without waking up the producer** since the buffer was not full before extracting the item from it. 
 
