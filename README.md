@@ -1624,7 +1624,7 @@ In the producer-consumer problem above, **the access to the count variable is no
 
 ## Fatal Race Condition
 
-For instance, **let's assume that the buffer is empty** and **the consumer reads the count variable as 0.** At that moment, **consumer starts sleeping.** 
+For instance, **let's assume that the buffer is empty** and **the consumer reads the count variable as 0.** But before the consumer executes `sleep(consumer)`, the scheduler interrupts (preempts) the consumer process. At that moment, **consumer does not start sleeping.** 
 
 **Then let's say that a scheduler starts running the producer**. **Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1**, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
@@ -1636,7 +1636,7 @@ Sooner or later, **the producer will produce items and fill the whole buffer** w
 
 The main issue in these two scenarios is that the **wakeup() call that is sent to a process that is not sleeping is lost**. 
 
-So, we need to develop a new mechanism that prevents this issue and that also allows multiple processes to access to the shared resources in a sycnhronized way **on the basis of some shared resource (buffer)**. 
+So, we need to develop a **new mechanism that prevents this issue** and that also **allows multiple processes to access to the shared resources in a sycnhronized way** **on the basis of some shared resource (buffer)**.
 
 We call this new mechanism **semaphore**.
 
