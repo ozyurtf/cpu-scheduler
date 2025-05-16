@@ -1910,8 +1910,17 @@ Consumer(T &item) {
                     // and added to the ready queue.
 }
 ```
+At this point, we can see that semaphore is a great way to prevent the race conditions. But we can also use mutex locks to do this. How to decide which one to use ? 
 
-So, **semaphores are great** but like all the other methods, they **have some downsides** as well:
+## Binary Semaphores vs Mutex Locks 
+
+In binary semaphores, there is a variable that indicates whether a resource is currently available. In addition, binary semaphores provide a signaling mechanism that enables communication between processes. For instance, Process A may signal Process B to indicate that it added data to a shared buffer. This allows Process B to begin consuming that data immediately. Similarly, a binary semaphore can be used to notify another process that a shared resource is now free. This enables coordination without continuous checking.
+
+In mutex locks, the primary goal is to provide mutual exclusion by allowing only one thread to access a critical section at a time. While mutexes do not expose a user-level signaling mechanism like semaphores, they are designed to block and wake up threads efficiently without busy waiting. Unlike spinlocks, standard mutex implementations rely on the operating system to handle blocking. This ensures that CPU time is not wasted.
+
+In addition, in mutex locks, only the thread that locks the mutex can release it. This prevents other threads releasing the mutex accidentally. In semaphores, however, the resources can be released by any thread after they are locked by a specific thread.
+
+Although **semaphores are great**, like all the other methods, they **have some downsides** as well:
 
 - It is **not** always **easy to write** the codes with semaphores.
 - If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can cause other threads to be blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
@@ -1995,7 +2004,7 @@ Okay we have mentioned about the deadlock above but one note is that sometimes p
 
 **Deadlock occurs** when **none** of the processes are able to **move ahead** while **starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward**. 
 
-If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependency between processes to move forward. Deadlock occurs among processes that are waiting to acquire resources in order to progress forever.
+If we want to give an example, **let's say that you submit a large document to printer**. But **if other people keep submitting small documents continuously**, this means that **when one small document is printed, another one starts and your document won't get a chance to be printed** because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is **no deadlock in here because we don't see dependency between processes to move forward**. Deadlock occurs among processes that are **waiting to acquire resources in order to progress forever**.
 
 Okay we compared the deadlock and starvation and explained their differences but we also talked about the resources. What are the things that we call **resource** in general ? 
 
