@@ -1781,6 +1781,7 @@ void Semaphore::wait() {
   lock(&lockvar);
     // Lock the lock variable so that when a process/thread acquires resources,
     // no other process/threads can interfere with this.
+    // This ensures no two threads can simultaneously modify the semaphore state
 
   value--;
     // Decrement the value of semaphore by 1.
@@ -1834,13 +1835,19 @@ void Semaphore::signal() {
   unlock(&lockvar);
     // Unlock the lock variable so that another process/thread can start it's operations.
 }
+
+// When a thread is executing the codes above in wait() or signal(),
+// it first acquires the lockvar. Any other thread that is trying to call
+// wait() or signal() will be blocked.
+// So, only one thread at a time can be inside
+// its critical region and modfying the semaphore.
 ```
 
 In the examples above, we used **binary/mutex semaphores**. These semaphores can be seen as lock. They are ideal for mutual exclusion problems. In these problems, when the semaphore value is initialized to 1, this means that the lock is available. 
 
 There is also another type of semaphores that is called **counting semaphores**. This is a type of semaphore that represents the number of processes/threads that are allowed to be in their critical regions at the same time. In cases when we want multiple processes/threads to enter their critical regions simultaenously, we can use counting semaphores. But in these cases, mutual exclusion is not guaranteed. 
 
-Let's review the use case of both binary/mutex semaphores and counting semaphores in the producer-consumer problem. 
+Let's review the use case of both **binary/mutex semaphores** and **counting semaphores** in the producer-consumer problem. 
 
 ```
 #define N 100               // Define the size of the buffer
