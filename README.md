@@ -1047,7 +1047,7 @@ Static priorities are generally assigned based on the type of application, its i
 
 And dynamic priorities are assigned/updated based on the current state of the process, time quantum and how long the process ran, whether the process is preempted or not, whether the process returned back from the IO operation or not, etc.
 
-**By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.**
+**By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running for a long time.**
 
 ### Multi Level Queue (MLQ) Scheduling
 
