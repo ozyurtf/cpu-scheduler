@@ -1143,18 +1143,6 @@ Here is how EDF works:
 
 If the **deadline of the new process is higher than the deadline of the currently running process**, **current process is stopped** and the **new process starts being executed.** In other words, EDF is preemptive. 
 
-### Rate Monotonic Scheduling (RMS) 
-
-IN RMS, the **processes are prioritized based on their periods**. The **process that has the shortest period is assigned the highest priority** and therefore, it is **executed first**. Once **a priority is assigned to a process**, this **priority does not change dynamically**. 
-
-In addition, there is a preemption in RMS. In other words, if the period of the new process is shorter than the period of the currently running process, the current process stops being executed because the priority of the new process is higher. Then, the new process starts being executed.
-
-Lastly, it is possible to analyze the schedulability of the RMS. Let's say that we have a set of n periodic processes. 
-
-So, we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
-
-## Other Scheduling Algorithms
-
 ## Thread Scheduling
 
 ### Thread Scheduling vs Process Scheduling 
