@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduler Visualizer</title>
+    <style>
+        :root {
+            --bg2: #f8fafc;
+            --b: #cbd5e1;
+            --s: #64748b;
+            --t: #94a3b8;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #475569;
+            --color-background-primary: #ffffff;
+            --color-background-secondary: #f1f5f9;
+            --color-border-tertiary: #e2e8f0;
+            --border-radius-md: 6px;
+        }
+
+        body {
+            background-color: var(--color-background-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            max-width: 820px;
+            width: 100%;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: .55 }
+            50% { opacity: 1 }
+        }
+
+        @keyframes busflow {
+            to { stroke-dashoffset: -16 }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg) }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.9) }
+            to   { opacity: 1; transform: scale(1) }
+        }
+
+        .act  { animation: pulse 1s ease-in-out infinite }
+        .bus  { stroke-dasharray: 6 6; animation: busflow .7s linear infinite }
+        .dsk  { animation: spin 1.8s linear infinite; transform-origin: center; transform-box: fill-box; }
+        .pchip{ animation: fadeIn .25s ease-out; filter: drop-shadow(0 2px 3px rgba(0,0,0,.1)) }
+
+        button {
+            font-family: var(--font-sans);
+            padding: 4px 12px;
+            border: 1px solid var(--b);
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--color-text-primary);
+        }
+        button:hover { background: var(--bg2) }
+        button:disabled { opacity: .5; cursor: not-allowed }
+
+        select, input[type=text] {
+            font-family: var(--font-sans);
+            padding: 4px 6px;
+            border: 1px solid var(--b);
+            border-radius: 4px;
+            color: var(--color-text-primary);
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-container">
+<div style="padding:.5rem 0;font-family:var(--font-sans);color:var(--color-text-primary);">
+
+    <!-- Controls -->
+    <style>
+        .ctrl-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            background: var(--color-background-primary);
+            padding: 14px 16px;
+            border: 1px solid var(--color-border-tertiary);
+            border-radius: var(--border-radius-md);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,.03));
+        }
+        .ctrl-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        /* File picker pills */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .file-btn {
+            padding: 5px 4px;
+            border: 1px solid var(--b);
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--color-text-secondary);
+            text-align: center;
+            transition: background .12s, border-color .12s, color .12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-btn:hover { background: var(--bg2); color: var(--color-text-primary); border-color: #94a3b8; }
+        .file-btn.active {
+            background: #EEEDFE;
+            border-color: #534AB7;
+            color: #3C3489;
+            font-weight: 700;
+        }
+        /* Algorithm pills */
+        .algo-section { display: flex; flex-direction: column; gap: 6px; }
+        .algo-row { display: flex; gap: 5px; flex-wrap: wrap; }
+        .algo-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--b);
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--color-text-secondary);
+            transition: background .12s, border-color .12s, color .12s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            min-width: 46px;
+        }
+        .algo-btn .algo-code { font-weight: 700; font-size: 12px; color: var(--color-text-primary); }
+        .algo-btn .algo-name { font-size: 8.5px; opacity: .65; font-family: var(--font-sans); }
+        .algo-btn:hover { background: var(--bg2); border-color: #94a3b8; }
+        .algo-btn.active {
+            background: #EEEDFE;
+            border-color: #534AB7;
+        }
+        .algo-btn.active .algo-code { color: #3C3489; }
+        /* RR quantum selector */
+        .rr-q-wrap { display: flex; align-items: center; gap: 5px; margin-left: 4px; }
+        .rr-q-wrap label { font-size: 10px; color: var(--color-text-secondary); font-weight: 600; }
+        .rr-q-wrap select {
+            font-size: 11px; font-family: var(--font-mono);
+            padding: 3px 5px; border: 1px solid var(--b); border-radius: 4px;
+            color: var(--color-text-primary); background: #fff;
+        }
+        /* Bottom bar: run controls + clock */
+        .ctrl-bottom {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--color-border-tertiary);
+        }
+    </style>
+
+    <div class="ctrl-panel">
+        <!-- LEFT: Input File -->
+        <div>
+            <div class="ctrl-label">Input File</div>
+            <div class="file-grid" id="fileGrid">
+                <button class="file-btn active" data-val="input0" onclick="selectFile(this)">Input 0<br><span style="font-size:9px;font-family:var(--font-sans);opacity:.6">Simple</span></button>
+                <button class="file-btn" data-val="input1" onclick="selectFile(this)">Input 1</button>
+                <button class="file-btn" data-val="input2" onclick="selectFile(this)">Input 2</button>
+                <button class="file-btn" data-val="input3" onclick="selectFile(this)">Input 3</button>
+                <button class="file-btn" data-val="input4" onclick="selectFile(this)">Input 4</button>
+                <button class="file-btn" data-val="input5" onclick="selectFile(this)">Input 5</button>
+                <button class="file-btn" data-val="input6" onclick="selectFile(this)">Input 6<br><span style="font-size:9px;font-family:var(--font-sans);opacity:.6">Complex</span></button>
+                <button class="file-btn" data-val="input7" onclick="selectFile(this)">Input 7<br><span style="font-size:9px;font-family:var(--font-sans);opacity:.6">Large</span></button>
+                <button class="file-btn" data-val="input8" onclick="selectFile(this)">Input 8</button>
+            </div>
+            <!-- hidden value holder -->
+            <input type="hidden" id="inpFile" value="input0">
+        </div>
+
+        <!-- RIGHT: Algorithm -->
+        <div class="algo-section">
+            <div class="ctrl-label">Scheduling Algorithm</div>
+            <div class="algo-row">
+                <button class="algo-btn active" data-algo="F" onclick="selectAlgo(this,'F')">
+                    <span class="algo-code">F</span><span class="algo-name">FCFS</span>
+                </button>
+                <button class="algo-btn" data-algo="L" onclick="selectAlgo(this,'L')">
+                    <span class="algo-code">L</span><span class="algo-name">LCFS</span>
+                </button>
+                <button class="algo-btn" data-algo="S" onclick="selectAlgo(this,'S')">
+                    <span class="algo-code">S</span><span class="algo-name">SRTF</span>
+                </button>
+                <button class="algo-btn" data-algo="R" onclick="selectAlgo(this,'R')">
+                    <span class="algo-code">R</span><span class="algo-name">Round Robin</span>
+                </button>
+                <button class="algo-btn" data-algo="P" onclick="selectAlgo(this,'P')">
+                    <span class="algo-code">P</span><span class="algo-name">Priority</span>
+                </button>
+                <button class="algo-btn" data-algo="E" onclick="selectAlgo(this,'E')">
+                    <span class="algo-code">E</span><span class="algo-name">PrePrio</span>
+                </button>
+            </div>
+            <!-- Quantum selector — shown only for R and P -->
+            <div class="rr-q-wrap" id="qWrap" style="display:none;">
+                <label>Quantum:</label>
+                <select id="quantumSel" onchange="updateAlgoFromQuantum()">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                    <option value="16">16</option>
+                    <option value="32">32</option>
+                </select>
+            </div>
+            <!-- Hidden value used by fetchTrace -->
+            <input type="hidden" id="inpAlgo" value="F">
+        </div>
+
+        <!-- BOTTOM: Run controls + clock -->
+        <div class="ctrl-bottom">
+            <button onclick="fetchTrace()" id="btnLoad" style="background:#534AB7;color:#fff;border:none;font-weight:600;padding:6px 16px;font-size:13px;">▶ Simulate</button>
+            <div style="width:1px;height:22px;background:var(--b);margin:0 4px;"></div>
+            <button onclick="stepForward()" id="btnStep" disabled>Step</button>
+            <button id="bp" onclick="togglePlay()" disabled>Play</button>
+            <button onclick="resetSim()" id="btnReset" disabled>Reset</button>
+            <div style="width:1px;height:22px;background:var(--b);margin:0 4px;"></div>
+            <label style="font-size:10px;font-weight:700;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;">Speed</label>
+            <input type="range" id="speed" min="50" max="1500" value="600" style="direction:rtl;width:72px;">
+            <div style="margin-left:auto;font-size:12px;color:var(--color-text-secondary);">
+                <span id="algoLabel" style="font-weight:bold;color:var(--color-text-primary);">-</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                Clock: <span id="clk" style="font-weight:600;font-size:18px;color:#0F6E56;">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── File pill selection
+        function selectFile(btn) {
+            document.querySelectorAll('.file-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('inpFile').value = btn.dataset.val;
+        }
+
+        // ── Algorithm pill selection
+        let _baseAlgo = 'F';
+        function selectAlgo(btn, algo) {
+            document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            _baseAlgo = algo;
+            const needsQ = (algo === 'R' || algo === 'P' || algo === 'E');
+            document.getElementById('qWrap').style.display = needsQ ? 'flex' : 'none';
+            updateAlgoFromQuantum();
+        }
+        function updateAlgoFromQuantum() {
+            const needsQ = (_baseAlgo === 'R' || _baseAlgo === 'P' || _baseAlgo === 'E');
+            const q = document.getElementById('quantumSel').value;
+            document.getElementById('inpAlgo').value = needsQ ? _baseAlgo + q : _baseAlgo;
+        }
+    </script>
+
+    <!-- Hardware Diagram SVG
+         Layout:
+           Row 1  y=16–326  : RAM (x=20,w=280) | CPU (x=370,w=290)
+           Corridor y=326–390 : multi-lane buses (System Bus, I/O Bus, IRQ line)
+           Row 2  y=390–506 : Completed (x=20,w=310,h=116) | I/O (x=370,w=290,h=116)
+           Stats  y=516–542
+           Gantt  y=552+
+    -->
+    <svg id="hw" width="100%" viewBox="0 0 680 830">
+        <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+            <filter id="soft-shadow" x="-5%" y="-5%" width="110%" height="110%">
+                <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#cbd5e1" flood-opacity="0.5"/>
+            </filter>
+        </defs>
+
+        <!-- ═══════════════════════════════════════════════════════ RAM Region (y=16..326) -->
+        <rect x="20" y="16" width="280" height="310" rx="6" fill="var(--bg2)" stroke="var(--t)" stroke-width="1.5" opacity=".85" filter="url(#soft-shadow)"/>
+        <rect x="26" y="22" width="268" height="298" rx="3" fill="var(--color-background-primary)" stroke="var(--b)" stroke-width=".5"/>
+        <!-- RAM pins — all 4 sides -->
+        <g opacity=".25">
+            <!-- TOP: 19 pins pointing up from box top (y=16) -->
+            <rect x="30"  y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="44"  y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="58"  y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="72"  y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="86"  y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="100" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="114" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="128" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="142" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="156" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="170" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="184" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="198" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="212" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="226" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="240" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="254" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="268" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="282" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <!-- BOTTOM: 19 pins pointing down from box bottom (y=326) -->
+            <rect x="30"  y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="44"  y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="58"  y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="72"  y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="86"  y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="100" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="114" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="128" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="142" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="156" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="170" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="184" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="198" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="212" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="226" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="240" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="254" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="268" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="282" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+        </g>
+        <text x="160" y="40" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-mono);" fill="var(--s)" opacity=".7">RAM</text>
+
+        <!-- Kernel Space -->
+        <rect x="34" y="50" width="252" height="96" rx="4" fill="none" stroke="#534AB7" stroke-width=".5" stroke-dasharray="3 2" opacity=".6"/>
+        <text x="42" y="64" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#534AB7" opacity=".7">Kernel Space</text>
+        <rect x="40" y="72" width="240" height="20" rx="3" fill="#EEEDFE" stroke="#534AB7" stroke-width=".5" opacity=".7"/>
+        <text x="160" y="86" text-anchor="middle" style="font-size:11px;font-family:var(--font-mono);" fill="#3C3489">Process Table (PCBs)</text>
+        <rect x="40" y="98" width="240" height="40" rx="3" fill="#EEEDFE" stroke="#534AB7" stroke-width=".5" opacity=".5"/>
+        <!-- "Ready Queue" label left-aligned, chips drawn to its right by JS -->
+        <text x="48" y="122" style="font-size:11px;font-family:var(--font-mono);" fill="#3C3489" opacity=".8">Ready Queue</text>
+        <g id="rq-content"></g>
+
+        <!-- User Space -->
+        <rect x="34" y="150" width="252" height="172" rx="4" fill="none" stroke="#0F6E56" stroke-width=".5" stroke-dasharray="3 2" opacity=".5"/>
+        <text x="42" y="165" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#0F6E56" opacity=".7">User Space</text>
+        <g id="uspace"></g>
+
+        <!-- ═══════════════════════════════════════════════════════ CPU Region (y=16..326) -->
+        <rect x="370" y="16" width="290" height="310" rx="4" fill="var(--bg2)" stroke="var(--t)" stroke-width="2" opacity=".9" filter="url(#soft-shadow)"/>
+        <rect x="377" y="23" width="276" height="296" rx="2" fill="var(--color-background-primary)" stroke="var(--b)" stroke-width=".5"/>
+        <!-- CPU pins — all 4 sides -->
+        <g opacity=".22">
+            <!-- TOP: 20 pins pointing up from y=16 -->
+            <rect x="380" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="394" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="408" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="422" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="436" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="450" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="464" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="478" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="492" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="506" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="520" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="534" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="548" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="562" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="576" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="590" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="604" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="618" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <rect x="632" y="4" width="6" height="14" rx="1" fill="var(--t)"/><rect x="646" y="4" width="6" height="14" rx="1" fill="var(--t)"/>
+            <!-- BOTTOM: 20 pins pointing down from y=326 -->
+            <rect x="380" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="394" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="408" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="422" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="436" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="450" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="464" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="478" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="492" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="506" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="520" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="534" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="548" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="562" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="576" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="590" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="604" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="618" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <rect x="632" y="326" width="6" height="12" rx="1" fill="var(--t)"/><rect x="646" y="326" width="6" height="12" rx="1" fill="var(--t)"/>
+            <!-- LEFT: 20 pins spanning full height (y=26..292, step=14) -->
+            <rect x="358" y="26"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="40"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="54"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="68"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="82"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="96"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="110" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="124" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="138" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="152" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="166" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="180" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="194" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="208" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="222" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="236" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="250" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="264" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="358" y="278" width="12" height="6" rx="1" fill="var(--t)"/><rect x="358" y="292" width="12" height="6" rx="1" fill="var(--t)"/>
+            <!-- RIGHT: 20 pins (x=660..672) -->
+            <rect x="660" y="26"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="40"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="54"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="68"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="82"  width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="96"  width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="110" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="124" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="138" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="152" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="166" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="180" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="194" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="208" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="222" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="236" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="250" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="264" width="12" height="6" rx="1" fill="var(--t)"/>
+            <rect x="660" y="278" width="12" height="6" rx="1" fill="var(--t)"/><rect x="660" y="292" width="12" height="6" rx="1" fill="var(--t)"/>
+        </g>
+        <text x="515" y="40" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-mono);" fill="var(--s)" opacity=".7">CPU</text>
+
+        <!-- Control Unit -->
+        <rect id="cu-box" x="385" y="48" width="130" height="72" rx="4" fill="#E6F1FB" stroke="#185FA5" stroke-width=".5"/>
+        <text x="450" y="66" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#0C447C">Control Unit</text>
+        <text x="450" y="82" text-anchor="middle" style="font-size:11px;font-family:var(--font-mono);" fill="#185FA5" opacity=".7">Fetch / Decode</text>
+        <g id="cu-sched"></g>
+
+        <!-- ALU -->
+        <rect id="alu-box" x="525" y="48" width="120" height="72" rx="4" fill="#FAEEDA" stroke="#854F0B" stroke-width=".5"/>
+        <text x="585" y="66" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#633806">ALU</text>
+        <text x="585" y="82" text-anchor="middle" style="font-size:11px;font-family:var(--font-mono);" fill="#854F0B" opacity=".7">Execute</text>
+        <g id="alu-proc"></g>
+
+        <!-- Registers -->
+        <rect x="385" y="130" width="130" height="54" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width=".5"/>
+        <text x="450" y="148" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#444441">Registers</text>
+        <g id="regs"></g>
+
+        <!-- L1 Cache -->
+        <rect x="525" y="130" width="120" height="54" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width=".5"/>
+        <text x="585" y="148" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="#085041">L1 Cache</text>
+        <g id="cache-content"></g>
+
+        <!-- Execution Pipeline -->
+        <rect x="385" y="194" width="260" height="56" rx="4" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5"/>
+        <text x="395" y="211" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="var(--s)" opacity=".7">Execution Pipeline</text>
+        <g id="pipeline"></g>
+
+        <!-- Context (Running) -->
+        <rect x="385" y="260" width="260" height="52" rx="4" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5"/>
+        <text x="395" y="276" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="var(--s)" opacity=".7">Context (Running)</text>
+        <g id="ctx"></g>
+
+        <!-- ═══════════════════════════════════════════════════════
+             Bus Corridor  y=326..390  (64 px of clear routing space)
+             Three connections live here:
+               1. System Bus  — multi-lane horizontal, x=300..370, mid-corridor
+               2. I/O Bus     — vertical, x=515, CPU bottom→I/O top
+               3. IRQ line    — L-shape, I/O top-left→up→left→RAM bottom
+        -->
+
+        <!-- ── 1. System Bus (3 labelled lanes between RAM and CPU) ── -->
+        <rect x="300" y="148" width="70" height="50" rx="0" fill="#F5F3FF" stroke="#C4BAF8" stroke-width=".8" opacity=".45"/>
+        <text x="335" y="145" text-anchor="middle" style="font-size:7.5px;font-weight:700;font-family:var(--font-mono);" fill="#534AB7" opacity=".6">System Bus</text>
+        <!-- ADDR lane: RAM → CPU (one direction) -->
+        <text x="298" y="165" text-anchor="end" style="font-size:6.5px;font-weight:700;font-family:var(--font-mono);" fill="#534AB7" opacity=".55">ADDR</text>
+        <line x1="303" y1="161" x2="366" y2="161" stroke="#534AB7" stroke-width="1.2" opacity=".45" marker-end="url(#ar)"/>
+        <!-- DATA lane: bidirectional (animated) -->
+        <text x="298" y="174" text-anchor="end" style="font-size:6.5px;font-weight:700;font-family:var(--font-mono);" fill="#1D9E75" opacity=".55">DATA</text>
+        <line id="sysbus"  class="bus" x1="303" y1="170" x2="366" y2="170" stroke="#1D9E75" stroke-width="2"   opacity=".4" marker-end="url(#ar)"/>
+        <line id="sysbus2" class="bus" x1="366" y1="176" x2="303" y2="176" stroke="#1D9E75" stroke-width="2"   opacity=".4" marker-end="url(#ar)"/>
+        <!-- CTRL lane: CPU → RAM (one direction) -->
+        <text x="298" y="191" text-anchor="end" style="font-size:6.5px;font-weight:700;font-family:var(--font-mono);" fill="#D85A30" opacity=".55">CTRL</text>
+        <line x1="366" y1="187" x2="303" y2="187" stroke="#D85A30" stroke-width="1.2" opacity=".45" marker-end="url(#ar)"/>
+
+        <!-- ── 2. I/O Bus — CPU bottom (515,326) straight down to I/O top (515,390) ── -->
+        <line id="iobus" class="bus" x1="515" y1="326" x2="515" y2="388" stroke="#64748b" stroke-width="2" opacity=".5" marker-end="url(#ar)"/>
+        <text x="522" y="360" style="font-size:8.5px;font-weight:600;font-family:var(--font-mono);" fill="var(--s)" opacity=".75">I/O Bus</text>
+
+        <!-- ── 3. IRQ Interrupt — routed entirely inside corridor, avoids Completed block ── -->
+        <!-- Path: I/O top (410,390) → up to y=354 → left to x=240 → up to RAM bottom (240,326) -->
+        <path id="irqbus" class="bus" d="M410 390 L410 354 L240 354 L240 326"
+              fill="none" stroke="#E05A28" stroke-width="1.8" opacity=".5" marker-end="url(#ar)"/>
+        <!-- Label sits in the middle of the horizontal segment (corridor centre) -->
+        <text x="328" y="348" text-anchor="middle" style="font-size:8.5px;font-weight:600;font-family:var(--font-mono);" fill="#E05A28" opacity=".8">IRQ Interrupt</text>
+
+        <!-- ═══════════════════════════════════════════════════════
+             Row 2: y=390..506  (64 px below Row 1)
+             I/O Controller (right) | Completed (left)
+        -->
+
+        <!-- I/O Controller (x=370, y=390, w=290, h=116) -->
+        <g transform="translate(370,390)" filter="url(#soft-shadow)">
+            <rect x="0" y="0" width="290" height="116" rx="6" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5"/>
+            <text x="145" y="18" text-anchor="middle" style="font-size:11px;font-weight:600;font-family:var(--font-mono);" fill="var(--s)" opacity=".6">I/O Controller</text>
+            <!-- Disk platter — only concentric circles spin; arm is static -->
+            <g id="disk-g">
+                <circle cx="70" cy="65" r="34" fill="#fcfcfc" stroke="var(--b)" stroke-width=".5"/>
+                <circle cx="70" cy="65" r="22" fill="none" stroke="var(--b)" stroke-width=".5" opacity=".5"/>
+                <circle cx="70" cy="65" r="9"  fill="none" stroke="var(--b)" stroke-width="1" opacity=".5"/>
+                <circle cx="70" cy="65" r="3"  fill="var(--s)" opacity=".8"/>
+            </g>
+            <!-- R/W arm (static) -->
+            <line x1="70" y1="65" x2="56" y2="39" stroke="var(--s)" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+            <circle cx="56" cy="39" r="3" fill="var(--s)" opacity=".8"/>
+            <!-- Process chips -->
+            <g id="io-chips"></g>
+            <text x="145" y="108" text-anchor="middle" style="font-size:9px;font-family:var(--font-mono);" fill="var(--s)" opacity=".8" id="io-label">Idle Spindle</text>
+        </g>
+
+        <!-- Completed (x=20, y=390, w=310, h=116) -->
+        <g transform="translate(20,390)" filter="url(#soft-shadow)">
+            <rect x="0" y="0" width="310" height="116" rx="6" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5"/>
+            <text x="12" y="16" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="var(--s)" opacity=".6">Completed</text>
+            <g id="done-c"></g>
+        </g>
+
+        <!-- ═══════════════════════════════════════════════════════ Stats bar (y=516..542) -->
+        <g transform="translate(20,516)">
+            <rect x="0" y="0" width="640" height="26" rx="4" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5"/>
+            <g id="stats-bar"></g>
+        </g>
+
+        <!-- ═══════════════════════════════════════════════════════ Gantt Chart (y=552+) -->
+        <g transform="translate(20,552)">
+            <text x="0" y="12" style="font-size:11px;font-weight:600;font-family:var(--font-sans);" fill="var(--s)" opacity=".8">Gantt Chart</text>
+            <g id="gantt"></g>
+        </g>
+    </svg>
+
+    <!-- Event log -->
+    <div id="log" style="font-size:11.5px;font-family:var(--font-mono);color:var(--color-text-secondary);height:96px;overflow-y:auto;padding:8px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);margin-top:10px;line-height:1.5;">
+        Waiting for backend trace fetch...
+    </div>
+</div>
+</div>
+
+<script>
+    const C  = ['#7F77DD','#1D9E75','#D85A30','#D4537E','#378ADD','#639922','#C49B07','#A855F7','#EF4444','#14B8A6'];
+    const CL = ['#EEEDFE','#E1F5EE','#FAECE7','#FBEAF0','#E6F1FB','#EAF3DE','#FEF9C3','#F3E8FF','#FEE2E2','#CCFBF1'];
+    const CT = ['#3C3489','#085041','#712B13','#72243E','#0C447C','#27500A','#713F12','#4C1D95','#7F1D1D','#0F766E'];
+
+    const STATE_COLOR = { READY:'#534AB7', RUNNG:'#0F6E56', BLOCK:'#D85A30', Done:'#64748b', CREATED:'#94a3b8' };
+
+    let parsedEvents = [];
+    let gantt        = [];
+    let logs         = [];
+    let P            = [];
+    let RQ           = [];
+    let cpu          = null;
+    let ioActive     = [];
+    let time         = 0;
+    let maxTime      = 0;
+    let playing      = false;
+    let timer        = null;
+    let done         = false;
+    let currentEventIndex = 0;
+    let currentAlgo  = 'F';
+    let algoFull     = '';
+    let summaryStats = null;
+
+    // ──────────────────────────────────────────────── helpers
+    function chip(pid, x, y, w, h) {
+        const ci = pid % C.length;
+        return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${C[ci]}" class="pchip"/>` +
+               `<text x="${x+w/2}" y="${y+h/2}" text-anchor="middle" dominant-baseline="central" fill="#fff" ` +
+               `style="font-size:11px;font-weight:600;font-family:var(--font-sans)">P${pid}</text>`;
+    }
+
+    // ──────────────────────────────────────────────── fetch & parse
+    async function fetchTrace() {
+        logs = [];
+        document.getElementById('log').innerHTML = '<div>Fetching trace from backend ./scheduler...</div>';
+        document.getElementById('btnLoad').disabled = true;
+        document.getElementById('btnLoad').textContent = 'Loading...';
+
+        currentAlgo = document.getElementById('inpAlgo').value.trim() || 'F';
+        const input = document.getElementById('inpFile').value || 'input0';
+
+        try {
+            const resp = await fetch('/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ algo: currentAlgo, input })
+            });
+            if (!resp.ok) throw new Error('Backend fault');
+            const data = await resp.json();
+            parseTrace(data.trace);
+            document.getElementById('btnLoad').textContent = 'Simulate';
+            document.getElementById('btnLoad').disabled = false;
+        } catch (e) {
+            document.getElementById('log').innerHTML =
+                '<div style="color:#d4537e;font-weight:bold;">Error: Could not reach backend. Did you start server.py?</div>';
+            document.getElementById('btnLoad').textContent = 'Simulate';
+            document.getElementById('btnLoad').disabled = false;
+        }
+    }
+
+    function parseTrace(text) {
+        const lines = text.split('\n').map(l => l.replace(/\r$/, ''));
+        parsedEvents = [];
+        P = [];
+        gantt = [];
+        maxTime = 0;
+        algoFull = '';
+        summaryStats = null;
+        document.getElementById('algoLabel').textContent = '-';
+
+        const pMap = {};
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            // verbose event line: "time pid dur: OLD -> NEW [extras]"
+            const mEv = line.match(/^(\d+)\s+(\d+)\s+\d+:\s+([A-Z]+)\s+->\s+([A-Z]+)(.*)/);
+            if (mEv) {
+                const t   = parseInt(mEv[1]);
+                const pid = parseInt(mEv[2]);
+                const old = mEv[3];
+                const nxt = mEv[4];
+                const ext = mEv[5].trim();
+                if (t > maxTime) maxTime = t;
+
+                let cb   = ext.includes('cb=')   ? parseInt(ext.match(/cb=(\d+)/)[1])         : undefined;
+                let rem  = ext.includes('rem=')  ? parseInt(ext.match(/rem=(\d+)/)[1])        : undefined;
+                let prio = ext.includes('prio=') ? parseInt(ext.match(/prio=([-]?\d+)/)[1])   : undefined;
+                let ib   = ext.includes('ib=')   ? parseInt(ext.match(/ib=(\d+)/)[1])         : undefined;
+
+                if (!pMap[pid]) pMap[pid] = { pid, st:0, tc:0, tci:0, cpub:0, iob:0, prio:0,
+                                               arrived:false, runStart:undefined, ioStart:undefined, finishTime:undefined };
+                if (rem !== undefined && rem > pMap[pid].tci) pMap[pid].tci = rem;
+
+                parsedEvents.push({ t, pid, old, nxt, cb, rem, prio, ib, text: line });
+                return;
+            }
+
+            // Done line
+            const mDone = line.match(/^(\d+)\s+(\d+)\s+\d+:\s+Done/);
+            if (mDone) {
+                const t   = parseInt(mDone[1]);
+                const pid = parseInt(mDone[2]);
+                if (t > maxTime) maxTime = t;
+                if (!pMap[pid]) pMap[pid] = { pid, st:0, tc:0, tci:0, cpub:0, iob:0, prio:0,
+                                               runStart:undefined, ioStart:undefined, finishTime:undefined };
+                pMap[pid].finishTime = t;
+                parsedEvents.push({ t, pid, old:'ANY', nxt:'Done', text: line });
+                return;
+            }
+
+            // algorithm header
+            const mAlgo = line.match(/^(FCFS|LCFS|SRTF|RR|PRIO|PREPRIO)(\s+\d+)?$/);
+            if (mAlgo) {
+                algoFull = line;
+                document.getElementById('algoLabel').textContent = line;
+                return;
+            }
+
+            // summary process line
+            const mSum = line.match(/^(\d+):\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+\|\s+(\d+)/);
+            if (mSum) {
+                const pid    = parseInt(mSum[1]);
+                const tcInit = parseInt(mSum[3]);
+                const ft     = parseInt(mSum[7]);
+                if (!pMap[pid]) pMap[pid] = { pid, st:0, tc:tcInit, tci:tcInit, cpub:0, iob:0, prio:0,
+                                               runStart:undefined, ioStart:undefined, finishTime:ft };
+                else {
+                    if (tcInit > pMap[pid].tci) pMap[pid].tci = tcInit;
+                    pMap[pid].finishTime = ft;
+                }
+                return;
+            }
+
+            // SUM line
+            const mS = line.match(/^SUM:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+            if (mS) {
+                summaryStats = {
+                    simTime:    parseFloat(mS[1]),
+                    cpuUtil:    parseFloat(mS[2]),
+                    ioUtil:     parseFloat(mS[3]),
+                    avgTAT:     parseFloat(mS[4]),
+                    avgWait:    parseFloat(mS[5]),
+                    throughput: parseFloat(mS[6])
+                };
+            }
+        });
+
+        if (summaryStats) maxTime = Math.max(maxTime, summaryStats.simTime);
+
+        Object.values(pMap).forEach(p => P.push(p));
+        P.sort((a,b) => a.pid - b.pid);
+        parsedEvents.sort((a,b) => a.t - b.t);
+
+        document.getElementById('btnStep').disabled  = false;
+        document.getElementById('bp').disabled       = false;
+        document.getElementById('btnReset').disabled = false;
+
+        logs.push(`<strong style="color:var(--color-text-primary)">${parsedEvents.length} events loaded. ` +
+                  `${P.length} processes. Sim time: ${maxTime}.</strong>`);
+        resetSim();
+    }
+
+    // ──────────────────────────────────────────────── simulation control
+    function resetSim() {
+        if (timer) clearInterval(timer);
+        playing = false; done = false;
+        document.getElementById('bp').textContent = 'Play';
+        time = 0; cpu = null; gantt = []; ioActive = []; logs = []; RQ = [];
+        currentEventIndex = 0;
+        P.forEach(p => {
+            p.st = 0; p.cpub = 0; p.iob = 0; p.tc = p.tci;
+            p.prio = 0; p.arrived = false; p.runStart = undefined; p.ioStart = undefined;
+        });
+        if (parsedEvents.length > 0 && parsedEvents[0].t === 0) processNextEvents();
+        render();
+    }
+
+    function processNextEvents() {
+        if (currentEventIndex >= parsedEvents.length) return;
+        time = parsedEvents[currentEventIndex].t;
+
+        while (currentEventIndex < parsedEvents.length &&
+               parsedEvents[currentEventIndex].t === time) {
+            const ev = parsedEvents[currentEventIndex];
+            const rQ = new Set(RQ);
+
+            if (ev.old === 'READY') {
+                rQ.delete(ev.pid);
+            }
+            if (ev.old === 'RUNNG' && cpu === ev.pid) {
+                cpu = null;
+                const p = P.find(x => x.pid === ev.pid);
+                if (p && p.runStart !== undefined) {
+                    if (time > p.runStart) gantt.push({ pid:ev.pid, s:p.runStart, e:time, type:'cpu' });
+                    p.runStart = undefined;
+                }
+                if (ev.nxt === 'BLOCK') {
+                    if (p) p.ioStart = time;
+                }
+            }
+            if (ev.old === 'BLOCK') {
+                ioActive = ioActive.filter(id => id !== ev.pid);
+                const p = P.find(x => x.pid === ev.pid);
+                if (p && p.ioStart !== undefined) {
+                    if (time > p.ioStart) gantt.push({ pid:ev.pid, s:p.ioStart, e:time, type:'io' });
+                    p.ioStart = undefined;
+                }
+            }
+
+            const p = P.find(x => x.pid === ev.pid);
+            if (p) {
+                if (ev.cb   !== undefined) p.cpub = ev.cb;
+                if (ev.rem  !== undefined) p.tc   = ev.rem;
+                if (ev.ib   !== undefined) p.iob  = ev.ib;
+                if (ev.prio !== undefined) p.prio = ev.prio;
+            }
+
+            if (ev.nxt === 'READY') {
+                rQ.add(ev.pid);
+                if (p) { p.st = 1; if (ev.old === 'CREATED') p.arrived = true; }
+            }
+            if (ev.nxt === 'RUNNG') {
+                cpu = ev.pid;
+                if (p) { p.st = 2; p.runStart = time; }
+            }
+            if (ev.nxt === 'BLOCK') {
+                ioActive.push(ev.pid);
+                if (p) { p.st = 3; if (p.ioStart === undefined) p.ioStart = time; }
+            }
+            if (ev.nxt === 'Done') {
+                if (cpu === ev.pid) {
+                    cpu = null;
+                    if (p && p.runStart !== undefined) {
+                        gantt.push({ pid:ev.pid, s:p.runStart, e:time, type:'cpu' });
+                        p.runStart = undefined;
+                    }
+                }
+                rQ.delete(ev.pid);
+                ioActive = ioActive.filter(id => id !== ev.pid);
+                if (p) { p.st = 4; p.tc = 0; }
+            }
+
+            addLogEntry(ev);
+            RQ = Array.from(rQ);
+            currentEventIndex++;
+        }
+    }
+
+    function stepForward() {
+        if (done) return;
+        if (currentEventIndex >= parsedEvents.length) {
+            done = true;
+            if (cpu !== null) {
+                const p = P.find(x => x.pid === cpu);
+                if (p && p.runStart !== undefined) {
+                    gantt.push({ pid:cpu, s:p.runStart, e:maxTime, type:'cpu' });
+                    p.runStart = undefined;
+                }
+            }
+            time = maxTime;
+            render();
+            return;
+        }
+        processNextEvents();
+        render();
+    }
+
+    function addLogEntry(ev) {
+        const stateStr = ev.nxt === 'Done' ? 'Done' : `${ev.old} → ${ev.nxt}`;
+        const col  = STATE_COLOR[ev.nxt] || '#64748b';
+        let extras = '';
+        if (ev.cb   !== undefined) extras += ` cb=${ev.cb}`;
+        if (ev.rem  !== undefined) extras += ` rem=${ev.rem}`;
+        if (ev.prio !== undefined) extras += ` prio=${ev.prio}`;
+        if (ev.ib   !== undefined) extras += ` ib=${ev.ib}`;
+        logs.push(
+            `<span style="color:var(--s);min-width:32px;display:inline-block">${ev.t}</span> ` +
+            `<span style="font-weight:700;color:${C[ev.pid % C.length]}">P${ev.pid}</span> ` +
+            `<span style="color:${col};font-weight:600">${stateStr}</span>` +
+            (extras ? `<span style="color:var(--t)">${extras}</span>` : '')
+        );
+    }
+
+    function togglePlay() {
+        playing = !playing;
+        document.getElementById('bp').textContent = playing ? 'Pause' : 'Play';
+        if (playing) {
+            const delay = parseInt(document.getElementById('speed').value);
+            timer = setInterval(() => {
+                if (done || currentEventIndex >= parsedEvents.length) {
+                    playing = false; clearInterval(timer);
+                    document.getElementById('bp').textContent = 'Play'; return;
+                }
+                stepForward();
+            }, delay);
+        } else {
+            clearInterval(timer);
+        }
+    }
+
+    document.getElementById('speed').addEventListener('change', function () {
+        if (playing) {
+            clearInterval(timer);
+            const delay = parseInt(this.value);
+            timer = setInterval(() => {
+                if (done || currentEventIndex >= parsedEvents.length) {
+                    playing = false; clearInterval(timer);
+                    document.getElementById('bp').textContent = 'Play'; return;
+                }
+                stepForward();
+            }, delay);
+        }
+    });
+
+    // ──────────────────────────────────────────────── render
+    function render() {
+        document.getElementById('clk').textContent = time;
+        renderBuses();
+        renderReadyQueue();
+        renderUserSpace();
+        renderCPU();
+        renderIO();
+        renderCompleted();
+        renderStats();
+        renderGantt();
+        renderLog();
+    }
+
+    function renderBuses() {
+        const active = (cpu !== null || RQ.length > 0);
+        const dataColor = cpu !== null ? C[cpu % C.length] : '#1D9E75';
+        ['sysbus','sysbus2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.opacity = active ? '.9' : '.35';
+            el.style.stroke  = dataColor;
+        });
+
+        const ioBusEl = document.getElementById('iobus');
+        if (ioBusEl) ioBusEl.style.opacity = ioActive.length ? '.9' : '.3';
+
+        const irqEl = document.getElementById('irqbus');
+        if (irqEl) irqEl.style.opacity =
+            parsedEvents.some(e => e.t === time && e.nxt === 'READY') ? '.95' : '.3';
+    }
+
+    function renderReadyQueue() {
+        let h = '';
+        // chips start at x=130 (right of the "Ready Queue" label which is at x=48)
+        const showCount = Math.min(RQ.length, 6);
+        RQ.slice(0, showCount).forEach((pid, i) => {
+            h += chip(pid, 130 + i * 24, 108, 22, 20);
+        });
+        if (RQ.length > showCount) {
+            h += `<text x="276" y="121" text-anchor="end" style="font-size:10px;font-family:var(--font-mono);font-weight:bold" fill="#3C3489">+${RQ.length - showCount}</text>`;
+        }
+        if (!RQ.length) {
+            h += `<text x="200" y="121" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".5">(Empty)</text>`;
+        }
+        document.getElementById('rq-content').innerHTML = h;
+    }
+
+    function renderUserSpace() {
+        let h = '';
+        const arrived = P.filter(p => p.arrived);
+        const show = Math.min(arrived.length, 8);
+        // User-space box: x=34, y=150, w=252 → inner area ends at x=286
+        // 2 columns with 124px gap; each box is 116px wide → col0: x=42..158, col1: x=166..282 ✓
+        arrived.slice(0, show).forEach((p, i) => {
+            const row = Math.floor(i / 2), col = i % 2;
+            const x = 42 + col * 124, y = 172 + row * 38;
+            const ci = p.pid % C.length;
+
+            let fill, stroke, opa;
+            if (p.st === 4) {
+                fill = '#f1f5f9'; stroke = 'var(--b)'; opa = '.5';
+            } else if (p.st === 2) {
+                fill = C[ci]; stroke = C[ci]; opa = '1';
+            } else if (p.st === 3) {
+                fill = CL[ci]; stroke = C[ci]; opa = '.7';
+            } else {
+                fill = CL[ci]; stroke = C[ci]; opa = '1';
+            }
+            const textFill = (p.st === 2) ? '#fff' : CT[ci];
+            const BOX_W = 116;
+
+            h += `<rect x="${x}" y="${y}" width="${BOX_W}" height="32" rx="3" fill="${fill}" stroke="${stroke}" stroke-width=".7" opacity="${opa}"/>`;
+
+            // PID label
+            h += `<text x="${x+5}" y="${y+13}" style="font-size:11px;font-weight:700;font-family:var(--font-sans);" fill="${textFill}" opacity="${opa}">P${p.pid}</text>`;
+
+            // State label (right-aligned inside box)
+            const stLabels = ['created','ready','run','blocked','done'];
+            const stLabel  = stLabels[p.st] || 'created';
+            h += `<text x="${x+BOX_W-4}" y="${y+13}" text-anchor="end" style="font-size:9px;font-family:var(--font-mono);font-weight:bold;" fill="${textFill}" opacity="${parseFloat(opa)*.85}">${stLabel.toUpperCase()}</text>`;
+
+            // Bottom row: burst info or progress bar
+            if (p.st === 2 && p.cpub > 0) {
+                h += `<text x="${x+5}" y="${y+26}" style="font-size:8.5px;font-family:var(--font-mono);" fill="${textFill}" opacity=".8">burst:${p.cpub} rem:${Math.max(0,p.tc)}</text>`;
+            } else if (p.st === 3 && p.iob > 0) {
+                h += `<text x="${x+5}" y="${y+26}" style="font-size:8.5px;font-family:var(--font-mono);" fill="${CT[ci]}" opacity=".7">io:${p.iob} rem:${Math.max(0,p.tc)}</text>`;
+            } else {
+                // progress bar fills left→right as work completes
+                const frac = p.tci > 0 ? Math.max(0, 1 - p.tc / p.tci) : 0;
+                const pw   = Math.round(frac * (BOX_W - 10));
+                const barFill = (p.st === 4) ? 'var(--b)' : stroke;
+                h += `<rect x="${x+5}" y="${y+24}" width="${BOX_W-10}" height="4" rx="1" fill="#e2e8f0"/>`;
+                h += `<rect x="${x+5}" y="${y+24}" width="${pw}"        height="4" rx="1" fill="${barFill}" opacity="${opa}"/>`;
+            }
+        });
+        if (arrived.length > show) {
+            h += `<text x="160" y="${172 + Math.ceil(show/2)*38 + 10}" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".6">+${arrived.length - show} more processes</text>`;
+        }
+        document.getElementById('uspace').innerHTML = h;
+    }
+
+    function renderCPU() {
+        let cuH = '', aluH = '', regH = '', cacheH = '', pipeH = '', ctxH = '';
+        const stages = ['Fetch','Decode','Execute','Writeback'];
+
+        if (cpu !== null) {
+            const p  = P.find(x => x.pid === cpu);
+            const ci = cpu % C.length;
+            document.getElementById('cu-box').classList.add('act');
+            document.getElementById('alu-box').classList.add('act');
+
+            cuH  = `<text x="450" y="108" text-anchor="middle" style="font-size:9px;font-family:var(--font-mono);font-weight:bold" fill="#185FA5">ACTIVE (RUNNING)</text>`;
+            aluH = chip(cpu, 555, 90, 60, 22);
+
+            // Registers: box y=130..184, title at y=148; content at y=163 and y=176
+            regH  = `<text x="395" y="165" style="font-size:10px;font-family:var(--font-mono);font-weight:600" fill="#444441">PC=${time}</text>`;
+            regH += `<text x="445" y="165" style="font-size:10px;font-family:var(--font-mono);" fill="#444441">IR=Exec</text>`;
+            regH += `<text x="395" y="178" style="font-size:10px;font-family:var(--font-mono);font-weight:600" fill="#444441">SP=P${cpu}</text>`;
+
+            // L1 cache: box y=130..184, title at y=148; content at y=163
+            const remFrac = (p && p.tci > 0) ? Math.max(0, 1 - p.tc / p.tci) : 0;
+            const cacheW  = Math.round(100 * remFrac);
+            cacheH  = `<text x="535" y="165" style="font-size:9px;font-family:var(--font-mono);" fill="#085041">P${cpu} data</text>`;
+            cacheH += `<rect x="535" y="170" width="100" height="6" rx="2" fill="#9FE1CB" opacity=".5"/>`;
+            cacheH += `<rect x="535" y="170" width="${cacheW}" height="6" rx="2" fill="#1D9E75" opacity=".9"/>`;
+
+            // Pipeline stages inside box y=194..250; header text at y=211; stages at y=218
+            stages.forEach((s, i) => {
+                const sx     = 395 + i * 64;
+                const active = (i >= 1 && i <= 2);
+                pipeH += `<rect x="${sx}" y="218" width="58" height="24" rx="3" fill="${active ? C[ci] : 'var(--color-background-primary)'}" stroke="${active ? C[ci] : 'var(--b)'}" stroke-width=".5"/>`;
+                pipeH += `<text x="${sx+29}" y="218" dy="14" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:600;font-family:var(--font-sans);" fill="${active ? '#fff' : 'var(--s)'}">${s}</text>`;
+                if (i < 3) pipeH += `<line x1="${sx+58}" y1="230" x2="${sx+64}" y2="230" stroke="var(--b)" stroke-width=".5" opacity=".3"/>`;
+            });
+
+            // Context box y=260..312; header at y=276; content at y=292+
+            ctxH  = chip(cpu, 395, 284, 50, 22);
+            ctxH += `<text x="454" y="292" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">burst:<tspan style="fill:var(--color-text-primary);font-weight:700">${p ? p.cpub : 0}</tspan>  prio:<tspan style="fill:#D85A30;font-weight:700">${p ? p.prio : 0}</tspan></text>`;
+            ctxH += `<text x="454" y="305" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">rem:<tspan style="fill:var(--color-text-primary);font-weight:700">${p ? Math.max(0,p.tc) : 0}</tspan></text>`;
+        } else {
+            document.getElementById('cu-box').classList.remove('act');
+            document.getElementById('alu-box').classList.remove('act');
+
+            cuH   = `<text x="450" y="108" text-anchor="middle" style="font-size:9px;font-family:var(--font-mono);" fill="#185FA5" opacity=".5">Idle</text>`;
+            regH  = `<text x="395" y="165" style="font-size:9px;font-family:var(--font-mono);" fill="#444441" opacity=".4">PC=—  IR=—  SP=—</text>`;
+            cacheH= `<text x="535" y="165" style="font-size:9px;font-family:var(--font-mono);" fill="#085041" opacity=".4">Empty</text>`;
+            ctxH  = `<text x="515" y="292" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".4">no process loaded</text>`;
+
+            stages.forEach((s, i) => {
+                const sx = 395 + i * 64;
+                pipeH += `<rect x="${sx}" y="218" width="58" height="24" rx="3" fill="var(--color-background-primary)" stroke="var(--b)" stroke-width=".5" opacity=".4"/>`;
+                pipeH += `<text x="${sx+29}" y="218" dy="14" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-family:var(--font-sans);" fill="var(--s)" opacity=".4">${s}</text>`;
+                if (i < 3) pipeH += `<line x1="${sx+58}" y1="230" x2="${sx+64}" y2="230" stroke="var(--b)" stroke-width=".5" opacity=".2"/>`;
+            });
+        }
+
+        document.getElementById('cu-sched').innerHTML      = cuH;
+        document.getElementById('alu-proc').innerHTML      = aluH;
+        document.getElementById('regs').innerHTML          = regH;
+        document.getElementById('cache-content').innerHTML = cacheH;
+        document.getElementById('pipeline').innerHTML      = pipeH;
+        document.getElementById('ctx').innerHTML           = ctxH;
+    }
+
+    function renderIO() {
+        const dg = document.getElementById('disk-g');
+        let ioH  = '';
+        if (ioActive.length) {
+            dg.classList.add('dsk');
+            ioActive.slice(0, 4).forEach((pid, i) => {
+                ioH += chip(pid, 130 + i * 38, 30, 34, 22);
+            });
+            const bp   = P.find(x => x.pid === ioActive[0]);
+            const remIo= bp && bp.iob > 0 ? ` ib=${bp.iob}` : '';
+            document.getElementById('io-label').textContent =
+                'seeking: ' + ioActive.map(id => 'P'+id).join(', ') + remIo;
+            document.getElementById('io-label').style.fill = '#D85A30';
+        } else {
+            dg.classList.remove('dsk');
+            document.getElementById('io-label').textContent = 'Idle Spindle';
+            document.getElementById('io-label').style.fill = 'var(--s)';
+        }
+        document.getElementById('io-chips').innerHTML = ioH;
+    }
+
+    function renderCompleted() {
+        let h = '';
+        // Completed rect is now h=116; title at y=16; chips start at y=28, 6 per row, 22px row gap
+        const doneProcs = P.filter(p => p.st === 4);
+        doneProcs.forEach((p, i) => {
+            const ci  = p.pid % C.length;
+            const col = i % 6;
+            const row = Math.floor(i / 6);
+            const x   = 15 + col * 47;
+            const y   = 28 + row * 26;
+            h += `<rect x="${x}" y="${y}" width="43" height="20" rx="3" fill="${CL[ci]}" stroke="${C[ci]}" stroke-width=".5"/>`;
+            h += `<text x="${x+21}" y="${y+10}" text-anchor="middle" dominant-baseline="central" fill="${CT[ci]}" style="font-size:11px;font-weight:700;font-family:var(--font-sans)">P${p.pid}</text>`;
+        });
+        document.getElementById('done-c').innerHTML = h;
+    }
+
+    function renderStats() {
+        const doneCnt = P.filter(p => p.st === 4).length;
+        const total   = P.length;
+        let h = '';
+
+        const algoDisplay = algoFull || currentAlgo;
+        h += `<text x="10" y="17" style="font-size:10px;font-family:var(--font-mono);font-weight:700;" fill="#534AB7">${algoDisplay}</text>`;
+        h += `<text x="116" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">Done: <tspan font-weight="700" fill="var(--color-text-primary)">${doneCnt}/${total}</tspan></text>`;
+
+        if (summaryStats && done) {
+            h += `<text x="216" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">CPU: <tspan font-weight="700" fill="#1D9E75">${summaryStats.cpuUtil.toFixed(1)}%</tspan></text>`;
+            h += `<text x="290" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">IO: <tspan font-weight="700" fill="#D85A30">${summaryStats.ioUtil.toFixed(1)}%</tspan></text>`;
+            h += `<text x="358" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">avgTAT: <tspan font-weight="700" fill="var(--color-text-primary)">${summaryStats.avgTAT.toFixed(1)}</tspan></text>`;
+            h += `<text x="452" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">avgWait: <tspan font-weight="700" fill="var(--color-text-primary)">${summaryStats.avgWait.toFixed(1)}</tspan></text>`;
+            h += `<text x="548" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">tput: <tspan font-weight="700" fill="var(--color-text-primary)">${summaryStats.throughput.toFixed(3)}</tspan></text>`;
+        } else {
+            const cpuTicks = gantt.filter(g => g.type === 'cpu').reduce((s,g) => s + (g.e - g.s), 0);
+            const ioTicks  = gantt.filter(g => g.type === 'io' ).reduce((s,g) => s + (g.e - g.s), 0);
+            const elapsed  = time || 1;
+            h += `<text x="216" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">CPU≈<tspan font-weight="700" fill="#1D9E75">${(100*cpuTicks/elapsed).toFixed(0)}%</tspan></text>`;
+            h += `<text x="290" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)">IO≈<tspan font-weight="700" fill="#D85A30">${(100*ioTicks/elapsed).toFixed(0)}%</tspan></text>`;
+            h += `<text x="548" y="17" style="font-size:10px;font-family:var(--font-mono);" fill="var(--s)" opacity=".5">t=${time} / ${maxTime}</text>`;
+        }
+        document.getElementById('stats-bar').innerHTML = h;
+    }
+
+    function renderGantt() {
+        const scale  = Math.max(maxTime, 1);
+        const LABEL  = 32;   // px for process labels
+        const W      = 628;  // total chart width (matches stats bar w=640 minus left margin)
+        const CW     = W - LABEL;
+        const ROW_H  = 15;
+        const ROW_G  = 4;
+        const MAX_ROWS = 10;
+
+        const pids = P.slice(0, MAX_ROWS).map(p => p.pid);
+        let h = '';
+
+        // current live CPU run (not yet committed to gantt array)
+        const gAll = [...gantt];
+        if (cpu !== null) {
+            const p = P.find(x => x.pid === cpu);
+            if (p && p.runStart !== undefined) {
+                gAll.push({ pid:cpu, s:p.runStart, e:time, type:'cpu' });
+            }
+        }
+
+        // rows
+        pids.forEach((pid, ri) => {
+            const y  = 20 + ri * (ROW_H + ROW_G);
+            const ci = pid % C.length;
+
+            // row background stripe
+            h += `<rect x="${LABEL}" y="${y}" width="${CW}" height="${ROW_H}" rx="1" fill="${ri%2===0 ? '#f8fafc' : '#fff'}" stroke="var(--b)" stroke-width=".3"/>`;
+            // PID label (right-aligned, vertically centred in row)
+            h += `<text x="${LABEL-4}" y="${y + ROW_H/2}" text-anchor="end" dominant-baseline="central" style="font-size:9px;font-weight:700;font-family:var(--font-sans);" fill="${C[ci]}">P${pid}</text>`;
+
+            gAll.filter(g => g.pid === pid).forEach(g => {
+                const l = LABEL + (g.s / scale) * CW;
+                const w = Math.max((g.e - g.s) / scale * CW, 0.5);
+                if (g.type === 'cpu') {
+                    h += `<rect x="${l}" y="${y+1}" width="${w}" height="${ROW_H-2}" rx="1" fill="${C[ci]}" opacity=".9"/>`;
+                    if (w > 14) h += `<text x="${l+w/2}" y="${y+ROW_H/2}" text-anchor="middle" dominant-baseline="central" fill="#fff" style="font-size:7px;font-weight:700;font-family:var(--font-sans)">P${pid}</text>`;
+                } else {
+                    h += `<rect x="${l}" y="${y+3}" width="${w}" height="${ROW_H-6}" rx="1" fill="${C[ci]}" opacity=".28"/>`;
+                }
+            });
+        });
+
+        if (P.length > MAX_ROWS) {
+            const extraY = 20 + MAX_ROWS*(ROW_H+ROW_G) + 6;
+            h += `<text x="${LABEL + CW/2}" y="${extraY}" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".5">+${P.length - MAX_ROWS} more processes not shown</text>`;
+        }
+
+        // time axis
+        const axisY = 20 + pids.length * (ROW_H + ROW_G) + 16;
+        for (let i = 0; i <= 5; i++) {
+            const t = Math.round(scale / 5 * i);
+            const x = LABEL + (t / scale) * CW;
+            h += `<line x1="${x}" y1="18" x2="${x}" y2="${axisY - 4}" stroke="var(--b)" stroke-width=".5" stroke-dasharray="2 2" opacity=".5"/>`;
+            h += `<text x="${x}" y="${axisY}" text-anchor="middle" style="font-size:8.5px;font-weight:600;" fill="var(--s)" opacity=".7">${t}</text>`;
+        }
+
+        // legend
+        const lx = LABEL + CW - 120;
+        const ly = axisY + 14;
+        h += `<rect x="${lx}"    y="${ly}"   width="10" height="6" rx="1" fill="#7F77DD" opacity=".9"/>`;
+        h += `<text x="${lx+14}" y="${ly+6}" style="font-size:8px;font-family:var(--font-sans);" fill="var(--s)">CPU Burst</text>`;
+        h += `<rect x="${lx+68}"    y="${ly+1}" width="10" height="4" rx="1" fill="#7F77DD" opacity=".28"/>`;
+        h += `<text x="${lx+82}" y="${ly+6}" style="font-size:8px;font-family:var(--font-sans);" fill="var(--s)">I/O Wait</text>`;
+
+        document.getElementById('gantt').innerHTML = h;
+    }
+
+    function renderLog() {
+        const logEl = document.getElementById('log');
+        logEl.innerHTML = logs.slice(-20).map(l => `<div style="padding:1px 0">${l}</div>`).join('');
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+</script>
+</body>
+</html>

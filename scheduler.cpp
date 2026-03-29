@@ -414,7 +414,7 @@ struct RR: public Scheduler {
     }  
 
     void printQueues() { 
-
+        
     }
 };
 
@@ -422,6 +422,11 @@ struct PRIO: public Scheduler {
     public:
         vector<queue<PCB*>> activeQVec;
         vector<queue<PCB*>> expiredQVec;
+
+    PRIO() {
+        activeQVec.resize(maxPrio);
+        expiredQVec.resize(maxPrio);
+    }
 
     void addProcess(PCB* pcb) {
 
@@ -517,6 +522,11 @@ struct PREPRIO: public Scheduler {
     public:
         vector<queue<PCB*>> activeQVec;
         vector<queue<PCB*>> expiredQVec;
+
+    PREPRIO() {
+        activeQVec.resize(maxPrio);
+        expiredQVec.resize(maxPrio);
+    }
 
     void addProcess(PCB* pcb) {
 

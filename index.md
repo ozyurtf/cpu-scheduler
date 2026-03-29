@@ -1,8 +1,13 @@
+---
+layout: default
+title: CPU Scheduler
+---
+
 **Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
 
-# Demo 
+# Demo
 
-[![Demo](/figures/cpu-scheduler.png)](https://www.youtube.com/watch?v=Ca4ucPIjGCM)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ca4ucPIjGCM?si=i06_YQ09vt8L1xF3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 # Processes and Threads 
 
