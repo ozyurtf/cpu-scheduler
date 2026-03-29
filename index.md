@@ -7,11 +7,13 @@ title: CPU Scheduler
 
 **Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
 
+
+
 # Demo
 
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">
 <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
-  src="https://www.youtube.com/embed/Ca4ucPIjGCM?si=i06_YQ09vt8L1xF3"
+  src="https://www.youtube.com/embed/aXq7jimDInw?si=PVOY0QmSk9VzNlmU"
   title="YouTube video player"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   referrerpolicy="strict-origin-when-cross-origin"
