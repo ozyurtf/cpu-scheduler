@@ -538,6 +538,25 @@
     let currentAlgo  = 'F';
     let algoFull     = '';
     let summaryStats = null;
+    let ganttPage    = 0;
+    let uspaceOffset = 0;
+    let rqOffset     = 0;
+
+    function ganttNav(d) {
+        const maxPage = Math.max(0, Math.ceil(P.length / 10) - 1);
+        ganttPage = Math.max(0, Math.min(ganttPage + d, maxPage));
+        render();
+    }
+    function uspaceNav(d) {
+        const arrived = P.filter(p => p.arrived);
+        const maxOff = Math.max(0, arrived.length - 8);
+        uspaceOffset = Math.max(0, Math.min(uspaceOffset + d * 8, maxOff));
+        render();
+    }
+    function rqNav(d) {
+        rqOffset = Math.max(0, Math.min(rqOffset + d, Math.max(0, RQ.length - 6)));
+        render();
+    }
 
     // ──────────────────────────────────────────────── helpers
     function chip(pid, x, y, w, h) {
@@ -686,7 +705,7 @@
         playing = false; done = false;
         document.getElementById('bp').textContent = 'Play';
         time = 0; cpu = null; gantt = []; ioActive = []; logs = []; RQ = [];
-        currentEventIndex = 0;
+        currentEventIndex = 0; ganttPage = 0; uspaceOffset = 0; rqOffset = 0;
         P.forEach(p => {
             p.st = 0; p.cpub = 0; p.iob = 0; p.tc = p.tci;
             p.prio = 0; p.arrived = false; p.runStart = undefined; p.ioStart = undefined;
@@ -866,13 +885,20 @@
 
     function renderReadyQueue() {
         let h = '';
-        // chips start at x=130 (right of the "Ready Queue" label which is at x=48)
-        const showCount = Math.min(RQ.length, 6);
-        RQ.slice(0, showCount).forEach((pid, i) => {
+        const MAX_CHIPS = 5;
+        const visible = RQ.slice(rqOffset, rqOffset + MAX_CHIPS);
+        visible.forEach((pid, i) => {
             h += chip(pid, 130 + i * 24, 108, 22, 20);
         });
-        if (RQ.length > showCount) {
-            h += `<text x="276" y="121" text-anchor="end" style="font-size:10px;font-family:var(--font-mono);font-weight:bold" fill="#3C3489">+${RQ.length - showCount}</text>`;
+        // ◄ arrow
+        if (rqOffset > 0) {
+            h += `<rect x="126" y="106" width="14" height="16" rx="2" fill="#EEEDFE" style="cursor:pointer" onclick="rqNav(-1)"/>`;
+            h += `<text x="133" y="117" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="#3C3489" onclick="rqNav(-1)">◄</text>`;
+        }
+        // ► arrow
+        if (rqOffset + MAX_CHIPS < RQ.length) {
+            h += `<rect x="252" y="106" width="14" height="16" rx="2" fill="#EEEDFE" style="cursor:pointer" onclick="rqNav(1)"/>`;
+            h += `<text x="259" y="117" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="#3C3489" onclick="rqNav(1)">►</text>`;
         }
         if (!RQ.length) {
             h += `<text x="200" y="121" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".5">(Empty)</text>`;
@@ -883,10 +909,22 @@
     function renderUserSpace() {
         let h = '';
         const arrived = P.filter(p => p.arrived);
-        const show = Math.min(arrived.length, 8);
+        const PAGE = 8;
+        uspaceOffset = Math.min(uspaceOffset, Math.max(0, arrived.length - 1));
+        const show = Math.min(arrived.length - uspaceOffset, PAGE);
+        // ▲ arrow (up)
+        if (uspaceOffset > 0) {
+            h += `<rect x="264" y="153" width="16" height="14" rx="2" fill="#EEEDFE" style="cursor:pointer" onclick="uspaceNav(-1)"/>`;
+            h += `<text x="272" y="162" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="#0F6E56" onclick="uspaceNav(-1)">▲</text>`;
+        }
+        // ▼ arrow (down)
+        if (uspaceOffset + PAGE < arrived.length) {
+            h += `<rect x="264" y="307" width="16" height="14" rx="2" fill="#EEEDFE" style="cursor:pointer" onclick="uspaceNav(1)"/>`;
+            h += `<text x="272" y="316" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="#0F6E56" onclick="uspaceNav(1)">▼</text>`;
+        }
         // User-space box: x=34, y=150, w=252 → inner area ends at x=286
         // 2 columns with 124px gap; each box is 116px wide → col0: x=42..158, col1: x=166..282 ✓
-        arrived.slice(0, show).forEach((p, i) => {
+        arrived.slice(uspaceOffset, uspaceOffset + show).forEach((p, i) => {
             const row = Math.floor(i / 2), col = i % 2;
             const x = 42 + col * 124, y = 172 + row * 38;
             const ci = p.pid % C.length;
@@ -928,8 +966,10 @@
                 h += `<rect x="${x+5}" y="${y+24}" width="${pw}"        height="4" rx="1" fill="${barFill}" opacity="${opa}"/>`;
             }
         });
-        if (arrived.length > show) {
-            h += `<text x="160" y="${172 + Math.ceil(show/2)*38 + 10}" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".6">+${arrived.length - show} more processes</text>`;
+        if (arrived.length > PAGE) {
+            const page = Math.floor(uspaceOffset / PAGE) + 1;
+            const totalPages = Math.ceil(arrived.length / PAGE);
+            h += `<text x="160" y="${172 + Math.ceil(show/2)*38 + 12}" text-anchor="middle" style="font-size:8.5px;" fill="var(--s)" opacity=".5">${page}/${totalPages}</text>`;
         }
         document.getElementById('uspace').innerHTML = h;
     }
@@ -1011,10 +1051,12 @@
                 'seeking: ' + ioActive.map(id => 'P'+id).join(', ') + remIo;
             document.getElementById('io-label').style.fill = '#D85A30';
         } else {
-            dg.classList.remove('dsk');
+            dg.classList.add('dsk');
+            dg.style.animationDuration = '4s';
             document.getElementById('io-label').textContent = 'Idle Spindle';
             document.getElementById('io-label').style.fill = 'var(--s)';
         }
+        if (ioActive.length) dg.style.animationDuration = '1.8s';
         document.getElementById('io-chips').innerHTML = ioH;
     }
 
@@ -1069,7 +1111,10 @@
         const ROW_G  = 4;
         const MAX_ROWS = 10;
 
-        const pids = P.slice(0, MAX_ROWS).map(p => p.pid);
+        const maxPage = Math.max(0, Math.ceil(P.length / MAX_ROWS) - 1);
+        ganttPage = Math.min(ganttPage, maxPage);
+        const startIdx = ganttPage * MAX_ROWS;
+        const pids = P.slice(startIdx, startIdx + MAX_ROWS).map(p => p.pid);
         let h = '';
 
         // current live CPU run (not yet committed to gantt array)
@@ -1103,9 +1148,18 @@
             });
         });
 
+        // navigation arrows and page indicator
         if (P.length > MAX_ROWS) {
-            const extraY = 20 + MAX_ROWS*(ROW_H+ROW_G) + 6;
-            h += `<text x="${LABEL + CW/2}" y="${extraY}" text-anchor="middle" style="font-size:9px;" fill="var(--s)" opacity=".5">+${P.length - MAX_ROWS} more processes not shown</text>`;
+            const navY = 8;
+            if (ganttPage > 0) {
+                h += `<rect x="${LABEL+CW-52}" y="${navY-8}" width="20" height="14" rx="2" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5" style="cursor:pointer" onclick="ganttNav(-1)"/>`;
+                h += `<text x="${LABEL+CW-42}" y="${navY+2}" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="var(--s)" onclick="ganttNav(-1)">▲</text>`;
+            }
+            h += `<text x="${LABEL+CW-28}" y="${navY+2}" text-anchor="middle" dominant-baseline="central" style="font-size:8.5px;" fill="var(--s)" opacity=".6">${ganttPage+1}/${maxPage+1}</text>`;
+            if (ganttPage < maxPage) {
+                h += `<rect x="${LABEL+CW-10}" y="${navY-8}" width="20" height="14" rx="2" fill="var(--bg2)" stroke="var(--b)" stroke-width=".5" style="cursor:pointer" onclick="ganttNav(1)"/>`;
+                h += `<text x="${LABEL+CW}" y="${navY+2}" text-anchor="middle" dominant-baseline="central" style="font-size:9px;font-weight:700;cursor:pointer" fill="var(--s)" onclick="ganttNav(1)">▼</text>`;
+            }
         }
 
         // time axis

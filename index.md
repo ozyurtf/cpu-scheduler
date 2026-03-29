@@ -10,7 +10,7 @@ title: CPU Scheduler
 # Demo
 
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%">
-<iframe style="position:absolute;top:-6%;left:0;width:100%;height:112%;border:0"
+<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
   src="https://www.youtube.com/embed/Ca4ucPIjGCM?si=i06_YQ09vt8L1xF3"
   title="YouTube video player"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
