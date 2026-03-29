@@ -3,7 +3,7 @@ layout: default
 title: CPU Scheduler
 ---
 
-# CPU Scheduler
+<h1 style="color:#0969da">CPU Scheduler</h1>
 
 **Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
 
@@ -77,19 +77,7 @@ Processes are created in many different time frames/conditions. In below, we can
 - When a computer initializes hardware devices & operationg system and when it loads the operating system into the memory, new processes are created.
 - During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with the computer. 
 - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. an eaxmple of these tasks might be managing resources) without interacting with the user. 
-- When processes are running, these processes typically create new processes as well. In those cases, we can represent the processes in a process tree:
-
-```
-      A
-     / \
-    /   \
-   B     C
-  / \
- D   F
-
-In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
-```
-
+- When processes are running, these processes typically create new processes as well. 
 - The user can execute some codes or open applications and these actions create processes.
 - The operationg system can create processes to provide services *(e.g., network services, file system service, printing services, etc.)*
 - When the user enters into a system interactively *(e.g through terminal, remote shell, graphical login screen, etc.)*, a new process is created to be able to handle the user's interactive session and to allow the user to interact with the system.
