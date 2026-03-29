@@ -1,4 +1,4 @@
-**Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other as much as possible. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
+**Note**: These are the notes that I took to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book and Claude when I prepare these notes. I tried to create a story and connect all the subtopics with each other. And because I tried to write these notes based on my point of view as much as possible, there is no guarantee that every single information in here is correct.
 
 # Demo 
 
@@ -1051,7 +1051,7 @@ Static priorities are generally assigned based on the type of application, its i
 
 And dynamic priorities are assigned/updated based on the current state of the process, time quantum and how long the process ran, whether the process is preempted or not, whether the process returned back from the IO operation or not, etc.
 
-**By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running forever.**
+**By using time quantum and decreasing the priority of the currently running process dynamically, we can prevent the process from running for a long time.**
 
 ### Multi Level Queue (MLQ) Scheduling
 
@@ -1146,18 +1146,6 @@ Here is how EDF works:
 4) **When a new process arrives**, the **scheduler evalutes the priorities again** 
 
 If the **deadline of the new process is higher than the deadline of the currently running process**, **current process is stopped** and the **new process starts being executed.** In other words, EDF is preemptive. 
-
-### Rate Monotonic Scheduling (RMS) 
-
-IN RMS, the **processes are prioritized based on their periods**. The **process that has the shortest period is assigned the highest priority** and therefore, it is **executed first**. Once **a priority is assigned to a process**, this **priority does not change dynamically**. 
-
-In addition, there is a preemption in RMS. In other words, if the period of the new process is shorter than the period of the currently running process, the current process stops being executed because the priority of the new process is higher. Then, the new process starts being executed.
-
-Lastly, it is possible to analyze the schedulability of the RMS. Let's say that we have a set of n periodic processes. 
-
-So, we talked about scheduling processes but how about threads ? Is scheduling threads different from scheduling processes ? 
-
-## Other Scheduling Algorithms
 
 ## Thread Scheduling
 
@@ -1462,7 +1450,14 @@ Let's try to do the lock implementation by reducing the busy waiting.
 ```
 mutex_lock: 
   TSL REGISTER, MUTEX
-    | Copies the value in the mutex (mutual exclusion) lock into the register and sets the mutex lock to 1.
+    | A mutex is a variable that acts like a lock.
+    | It is typically a binary value:
+    | 0 = Unlocked
+    | 1 = Locked
+    | The code above copies the value in the mutex (mutual exclusion) lock
+    | into the register and sets the mutex lock to 1.
+    | This allows the code to know the previous state
+    | of the lock while simultaneously attempting to acquire it. 
 
   CMP REGISTER, #0
     | Compares the value in the register with 0.
@@ -1503,13 +1498,13 @@ Note that when a process/thread tries to acquire a lock, if the lock is not avai
 
 Lock contention depends on 
 
-1) the frequency of attempts to acquire the lock      *(as the number of attempts to acquire the lock increases, the probability of lock contention increases)*
-2) the amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
-3) number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
+1) The frequency of attempts to acquire the lock      *(as the number of attempts to acquire the lock increases, the probability of lock contention increases)*
+2) The amount of time a process/thread holds the lock *(if a process hold the lock very short time, the probability of lock contention decreases)*
+3) The number of processes/threads that acquired the lock *(as the number of processes that want to acquire the lock increases, the probability of lock contention increases)*
 
-**If** the **lock contention** is **low**, this means that the **length of time a process/thread spends to wait for the lock variable to be available is low**. In other words, **processes/threads don't wait too much** and in that kind of scenario, **TSL might be a solution** because in TSL, we just check if the lock is available or not. If it is available, it is locked and the process enters its critical region. If it is not, the process waits until the lock variable becomes available.
+**If** the **lock contention** is **low**, this means that the **length of time a process/thread spends to wait for the lock variable to be available is low**. In other words, **processes/threads don't wait too much** and in that kind of scenario, **TSL might be a solution** because in TSL, **we just check if the lock is available or not**. If it is available, **it is locked and the process enters its critical region.** If it is not, **the process waits until the lock variable becomes available.**
 
-Until now, we used lock variable to ensure that only one process can occupy the critical region at a time. We can do this with methods other than a simple lock variable as well. 
+Until now, **we used the lock variable to ensure that only one process can occupy the critical region at a time**. We can do this with methods other than a simple lock variable as well. 
 
 Let's explain this in a new problem that is called **producer-consumer problem**.
 
@@ -1521,9 +1516,13 @@ In producer-consumer problem, there are **two processes**. And they **share a co
 
 **Another** process **takes** this information **from** the **buffer** and **uses** it. We can call this process **consumer**. 
 
-Now **imagine** that the **buffer is full** and there is no empty space. In that case, **if** the **producer** wants to **put** a **new information** into this buffer, that would cause a **problem**. One **solution** for the producer might be **being forced to sleep** until being awakened. And when the **consumer** **removes** one or more items **from the buffer** and **buffer has empty slot(s),** it can wake up the producer as well so that it can put its information into the buffer. 
+Now **imagine** that the **buffer is full** and there is no empty space. In that case, **if** the **producer** wants to **put** a **new information** into this buffer, that would cause a **problem**. 
 
-Similarly, if the **buffer is completely empty**, and if the **consumer wants to remove an item** from that buffer, that's a **problem** too since there is **nothing to remove**. And again one solution for the consumer might be **being forced to sleep** until being awakened. And **when the producer puts information** to the buffer and **buffer has a non-empty slot**, **the producer can wake up the consumer** as well so that it can **extract the information from the buffer and use (consume) it.** 
+One **solution** for the producer might be **being forced to sleep** until being awakened. And when the **consumer** **removes** one or more items **from the buffer** and **buffer has empty slot(s),** it can wake up the producer as well so that it can put its information into the buffer. 
+
+Similarly, if the **buffer is completely empty**, and if the **consumer wants to remove an item** from that buffer, that's a **problem** too since there is **nothing to remove**. 
+
+And again one solution for the consumer might be **being forced to sleep** until being awakened. And **when the producer puts information** to the buffer and **buffer has a non-empty slot**, **the producer can wake up the consumer** as well so that it can **extract the information from the buffer and use (consume) it.** 
 
 But there are some issues in these solution.
 
@@ -1543,7 +1542,7 @@ To answer these questions, we should first introduce a new concept named **Pipe*
 
 **Pipe** is basically an **inter-process communication mechanism** that **provides temporary storage between processes**. They can be created by **applications**. 
 
-A pipe is basically implemented with a **buffer data structure** in the kernel. And in the produer-consumer problem, the **output of the producer is passed to this buffer** and the **consumer takes the information from the same buffer**. 
+A pipe is basically implemented with a **buffer data structure** in the kernel. And in the produer-consumer problem, the **output of the producer is passed to this buffer** and the **consumer takes the information from the same buffer**. So, **a pipe allows data flow from one process to another in FIFO manner.**
 
 When the **buffer** is **full**, **pipe blocks the producer** to put a new information to it. Similarly, **when the buffer is empty**, **pipe blocks the consumer** to prevent it to attempt consuming an information from an empty buffer. 
 
@@ -1611,29 +1610,25 @@ void consumer(void) {
     
 ```
 
-Okay, we explained the producer-consumer problem, brought a new method (sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time. But there is still some issue. 
+Okay, we explained the producer-consumer problem, brought a new method **(sleep() and wakeup() operations) to prevent multiple processes to access to their critical regions at the same time.** But there are still some issues. 
 
 In the producer-consumer problem above, **the access to the count variable is not constrained**. And as a result of this, **we may encounter with a race condition.** 
 
 ## Fatal Race Condition
 
-For instance, let's assume that the buffer is empty and the consumer reads the count variable as 0. At that moment, consumer starts sleeping. Then let's say that a scheduler starts running the producer. Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1, and lastly **wakes up the consumer** which is technically **not sleeping**. 
+For instance, **let's assume that the buffer is empty** and **the consumer reads the count variable as 0.** But before the consumer executes `sleep(consumer)`, the scheduler interrupts (preempts) the consumer process. At that moment, **consumer does not start sleeping.** 
 
-In another case, **let's say that count value equals to 1** and **consumer begins running its codes**. **It will first remove an item from the buffer** since count is not 0. Then it will **decrease the value of count from 1 to 0**, and **consume the item without waking up the producer** since the buffer was not full before extracting the item from it. 
+**Then let's say that a scheduler starts running the producer**. **Producer produces an item and inserts it into the buffer, increments the value of the count from 0 to 1**, and lastly **wakes up the consumer** which is technically **not sleeping**. 
 
-So, **after consuming the item**, **the consumer will start the loop again**. At that moment, **count value equals to 0**. **That's why the consumer will sleep.** 
+The main issue in this scenario is that the **wakeup() call that was sent to a process that is not sleeping is lost**. 
 
-Sooner or later, **the producer will produce items and fill the whole buffer** while the consumer is sleeping. At that moment, **consumer has already been sleeping and since the buffer is full, the producer will sleep as well and they will both sleep forever**. 
-
-The main issue in these two scenarios is that the **wakeup() call that is sent to a process that is not sleeping is lost**. 
-
-So, we need to develop a new mechanism that prevents this issue and that also allows multiple processes to access to the shared resources in a sycnhronized way **on the basis of some shared resource (buffer)**. 
+So, we need to develop a **new mechanism that prevents this issue** and that also **allows multiple processes to access to the shared resources in a sycnhronized way** **on the basis of some shared resource (buffer)**.
 
 We call this new mechanism **semaphore**.
 
 ## Semaphores 
 
-A semaphore is a data type like integer just like mutex. But the only way to **access** it is through two separate operations that are called **wait()** and **signal()**.
+A semaphore is a data type like integer just like mutex. But the only way to **access** it is through **two separate operations** that are called **wait()** and **signal()**.
 
 - **wait():**  **Decrements the value of the semaphore by 1** which means that the **resource is acquired**. **Before** this **decrementation**, if the **value** of the **semaphore** was **0** or **negative**, this means that **resource(s)** controlled by the semaphore was/were **already being used**. **After** wait() operation **decreases** the value of the semaphore **by 1**, the value of the semaphore **will be lower than 0**. In that case, **we add the current thread into the wait queue**, because of the **lack of available resources**, **block** it (since it cannot access to the shared resource at this moment), and **schedule another thread** and **run the wait() operation again to avoid spinning and wasting CPU time**.
 
@@ -1778,6 +1773,7 @@ void Semaphore::wait() {
   lock(&lockvar);
     // Lock the lock variable so that when a process/thread acquires resources,
     // no other process/threads can interfere with this.
+    // This ensures no two threads can simultaneously modify the semaphore state
 
   value--;
     // Decrement the value of semaphore by 1.
@@ -1831,13 +1827,19 @@ void Semaphore::signal() {
   unlock(&lockvar);
     // Unlock the lock variable so that another process/thread can start it's operations.
 }
+
+// When a thread is executing the codes above in wait() or signal(),
+// it first acquires the lockvar. Any other thread that is trying to call
+// wait() or signal() will be blocked.
+// So, only one thread at a time can be inside
+// its critical region and modfying the semaphore.
 ```
 
 In the examples above, we used **binary/mutex semaphores**. These semaphores can be seen as lock. They are ideal for mutual exclusion problems. In these problems, when the semaphore value is initialized to 1, this means that the lock is available. 
 
 There is also another type of semaphores that is called **counting semaphores**. This is a type of semaphore that represents the number of processes/threads that are allowed to be in their critical regions at the same time. In cases when we want multiple processes/threads to enter their critical regions simultaenously, we can use counting semaphores. But in these cases, mutual exclusion is not guaranteed. 
 
-Let's review the use case of both binary/mutex semaphores and counting semaphores in the producer-consumer problem. 
+Let's review the use case of both **binary/mutex semaphores** and **counting semaphores** in the producer-consumer problem. 
 
 ```
 #define N 100               // Define the size of the buffer
@@ -1850,47 +1852,70 @@ T buffer[N];                // Define an empty buffer that has N elements
 int widx = 0,               // Define an integer value to write items into the buffer
 int ridx = 0;               // Define an integer value to read items from the buffer
 
-#define N 100 // Define the size of the buffer
-
-Semaphore empty = N; // Define a semaphore to manage the number of empty slots in the buffer (initially all slots are empty)
-Semaphore full = 0; // Define a semaphore to manage the number of full slots in the buffer (initially all slots are empty)
-Semaphore mutex = 1; // Define a semaphore to manage the lock/unlock process and to make operations atomic (initially unlocked)
-
-T buffer[N]; // Define an empty buffer that has N elements
-int widx = 0; // Define an integer value to write items into the buffer (initially at index 0)
-int ridx = 0; // Define an integer value to read items from the buffer (initially at index 0)
-
 Producer(T item) {
-    wait(&empty); // Decrement the value of the empty semaphore by one. If the value of the empty semaphore was 0 before this decrementation, this means that there is no empty slot in the buffer. In this case, the producer process will be blocked and added to the empty semaphore's wait queue.
+    wait(&empty); // Decrement the value of the empty semaphore by one.
+                  // If the value of the empty semaphore was 0 before this decrementation,
+                  // this means that there is no empty slot in the buffer.
+                  // In this case, the producer process will be blocked and
+                  // added to the empty semaphore's wait queue.
 
-    wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer before putting a new item to it.
+    wait(&mutex); // Lock the mutex to ensure exclusive access to
+                  // the shared buffer before putting a new item to it.
+                  // Without this mutex lock,
+                  // - Two producers might write to the same position.
+                  // - A producer might write to a certain location in the buffer
+                  // while the consumer is reading from that location.
+                  // - Race conditions would corrupt the data in the buffer. 
 
-    buffer[widx] = item; // Put an item into the next available empty slot in the buffer
+    buffer[widx] = item;   // Put an item into the next available empty slot in the buffer
     widx = (widx + 1) % N; // Update the index of the next available empty slot (using modulo to wrap around)
 
     signal(&mutex); // Unlock the mutex after putting an item into the buffer.
 
-    signal(&full); // Increment the value of the full semaphore by one. If the value of the full semaphore was larger than or equal to N before this incrementation, this means that the buffer was full, and a consumer waiting on the full semaphore will be unblocked and added to the ready queue.
+    signal(&full); // Increment the value of the full semaphore by 1.
+                   // This indicates "one more filled slot in the buffer"
+                   // If the value of the full semaphore was larger than
+                   // or equal to N before this incrementation, this means
+                   // that the buffer was full, and a consumer waiting on
+                   // the full semaphore will be unblocked and added to the ready queue.
 }
 
 Consumer(T &item) {
-    wait(&full); // Decrement the value of the full semaphore by one. If the value of the full semaphore was 0 before this decrementation, this means that there are no full slots in the buffer. In this case, the consumer process will be blocked and added to the full semaphore's wait queue.
+    wait(&full); // Decrement the value of the full semaphore by 1.
+                 // If the value of the full semaphore was 0 before this decrementation,
+                 // this means that there is no data available in the buffer.
+                 // In this case, the consumer process will be blocked
+                 // (because there is nothing to consume) and
+                 // added to the full semaphore's wait queue.
 
     wait(&mutex); // Lock the mutex to ensure exclusive access to the shared buffer.
 
-    item = buffer[ridx]; // Read an item from the next available full slot in the buffer
+    item = buffer[ridx];   // Read an item from the next available full slot in the buffer
     ridx = (ridx + 1) % N; // Update the index of the next available full slot (using modulo to wrap around)
 
     signal(&mutex); // Unlock the mutex after reading an item from the buffer.
 
-    signal(&empty); // Increment the value of the empty semaphore by one. If the value of the empty semaphore was larger than or equal to N before this incrementation, this means that the buffer was empty, and a producer process waiting on the empty semaphore will be unblocked and added to the ready queue.
+    signal(&empty); // Increment the value of the empty semaphore by one.
+                    // If the value of the empty semaphore was larger than or equal to N
+                    // before this incrementation, this means that the buffer was empty,
+                    // and a producer process waiting on the empty semaphore will be unblocked
+                    // and added to the ready queue.
 }
 ```
+At this point, we can see that semaphore is a great way to prevent the race conditions. But we can also use mutex locks to do this. How to decide which one to use ? 
 
-So, **semaphores are great** but like all the other methods, they **have some downsides** as well:
+## Binary Semaphores vs Mutex Locks 
+
+In binary semaphores, there is a variable that indicates whether a resource is currently available. In addition, binary semaphores provide a signaling mechanism that enables communication between processes. For instance, Process A may signal Process B to indicate that it added data to a shared buffer. This allows Process B to begin consuming that data immediately. Similarly, a binary semaphore can be used to notify another process that a shared resource is now free. This enables coordination without continuous checking.
+
+In mutex locks, the primary goal is to provide mutual exclusion by allowing only one thread to access a critical section at a time. While mutexes do not expose a user-level signaling mechanism like semaphores, they are designed to block and wake up threads efficiently without busy waiting. Unlike spinlocks, standard mutex implementations rely on the operating system to handle blocking. This ensures that CPU time is not wasted.
+
+In addition, in mutex locks, only the thread that locks the mutex can release it. This prevents other threads releasing the mutex accidentally. In semaphores, however, the resources can be released by any thread after they are locked by a specific thread.
+
+Although **semaphores are great**, like all the other methods, they **have some downsides** as well:
 
 - It is **not** always **easy to write** the codes with semaphores.
-- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can prevent other threads being blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
+- If **a thread dies while holding a semaphore**, the **permit to access to a shared resource is basically lost**. And **this can cause other threads to be blocked from accessing shared resource**. That's why we need to be extra careful when constructing the semaphores.
 
 In addition, they **may cause a situation in which the processes had to wait for resources(s) forever**. **To avoid this** situation, we should
 
@@ -1900,34 +1925,6 @@ In addition, they **may cause a situation in which the processes had to wait for
 And we can show how these solutions work in an example. In below, we can see two very similar but different codes: 
 
 **1st Scenario:**
-```
-typedef int semaphore;   
-  semaphore resource_1;
-  semaphore resource_2;
-
-  void process_A(void) {
-    down(&resource_1);
-    down(&resource_2);
-
-    use_both_resources();
-
-    up(&resource_2);
-    up(&resource_1);
-  }
-
-  void process_B(void) {
-    down(&resource_1);
-    down(&resource_2);
-
-    use_both_resources();
-
-    up(&resource_2);
-    up(&resource_1);
-  }
-
-```
-
-**2nd Scenario:**
 ```
 typedef int semaphore;
   semaphore resource_1;
@@ -1960,6 +1957,36 @@ Similarly, **process B will attempt to acquire the resource 1** but **it won't b
 
 But by **acquiring locks in the same order** and **releasing them in the reverse order we can avoid deadlock.**
 
+**2nd Scenario:**
+```
+typedef int semaphore;   
+  semaphore resource_1;
+  semaphore resource_2;
+
+  void process_A(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+  void process_B(void) {
+    down(&resource_1);
+    down(&resource_2);
+
+    use_both_resources();
+
+    up(&resource_2);
+    up(&resource_1);
+  }
+
+```
+
+In the second case, both process A and process B acquire resources in the same order. In addition, the semaphores ensure that only one of these processes can use a resource at a time. Also, after the resources are used by the processes, they are released. Lastly, the resources are released in reverse order of acquisition. Because of these reasons, we won't see a deadlock in this scenario.
+
 Okay we have mentioned about the deadlock above but one note is that sometimes people can get confused about **deadlock** and **starvation**. That's why it may be useful to define both of them to see the differences between them.
 
 ## Deadlock vs Starvation
@@ -1969,7 +1996,7 @@ Okay we have mentioned about the deadlock above but one note is that sometimes p
 
 **Deadlock occurs** when **none** of the processes are able to **move ahead** while **starvation occurs when a process waits for indefinite period of time to get the resource it needs to move forward**. 
 
-If we want to give an example, let's say that you submit a large document to printer. But if other people keep submitting small documents continuously, this means that when one small document is printed, another one starts and your document won't get a chance to be printed. Because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is no deadlock in here because we don't see dependency between processes to move forward. Deadlock occurs among processes that are waiting to acquire resources in order to progress forever.
+If we want to give an example, **let's say that you submit a large document to printer**. But **if other people keep submitting small documents continuously**, this means that **when one small document is printed, another one starts and your document won't get a chance to be printed** because the resources for printing are continuously being used by some other processes. This is where we see starvation. There is **no deadlock in here because we don't see dependency between processes to move forward**. Deadlock occurs among processes that are **waiting to acquire resources in order to progress forever**.
 
 Okay we compared the deadlock and starvation and explained their differences but we also talked about the resources. What are the things that we call **resource** in general ? 
 
@@ -2002,7 +2029,7 @@ And now, let's explain the **conditions of a deadlock**
 
 - **Each resource is either available or assigned to exactly one process**. Because if resources could be shared, processes would not need to wait for exclusive access to them. 
 - **Only one process can use the resource at a time. In other words, the resources cannot be used by multiple processes at the same time.** If multiple processes could use a resource at the same time, they would not need to wait for each other.
-- **Processes that are holding resources can request new resources.** Because if a process holding resources requests new resources, which are held by other processes, this will cause circular dependency which is one of the other conditions of deadlock.
+- **Processes that are holding resources can request new resources.** In other words, **a process should not release all resources it holds before requesting new resources**. Because if a process holding resources requests new resources, which are held by other processes, this will cause circular dependency which is one of the other conditions of deadlock. Let's say that process A holds resource 1 and it wants resource 2 while process B holds resource 2 and it wants resource 1. If both of these processes hold their resources and want the other resources, neither of them can proceed and this results in a deadlock. However, if process A releases the resource 1 before requesting resource 2 and process B releases the resource 2 before requesting resource 1, this won't result in a deadlock.
 - **Granted resources cannot be taken away from a process. They must be explicitly released by the process that is holding them.** Because if resources could be taken away, the system could resolve resource conflicts and avoid deadlocks.
 - **There must be a circular chain of 2 or more processes. And each of these processes should be waiting a resource that will be released by the next member (process) of the chain** The circular chain is a fundamental characteristic of a deadlock, as it creates a situation where no process can make progress.
 
@@ -2272,21 +2299,21 @@ E       | 2           | 1        | 1        | 0
 
 (How many resources each process still needs in order to be finished)
 
-Existing Resources  = Tape Drivers: 6, Plotters: 3, Printers: 4, CD ROMs: 2
-Processed Resources = Tape Drivers: 1, Plotters: 0, Printers: 2, CD ROMs: 0
-Available Resources = Tape Drivers: 5, Plotters: 3, Printers: 2, CD ROMs: 2
+Existing Resources: 6 tape drives, 3 plotters, 4 printers, 2 CD ROMs
+Allocated Resources: 5 tape drives, 3 plotters, 2 printers, 2 CD ROMs
+Available Resources: 1 tape drive, 0 plotters, 2 printers, 0 CD ROMs
 
 ```
 
 To find the deadlock, we can
 
 1) look for a row whose unmet resource needs are all smaller than or equal to the values in available resources. If there is no that kind of row, this means that there is a deadlock and terminate.
-2) assume the process of the chosen row requests all resources it needs and then finishes. Mark that process as terminated and release its resources back to the available resources.
+2) assume the process of the chosen row requests all resources it needs, finishes, mark that process as terminated and release its resources back to the available resources.
 3) repeat steps 1 and 2 until either all the processes are terminated or no process is left.
 
-The Banker Algorithm looks nice in theory but it is practically **not useful** because 
+The **Banker Algorithm** looks nice in theory but it is practically **not useful** because 
 
-- prcoesses don't know the maximum number of resources they will need in advance.
+- **prcoesses don't know the maximum number of resources they will need in advance.**
 - the number of processes is not fixed. We can start with process A, B, and C and then other processes might come or some of the existing processes might vanish. In those scenarios, Banker Algorithm is not a good solution.
 - resources can vanish.
 
@@ -2304,7 +2331,7 @@ One of the conditions of the deadlock was the mutual exclusion. In other words, 
 
 Spooling can be a way to violate the mutual exclusion rule. A spooler is a program/software that puts the tasks into a queue temporarily. If multiple processes arrives to the spooler simultaneously, instead of giving the resource to one of them and excluding the others, it simply puts all of these processes into the queue in the first come first served manner. And when the resource becomes available, a job is extracted from the queue and the resource is given to that job. In this kind of example, it is impossible to observe deadlock because we don't give the resource to one process and restrict the other processes using that resource until it becomes available. We just put all of the processes into a queue. 
 
-So attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
+So, attacking the mutual exclusion condition prevents the deadlock directly. But **we cannot apply this procedure in all cases**. **Some resources should be exclusively accessed by one process at a time** and in those cases, this solution cannot be used for those cases. 
 
 ### 2) Deadlock Prevention: Attacking the Hold and Wait Condition
 
