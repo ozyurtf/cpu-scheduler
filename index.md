@@ -78,6 +78,7 @@ Processes are created in many different time frames/conditions. In below, we can
 - During the system initialization, some processes are created to run in the foreground so that they can allow the users to interact with the computer. 
 - And similarly during the system initialization, some processes are created to run in the background to perform tasks (e.g. an eaxmple of these tasks might be managing resources) without interacting with the user. 
 - When processes are running, these processes typically create new processes as well. In those cases, we can represent the processes in a process tree:
+
 ```
       A
      / \
@@ -88,6 +89,7 @@ Processes are created in many different time frames/conditions. In below, we can
 
 In the process tree above, the process A created two child processes: process B and process C. And process B created two child processes: process D and process F.
 ```
+
 - The user can execute some codes or open applications and these actions create processes.
 - The operationg system can create processes to provide services *(e.g., network services, file system service, printing services, etc.)*
 - When the user enters into a system interactively *(e.g through terminal, remote shell, graphical login screen, etc.)*, a new process is created to be able to handle the user's interactive session and to allow the user to interact with the system.
