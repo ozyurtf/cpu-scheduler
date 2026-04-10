@@ -5,7 +5,7 @@ title: CPU Scheduler
 
 <h1 style="color:#0969da">CPU Scheduler</h1>
 
-**Note**: I took the notes below to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book, and my conversation with Claude when I prepared these notes, but almost everything (including the entire C++ implementation of various CPU scheduling algorithms) was written by me 100% manually. Only the visualization of how my implementation works was created with Claude Code. And because I wrote these notes from my point of view, there is no guarantee that every piece of information below is correct.
+**Note**: I took the notes below to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book, and my conversation with Claude when I prepared these notes, but almost everything (including the entire C++ implementation of various CPU scheduling algorithms) was written by me 100% manually. Only the simulation of how my implementation works was created with Claude Code. And because I wrote these notes from my point of view, there is no guarantee that every piece of information below is correct.
 
 # Demo
 
