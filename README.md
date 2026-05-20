@@ -2,7 +2,7 @@
 
 # Demo 
 
-[![Demo](/figures/cpu-scheduler.png)](https://www.youtube.com/watch?v=aXq7jimDInw)
+[![Demo](/assets/cpu-scheduler.png)](https://www.youtube.com/watch?v=PVOY0QmSk9VzNlmU)
 
 # Processes and Threads 
 

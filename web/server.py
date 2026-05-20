@@ -7,10 +7,15 @@ import json
 
 PORT = 8000
 
+# Anchor to the project root so ./scheduler, test/, and web/ all resolve
+# regardless of the directory this script is launched from.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(ROOT)
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = '/visualizer.html'
+            self.path = '/web/visualizer.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
