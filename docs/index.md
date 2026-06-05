@@ -4,17 +4,23 @@ title: CPU Scheduler
 ---
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 body,
 .wrapper,
 h1, h2, h3, h4, h5, h6,
 p, li, a, td, th, blockquote {
-  font-family: 'Avenir Next', 'Avenir', Montserrat, sans-serif !important;
+  font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', sans-serif !important;
+}
+
+/* Hide the heading anchor-link octicons (they render as tofu/"?" boxes
+   because the forced font has no glyph for them). */
+h1 .anchor, h2 .anchor, h3 .anchor,
+h4 .anchor, h5 .anchor, h6 .anchor,
+.octicon, .octicon-link {
+  display: none !important;
 }
 </style>
-
-<h1 style="color:#0969da">CPU Scheduler</h1>
 
 **Note**: I took the notes below to prepare for the midterms of the Operating Systems class at New York University. I used the information from the course slides, Andrew Tanenbaum's Modern Operating Systems book, and my conversation with Claude when I prepared these notes, but almost everything (including the entire C++ implementation of various CPU scheduling algorithms) was written by me manually. Only the simulation of how my implementation works was created with Claude Code. And because I wrote these notes from my point of view, there is no guarantee that every piece of information below is correct.
 
